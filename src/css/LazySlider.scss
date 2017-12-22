@@ -1,0 +1,25 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/*------------------------------------------
+  Styles
+------------------------------------------*/
+.lazy-slider {
+  width: 300px;
+  overflow: hidden;
+  .slide-wrap {
+    list-style: none;
+    display: flex;
+    width: 1200px;
+    & .slide-item {
+      width: 300px;
+      height: 200px;
+      & > img {
+        width: 100%;
+        height: auto;
+      }
+    }
+  }
+}
