@@ -3732,21 +3732,23 @@ require('es6-promise');
 require('classlist-polyfill');
 
 var LazySlider = function () {
-  function LazySlider() {
+  function LazySlider(args) {
     _classCallCheck(this, LazySlider);
 
-    this.nodeList = document.querySelectorAll('.lazy-slider');
-    this.elmArr = [];
     this.elmClass = function (arg) {
       this.elm = arg;
       this.list = this.elm.querySelector('.slide-list');
       this.item = this.elm.querySelectorAll('.slide-item');
       this.itemW = this.item.length > 0 ? this.item[0].getBoundingClientRect().width : 0;
       this.itemLen = this.item.length;
+      this.showAreaW = this.itemW * this.showItem;
       this.auto = true;
       this.autoID;
       this.current = 0;
     };
+    this.elmClass.prototype.showItem = typeof args.showItem !== 'undefined' ? args.showItem : 1;
+    this.nodeList = document.querySelectorAll('.lazy-slider');
+    this.elmArr = [];
     this.init();
   }
 
@@ -3756,6 +3758,8 @@ var LazySlider = function () {
       for (var i = 0; i < this.nodeList.length; i++) {
         this.elmArr.push(new this.elmClass(this.nodeList[i]));
       }
+      console.log(this.elmArr[0].showAreaW);
+      this.elmArr[0].elm.style.width = this.elmArr[0].showAreaW + 'px';
     }
   }, {
     key: 'action',
