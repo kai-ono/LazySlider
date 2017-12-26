@@ -3732,23 +3732,59 @@ require('es6-promise');
 require('classlist-polyfill');
 
 var LazySlider = function () {
-  function LazySlider(args) {
+  function LazySlider() {
     _classCallCheck(this, LazySlider);
 
-    this.elm = typeof args.element !== 'undefined' ? args.element : null;
+    this.nodeList = document.querySelectorAll('.lazy-slider');
+    this.elmArr = [];
+    this.elmClass = function (arg) {
+      this.elm = arg;
+      this.list = this.elm.querySelector('.slide-list');
+      this.item = this.elm.querySelectorAll('.slide-item');
+      this.itemW = this.item.length > 0 ? this.item[0].getBoundingClientRect().width : 0;
+      this.itemLen = this.item.length;
+      this.auto = true;
+      this.autoID;
+      this.current = 0;
+    };
     this.init();
   }
 
   _createClass(LazySlider, [{
     key: 'init',
     value: function init() {
-      this.insertBr();
+      for (var i = 0; i < this.nodeList.length; i++) {
+        this.elmArr.push(new this.elmClass(this.nodeList[i]));
+      }
     }
   }, {
-    key: 'insertBr',
-    value: function insertBr() {
-      var node = document.createElement('br');
-      document.body.appendChild(node);
+    key: 'action',
+    value: function action(index) {
+      var _tmpElm = this.elmArr[0];
+      var _amount = _tmpElm.itemW * index * -1;
+
+      if (_amount < -(_tmpElm.itemW * (_tmpElm.itemLen - 1))) {
+        _tmpElm.current = _amount = 0;
+      }
+
+      _tmpElm.list.style.transform = 'translate3d(' + _amount + 'px,0,0)';
+    }
+  }, {
+    key: 'autoPlay',
+    value: function autoPlay() {
+      var _this = this;
+
+      var timer = function timer() {
+        _this.elmArr[0].current++;
+        _this.elmArr[0].autoID = setTimeout(function () {
+          _this.action(_this.elmArr[0].current);
+        }, 1000);
+      };
+
+      timer();
+      this.elmArr[0].list.addEventListener('transitionend', function () {
+        timer();
+      });
     }
   }]);
 
@@ -3757,6 +3793,6 @@ var LazySlider = function () {
 
 ;
 
-Hoge.Fuga = Fuga;
+window.LazySlider = LazySlider;
 
 },{"classlist-polyfill":1,"es5-shim":2,"es6-promise":3}]},{},[5]);

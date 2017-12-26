@@ -12,38 +12,67 @@ require('classlist-polyfill');
 // var anim = require('./mod/AnimationMod');
 // var cnt = require('./mod/Counter');
 
-/**
- * Hoge用のクラスです。
- *
- * @memberof Hoge
- * @requires mod/Global
- * @requires Hoge/Fuga/AnimationMod
- */
 class LazySlider {
   /**
    * コンストラクタ
    * @param {Object} args objectの引数です
    * @param {Element} args.element HTMLの要素を指定します
    */
-  constructor(args) {
-    this.elm = (typeof args.element !== 'undefined') ? args.element : null;
+  constructor() {
+    // this.elm = (typeof args.element !== 'undefined') ? args.element : null;
+    this.nodeList = document.querySelectorAll('.lazy-slider');
+    this.elmArr = [];
+    this.elmClass = function(arg) {
+      this.elm = arg;
+      this.list = this.elm.querySelector('.slide-list');
+      this.item = this.elm.querySelectorAll('.slide-item');
+      this.itemW = (this.item.length > 0) ? this.item[0].getBoundingClientRect().width : 0;
+      this.itemLen = this.item.length;
+      this.auto = true;
+      this.autoID;
+      this.current = 0;
+    };
     this.init();
   }
 
-  /**
-   * requireしたモジュールのメソッドを実行
-   */
   init() {
-    this.insertBr();
+    for (let i = 0; i < this.nodeList.length; i++) {
+      this.elmArr.push(new this.elmClass(this.nodeList[i]));
+    }
+    // this.autoPlay();
   }
 
   /**
-   * 改行要素を作成して返します
+   * 引数で指定したindex番号のslide-itemへ移動する
+   * @param {Number} index
    */
-  insertBr() {
-    var node = document.createElement('br');
-    document.body.appendChild(node);
+  action(index) {
+    const _tmpElm = this.elmArr[0];
+    let _amount = _tmpElm.itemW * index * -1;
+
+    if(_amount < -(_tmpElm.itemW * (_tmpElm.itemLen - 1))) {
+      _tmpElm.current = _amount = 0;
+    }
+
+    _tmpElm.list.style.transform = 'translate3d(' + _amount + 'px,0,0)';
+  }
+
+  /**
+   * actionをsetTimeoutで起動し、自動スライドを行う
+   */
+  autoPlay() {
+    const timer = () => {
+      this.elmArr[0].current++;
+      this.elmArr[0].autoID = setTimeout(() => {
+        this.action(this.elmArr[0].current);
+      }, 1000);
+    };
+
+    timer();
+    this.elmArr[0].list.addEventListener('transitionend', () => {
+      timer();
+    });
   }
 };
 
-Hoge.Fuga = Fuga;
+window.LazySlider = LazySlider;
