@@ -16,7 +16,7 @@ class LazySlider {
   /**
    * コンストラクタ
    * @param {Object} args objectの引数です
-   * @param {Element} args.element HTMLの要素を指定します
+   * @param {Number} args.showItem 1度に表示する画像の枚数を設定
    */
   constructor(args) {
     this.elmClass = function(arg) {
@@ -40,9 +40,16 @@ class LazySlider {
     for (let i = 0; i < this.nodeList.length; i++) {
       this.elmArr.push(new this.elmClass(this.nodeList[i]));
     }
-    console.log(this.elmArr[0].showAreaW);
     this.elmArr[0].elm.style.width = this.elmArr[0].showAreaW + 'px';
-    // this.autoPlay();
+    this.naviFactory();
+    this.autoPlay();
+  }
+
+  naviFactory() {
+    const naviUl = document.createElement('<ul>');
+    const naviLi = document.createElement('<li>');
+    naviUl.appendChild(naviLi);
+    this.elmArr[0].appendChild(naviUl);
   }
 
   /**
@@ -51,7 +58,7 @@ class LazySlider {
    */
   action(index) {
     const _tmpElm = this.elmArr[0];
-    let _amount = _tmpElm.itemW * index * -1;
+    let _amount = _tmpElm.showAreaW * index * -1;
 
     if(_amount < -(_tmpElm.itemW * (_tmpElm.itemLen - 1))) {
       _tmpElm.current = _amount = 0;

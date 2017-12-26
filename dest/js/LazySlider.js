@@ -3758,14 +3758,23 @@ var LazySlider = function () {
       for (var i = 0; i < this.nodeList.length; i++) {
         this.elmArr.push(new this.elmClass(this.nodeList[i]));
       }
-      console.log(this.elmArr[0].showAreaW);
       this.elmArr[0].elm.style.width = this.elmArr[0].showAreaW + 'px';
+      this.naviFactory();
+      this.autoPlay();
+    }
+  }, {
+    key: 'naviFactory',
+    value: function naviFactory() {
+      var naviUl = document.createElement('<ul>');
+      var naviLi = document.createElement('<li>');
+      naviUl.appendChild(naviLi);
+      this.elmArr[0].appendChild(naviUl);
     }
   }, {
     key: 'action',
     value: function action(index) {
       var _tmpElm = this.elmArr[0];
-      var _amount = _tmpElm.itemW * index * -1;
+      var _amount = _tmpElm.showAreaW * index * -1;
 
       if (_amount < -(_tmpElm.itemW * (_tmpElm.itemLen - 1))) {
         _tmpElm.current = _amount = 0;
