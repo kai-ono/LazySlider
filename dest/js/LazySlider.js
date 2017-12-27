@@ -3737,11 +3737,11 @@ var LazySlider = function () {
 
     this.elmClass = function (arg) {
       this.elm = arg;
-      this.list = this.elm.querySelector('.slide-list');
-      this.item = this.elm.querySelectorAll('.slide-item');
-      this.itemW = this.item.length > 0 ? this.item[0].getBoundingClientRect().width : 0;
+      this.showAreaW = this.elm.offsetWidth;
+      this.list = this.elm.querySelector('ul');
+      this.item = this.list.querySelectorAll('li');
+      this.itemW = this.showAreaW / this.showItem;
       this.itemLen = this.item.length;
-      this.showAreaW = this.itemW * this.showItem;
       this.auto = true;
       this.autoID;
       this.current = 0;
@@ -3757,9 +3757,18 @@ var LazySlider = function () {
     value: function init() {
       for (var i = 0; i < this.nodeList.length; i++) {
         this.elmArr.push(new this.elmClass(this.nodeList[i]));
+        this.elmArr[i].list.classList.add('slide-list');
+        this.elmArr[i].list.style.width = this.elmArr[i].itemW * this.elmArr[i].itemLen + 'px';
+        [].map.call(this.elmArr[i].item, function (el) {
+          el.classList.add('slide-item');
+        });
+
+        this.elmArr[i].itemW = this.elmArr[i].item.length > 0 ? this.elmArr[i].item[0].offsetWidth : 0;
       }
-      this.elmArr[0].elm.style.width = this.elmArr[0].showAreaW + 'px';
-      this.naviFactory();
+      var _tmpElm = this.elmArr[0];
+      _tmpElm.elm.style.width = _tmpElm.showAreaW + 'px';
+      _tmpElm.list.classList.add('slide-list');
+
       this.autoPlay();
     }
   }, {
@@ -3779,7 +3788,6 @@ var LazySlider = function () {
       if (_amount < -(_tmpElm.itemW * (_tmpElm.itemLen - 1))) {
         _tmpElm.current = _amount = 0;
       }
-
       _tmpElm.list.style.transform = 'translate3d(' + _amount + 'px,0,0)';
     }
   }, {
@@ -3788,8 +3796,9 @@ var LazySlider = function () {
       var _this = this;
 
       var timer = function timer() {
-        _this.elmArr[0].current++;
+        clearTimeout(_this.elmArr[0].autoID);
         _this.elmArr[0].autoID = setTimeout(function () {
+          _this.elmArr[0].current++;
           _this.action(_this.elmArr[0].current);
         }, 1000);
       };

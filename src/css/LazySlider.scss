@@ -7,13 +7,10 @@
   Styles
 ------------------------------------------*/
 .lazy-slider {
-  width: 300px;
   overflow: hidden;
   .slide-list {
     list-style: none;
     display: flex;
-    width: 1400px;
-    transform: translate3d(0,0,0);
     transition: transform 0.5s ease-out 0s;
     & .slide-item {
       width: 300px;

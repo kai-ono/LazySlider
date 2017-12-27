@@ -21,11 +21,11 @@ class LazySlider {
   constructor(args) {
     this.elmClass = function(arg) {
       this.elm = arg;
-      this.list = this.elm.querySelector('.slide-list');
-      this.item = this.elm.querySelectorAll('.slide-item');
-      this.itemW = (this.item.length > 0) ? this.item[0].getBoundingClientRect().width : 0;
+      this.showAreaW = this.elm.offsetWidth;
+      this.list = this.elm.querySelector('ul');
+      this.item = this.list.querySelectorAll('li');
+      this.itemW = this.showAreaW / this.showItem;
       this.itemLen = this.item.length;
-      this.showAreaW = this.itemW * this.showItem;
       this.auto = true;
       this.autoID;
       this.current = 0;
@@ -39,9 +39,21 @@ class LazySlider {
   init() {
     for (let i = 0; i < this.nodeList.length; i++) {
       this.elmArr.push(new this.elmClass(this.nodeList[i]));
+      this.elmArr[i].list.classList.add('slide-list');
+      this.elmArr[i].list.style.width = this.elmArr[i].itemW * this.elmArr[i].itemLen + 'px';
+      [].map.call(this.elmArr[i].item, (el) => {
+        el.classList.add('slide-item');
+      });
+
+      this.elmArr[i].itemW = (this.elmArr[i].item.length > 0) ? this.elmArr[i].item[0].offsetWidth : 0;
     }
-    this.elmArr[0].elm.style.width = this.elmArr[0].showAreaW + 'px';
-    this.naviFactory();
+    const _tmpElm = this.elmArr[0];
+    _tmpElm.elm.style.width = _tmpElm.showAreaW + 'px';
+    _tmpElm.list.classList.add('slide-list');
+    // _tmpElm.list.style.transition = 'transform 0.5s ease-out 0s';
+
+
+    // this.naviFactory();
     this.autoPlay();
   }
 
@@ -63,7 +75,6 @@ class LazySlider {
     if(_amount < -(_tmpElm.itemW * (_tmpElm.itemLen - 1))) {
       _tmpElm.current = _amount = 0;
     }
-
     _tmpElm.list.style.transform = 'translate3d(' + _amount + 'px,0,0)';
   }
 
@@ -72,8 +83,9 @@ class LazySlider {
    */
   autoPlay() {
     const timer = () => {
-      this.elmArr[0].current++;
+      clearTimeout(this.elmArr[0].autoID);
       this.elmArr[0].autoID = setTimeout(() => {
+        this.elmArr[0].current++;
         this.action(this.elmArr[0].current);
       }, 1000);
     };

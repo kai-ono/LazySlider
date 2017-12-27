@@ -7,22 +7,24 @@
   <script type="text/javascript" src="js/LazySlider.js"></script>
 </head>
 <body>
-  <div class="lazy-slider">
-    <ul class="slide-list">
-      <li class="slide-item"><img src="img/thumb1.jpg" /></li>
-      <li class="slide-item"><img src="img/thumb2.jpg" /></li>
-      <li class="slide-item"><img src="img/thumb3.jpg" /></li>
-      <li class="slide-item"><img src="img/thumb4.jpg" /></li>
-      <li class="slide-item"><img src="img/thumb5.jpg" /></li>
-    </ul>
-    <ul>
-      <li class="slide-next">NEXT</li>
-      <li class="slide-prev">PREV</li>
-    </ul>
+  <div style="width: 600px;">
+    <div class="lazy-slider">
+      <ul>
+        <li><img src="img/thumb1.jpg" /></li>
+        <li><img src="img/thumb2.jpg" /></li>
+        <li><img src="img/thumb3.jpg" /></li>
+        <li><img src="img/thumb4.jpg" /></li>
+        <li><img src="img/thumb5.jpg" /></li>
+      </ul>
+      <!-- <ul>
+        <li class="slide-next">NEXT</li>
+        <li class="slide-prev">PREV</li>
+      </ul> -->
+    </div>
   </div>
   <script type="text/javascript">
     new LazySlider({
-      showItem: 1,
+      showItem: 2,
     });
   </script>
 </body>
