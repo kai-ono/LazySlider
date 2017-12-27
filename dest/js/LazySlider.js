@@ -3783,12 +3783,18 @@ var LazySlider = function () {
     key: 'action',
     value: function action(index) {
       var _tmpElm = this.elmArr[0];
-      var _amount = _tmpElm.showAreaW * index * -1;
+      var _amount = _tmpElm.showAreaW * index;
+      var _remainingItem = -(_amount / _tmpElm.itemW) + _tmpElm.itemLen;
 
-      if (_amount < -(_tmpElm.itemW * (_tmpElm.itemLen - 1))) {
+      if (_remainingItem > 0 && _remainingItem < _tmpElm.showItem) {
+        _amount = _tmpElm.showAreaW * (index - 1) + _tmpElm.itemW * _remainingItem;
+      };
+
+      if (_amount > _tmpElm.itemW * (_tmpElm.itemLen - 1)) {
         _tmpElm.current = _amount = 0;
       }
-      _tmpElm.list.style.transform = 'translate3d(' + _amount + 'px,0,0)';
+
+      _tmpElm.list.style.transform = 'translate3d(' + -_amount + 'px,0,0)';
     }
   }, {
     key: 'autoPlay',
@@ -3800,7 +3806,7 @@ var LazySlider = function () {
         _this.elmArr[0].autoID = setTimeout(function () {
           _this.elmArr[0].current++;
           _this.action(_this.elmArr[0].current);
-        }, 1000);
+        }, 2000);
       };
 
       timer();

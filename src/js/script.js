@@ -70,12 +70,25 @@ class LazySlider {
    */
   action(index) {
     const _tmpElm = this.elmArr[0];
-    let _amount = _tmpElm.showAreaW * index * -1;
+    let _amount = _tmpElm.showAreaW * index;
+    let _remainingItem = (-(_amount / _tmpElm.itemW) + _tmpElm.itemLen);
 
-    if(_amount < -(_tmpElm.itemW * (_tmpElm.itemLen - 1))) {
+    /**
+     * 2アイテム表示に対して残りのアイテムが1つしかない場合などに、
+     * 空白が表示されないように移動量を調整
+     */
+    if(_remainingItem > 0 && _remainingItem < _tmpElm.showItem) {
+      _amount = (_tmpElm.showAreaW * (index - 1)) + (_tmpElm.itemW * _remainingItem);
+    };
+
+    /**
+     * 端まで移動したら最初に戻す
+     */
+    if(_amount > (_tmpElm.itemW * (_tmpElm.itemLen - 1))) {
       _tmpElm.current = _amount = 0;
     }
-    _tmpElm.list.style.transform = 'translate3d(' + _amount + 'px,0,0)';
+
+    _tmpElm.list.style.transform = 'translate3d(' + -_amount + 'px,0,0)';
   }
 
   /**
@@ -87,7 +100,7 @@ class LazySlider {
       this.elmArr[0].autoID = setTimeout(() => {
         this.elmArr[0].current++;
         this.action(this.elmArr[0].current);
-      }, 1000);
+      }, 2000);
     };
 
     timer();
