@@ -52,7 +52,6 @@ class LazySlider {
     _tmpElm.list.classList.add('slide-list');
     // _tmpElm.list.style.transition = 'transform 0.5s ease-out 0s';
 
-
     // this.naviFactory();
     this.autoPlay();
   }
