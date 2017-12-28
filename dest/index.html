@@ -8,7 +8,7 @@
 </head>
 <body>
   <div style="width: 600px;">
-    <div class="lazy-slider">
+    <div class="lazy-slider lazy-slider-style">
       <ul>
         <li><img src="img/thumb1.jpg" /></li>
         <li><img src="img/thumb2.jpg" /></li>
@@ -21,11 +21,41 @@
         <li class="slide-prev">PREV</li>
       </ul> -->
     </div>
+
+    <div class="test-slider lazy-slider-style">
+      <ul>
+        <li><img src="img/thumb1.jpg" /></li>
+        <li><img src="img/thumb2.jpg" /></li>
+        <li><img src="img/thumb3.jpg" /></li>
+        <li><img src="img/thumb4.jpg" /></li>
+        <li><img src="img/thumb5.jpg" /></li>
+      </ul>
+    </div>
+
+    <div class="sample-slider lazy-slider-style">
+      <ul>
+        <li><img src="img/thumb1.jpg" /></li>
+        <li><img src="img/thumb2.jpg" /></li>
+        <li><img src="img/thumb3.jpg" /></li>
+        <li><img src="img/thumb4.jpg" /></li>
+        <li><img src="img/thumb5.jpg" /></li>
+      </ul>
+    </div>
   </div>
+
   <script type="text/javascript">
     new LazySlider({
+      class: 'lazy-slider',
+      showItem: 4,
+    });
+    new LazySlider({
+      class: 'test-slider',
       showItem: 3,
     });
-  </script>
+    new LazySlider({
+      class: 'sample-slider',
+      showItem: 2,
+    });
+</script>
 </body>
 </html>

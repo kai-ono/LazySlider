@@ -3747,7 +3747,7 @@ var LazySlider = function () {
       this.current = 0;
     };
     this.elmClass.prototype.showItem = typeof args.showItem !== 'undefined' ? args.showItem : 1;
-    this.nodeList = document.querySelectorAll('.lazy-slider');
+    this.nodeList = document.querySelectorAll('.' + args.class);
     this.elmArr = [];
     this.init();
   }
