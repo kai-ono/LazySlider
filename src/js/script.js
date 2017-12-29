@@ -1,5 +1,7 @@
 'use strict';
 
+const util = require('./mod/Utils');
+
 class LazySlider {
   /**
    * コンストラクタ
@@ -37,30 +39,13 @@ class LazySlider {
         /**
          * IE10ではFlexアイテムの幅が親要素に合わせて自動調整されないため、個別にwidthを付与する
          */
-        if(this.isIE10()) el.style.width = 100 / this.elmArr[i].itemLen + '%';
+        if(util.isIE10()) el.style.width = 100 / this.elmArr[i].itemLen + '%';
       });
       this.elmArr[i].list.style.width = 100 / this.elmArr[i].showItem * this.elmArr[i].itemLen + '%';
       if(this.auto) this.autoPlay(this.elmArr[i]);
     }
 
     // this.naviFactory();
-  }
-
-  isIE10() {
-    const ua = window.navigator.userAgent.toLowerCase();
-    const ver = window.navigator.appVersion.toLowerCase();
-    return ua.indexOf("msie") != -1 && ver.indexOf("msie 10.") != -1;
-  }
-
-  getTransformWithPrefix() {
-    const _bodyStyle = document.body.style;
-    let _transform = 'transform';
-
-    if(_bodyStyle.webkitTransform !== undefined) _transform = 'webkitTransform';
-    if(_bodyStyle.mozTransform !== undefined) _transform = 'mozTransform';
-    if(_bodyStyle.msTransform !== undefined) _transform = 'msTransform';
-
-    return _transform;
   }
 
   // naviFactory() {
@@ -93,7 +78,7 @@ class LazySlider {
       elm.current = _nextAmount = 0;
     }
 
-    elm.list.style[this.getTransformWithPrefix()] = 'translate3d(' + -_nextAmount + '%,0,0)';
+    elm.list.style[util.getTransformWithPrefix()] = 'translate3d(' + -_nextAmount + '%,0,0)';
   }
 
   /**

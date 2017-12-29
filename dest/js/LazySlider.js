@@ -1,9 +1,32 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
+module.exports = {
+  isIE10: function isIE10() {
+    var ua = window.navigator.userAgent.toLowerCase();
+    var ver = window.navigator.appVersion.toLowerCase();
+    return ua.indexOf("msie") != -1 && ver.indexOf("msie 10.") != -1;
+  },
+  getTransformWithPrefix: function getTransformWithPrefix() {
+    var _bodyStyle = document.body.style;
+    var _transform = 'transform';
+
+    if (_bodyStyle.webkitTransform !== undefined) _transform = 'webkitTransform';
+    if (_bodyStyle.mozTransform !== undefined) _transform = 'mozTransform';
+    if (_bodyStyle.msTransform !== undefined) _transform = 'msTransform';
+
+    return _transform;
+  }
+};
+
+},{}],2:[function(require,module,exports){
+'use strict';
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var util = require('./mod/Utils');
 
 var LazySlider = function () {
   function LazySlider(args) {
@@ -40,7 +63,7 @@ var LazySlider = function () {
         [].map.call(_this.elmArr[i].item, function (el) {
           el.classList.add('slide-item');
 
-          if (_this.isIE10()) el.style.width = 100 / _this.elmArr[i].itemLen + '%';
+          if (util.isIE10()) el.style.width = 100 / _this.elmArr[i].itemLen + '%';
         });
         _this.elmArr[i].list.style.width = 100 / _this.elmArr[i].showItem * _this.elmArr[i].itemLen + '%';
         if (_this.auto) _this.autoPlay(_this.elmArr[i]);
@@ -49,25 +72,6 @@ var LazySlider = function () {
       for (var i = 0; i < this.nodeList.length; i++) {
         _loop(i);
       }
-    }
-  }, {
-    key: 'isIE10',
-    value: function isIE10() {
-      var ua = window.navigator.userAgent.toLowerCase();
-      var ver = window.navigator.appVersion.toLowerCase();
-      return ua.indexOf("msie") != -1 && ver.indexOf("msie 10.") != -1;
-    }
-  }, {
-    key: 'getTransformWithPrefix',
-    value: function getTransformWithPrefix() {
-      var _bodyStyle = document.body.style;
-      var _transform = 'transform';
-
-      if (_bodyStyle.webkitTransform !== undefined) _transform = 'webkitTransform';
-      if (_bodyStyle.mozTransform !== undefined) _transform = 'mozTransform';
-      if (_bodyStyle.msTransform !== undefined) _transform = 'msTransform';
-
-      return _transform;
     }
   }, {
     key: 'action',
@@ -83,7 +87,7 @@ var LazySlider = function () {
         elm.current = _nextAmount = 0;
       }
 
-      elm.list.style[this.getTransformWithPrefix()] = 'translate3d(' + -_nextAmount + '%,0,0)';
+      elm.list.style[util.getTransformWithPrefix()] = 'translate3d(' + -_nextAmount + '%,0,0)';
     }
   }, {
     key: 'autoPlay',
@@ -112,4 +116,4 @@ var LazySlider = function () {
 
 window.LazySlider = LazySlider;
 
-},{}]},{},[1]);
+},{"./mod/Utils":1}]},{},[2]);
