@@ -33,12 +33,23 @@ class LazySlider {
       this.elmArr[i].list.classList.add('slide-list');
       [].map.call(this.elmArr[i].item, (el) => {
         el.classList.add('slide-item');
+
+        /**
+         * IE10ではFlexアイテムの幅が親要素に合わせて自動調整されないため、個別にwidthを付与する
+         */
+        if(this.isIE10()) el.style.width = 100 / this.elmArr[i].itemLen + '%';
       });
       this.elmArr[i].list.style.width = 100 / this.elmArr[i].showItem * this.elmArr[i].itemLen + '%';
       if(this.auto) this.autoPlay(this.elmArr[i]);
     }
 
     // this.naviFactory();
+  }
+
+  isIE10() {
+    const ua = window.navigator.userAgent.toLowerCase();
+    const ver = window.navigator.appVersion.toLowerCase();
+    return ua.indexOf("msie") != -1 && ver.indexOf("msie 10.") != -1;
   }
 
   naviFactory() {

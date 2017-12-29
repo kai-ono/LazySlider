@@ -32,15 +32,30 @@ var LazySlider = function () {
   _createClass(LazySlider, [{
     key: 'init',
     value: function init() {
-      for (var i = 0; i < this.nodeList.length; i++) {
-        this.elmArr.push(new this.elmClass(this.nodeList[i]));
-        this.elmArr[i].list.classList.add('slide-list');
-        [].map.call(this.elmArr[i].item, function (el) {
+      var _this = this;
+
+      var _loop = function _loop(i) {
+        _this.elmArr.push(new _this.elmClass(_this.nodeList[i]));
+        _this.elmArr[i].list.classList.add('slide-list');
+        [].map.call(_this.elmArr[i].item, function (el) {
           el.classList.add('slide-item');
+
+          if (_this.isIE10()) el.style.width = 100 / _this.elmArr[i].itemLen + '%';
         });
-        this.elmArr[i].list.style.width = 100 / this.elmArr[i].showItem * this.elmArr[i].itemLen + '%';
-        if (this.auto) this.autoPlay(this.elmArr[i]);
+        _this.elmArr[i].list.style.width = 100 / _this.elmArr[i].showItem * _this.elmArr[i].itemLen + '%';
+        if (_this.auto) _this.autoPlay(_this.elmArr[i]);
+      };
+
+      for (var i = 0; i < this.nodeList.length; i++) {
+        _loop(i);
       }
+    }
+  }, {
+    key: 'isIE10',
+    value: function isIE10() {
+      var ua = window.navigator.userAgent.toLowerCase();
+      var ver = window.navigator.appVersion.toLowerCase();
+      return ua.indexOf("msie") != -1 && ver.indexOf("msie 10.") != -1;
     }
   }, {
     key: 'naviFactory',
@@ -69,14 +84,14 @@ var LazySlider = function () {
   }, {
     key: 'autoPlay',
     value: function autoPlay(elm) {
-      var _this = this;
+      var _this2 = this;
 
       var timer = function timer() {
         clearTimeout(elm.autoID);
         elm.autoID = setTimeout(function () {
           elm.current++;
-          _this.action(elm.current, elm);
-        }, _this.interval);
+          _this2.action(elm.current, elm);
+        }, _this2.interval);
       };
 
       timer();
