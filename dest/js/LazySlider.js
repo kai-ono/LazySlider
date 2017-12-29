@@ -58,12 +58,16 @@ var LazySlider = function () {
       return ua.indexOf("msie") != -1 && ver.indexOf("msie 10.") != -1;
     }
   }, {
-    key: 'naviFactory',
-    value: function naviFactory() {
-      var naviUl = document.createElement('<ul>');
-      var naviLi = document.createElement('<li>');
-      naviUl.appendChild(naviLi);
-      this.elmArr[0].appendChild(naviUl);
+    key: 'getTransformWithPrefix',
+    value: function getTransformWithPrefix() {
+      var _bodyStyle = document.body.style;
+      var _transform = 'transform';
+
+      if (_bodyStyle.webkitTransform !== undefined) _transform = 'webkitTransform';
+      if (_bodyStyle.mozTransform !== undefined) _transform = 'mozTransform';
+      if (_bodyStyle.msTransform !== undefined) _transform = 'msTransform';
+
+      return _transform;
     }
   }, {
     key: 'action',
@@ -79,7 +83,7 @@ var LazySlider = function () {
         elm.current = _nextAmount = 0;
       }
 
-      elm.list.style.transform = 'translate3d(' + -_nextAmount + '%,0,0)';
+      elm.list.style[this.getTransformWithPrefix()] = 'translate3d(' + -_nextAmount + '%,0,0)';
     }
   }, {
     key: 'autoPlay',

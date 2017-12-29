@@ -52,12 +52,23 @@ class LazySlider {
     return ua.indexOf("msie") != -1 && ver.indexOf("msie 10.") != -1;
   }
 
-  naviFactory() {
-    const naviUl = document.createElement('<ul>');
-    const naviLi = document.createElement('<li>');
-    naviUl.appendChild(naviLi);
-    this.elmArr[0].appendChild(naviUl);
+  getTransformWithPrefix() {
+    const _bodyStyle = document.body.style;
+    let _transform = 'transform';
+
+    if(_bodyStyle.webkitTransform !== undefined) _transform = 'webkitTransform';
+    if(_bodyStyle.mozTransform !== undefined) _transform = 'mozTransform';
+    if(_bodyStyle.msTransform !== undefined) _transform = 'msTransform';
+
+    return _transform;
   }
+
+  // naviFactory() {
+  //   const naviUl = document.createElement('<ul>');
+  //   const naviLi = document.createElement('<li>');
+  //   naviUl.appendChild(naviLi);
+  //   this.elmArr[0].appendChild(naviUl);
+  // }
 
   /**
    * 引数で指定したindex番号のslide-itemへ移動する
@@ -82,7 +93,7 @@ class LazySlider {
       elm.current = _nextAmount = 0;
     }
 
-    elm.list.style.transform = 'translate3d(' + -_nextAmount + '%,0,0)';
+    elm.list.style[this.getTransformWithPrefix()] = 'translate3d(' + -_nextAmount + '%,0,0)';
   }
 
   /**
