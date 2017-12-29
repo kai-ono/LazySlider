@@ -16,7 +16,6 @@ img {
     display: flex;
     transition: transform 0.5s ease-out 0s;
     & .slide-item {
-      width: 300px;
       flex-grow: 1;
       & > img {
         width: 100%;

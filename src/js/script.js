@@ -1,17 +1,5 @@
 'use strict';
 
-// polyfill
-require('es5-shim');
-require('es6-promise');
-require('classlist-polyfill');
-
-// require
-// require('./mod/Global');
-// var sample = require('./mod/Sample');
-// var test = require('./mod/Test');
-// var anim = require('./mod/AnimationMod');
-// var cnt = require('./mod/Counter');
-
 class LazySlider {
   /**
    * コンストラクタ
@@ -21,17 +9,20 @@ class LazySlider {
   constructor(args) {
     this.elmClass = function(arg) {
       this.elm = arg;
-      this.showAreaW = this.elm.offsetWidth;
       this.list = this.elm.querySelector('ul');
       this.item = this.list.querySelectorAll('li');
-      this.itemW = this.showAreaW / this.showItem;
       this.itemLen = this.item.length;
+      this.itemW = 100 / this.itemLen;
+      this.amount = this.itemW * this.showItem;
       this.auto = true;
       this.autoID;
       this.current = 0;
     };
     this.elmClass.prototype.showItem = (typeof args.showItem !== 'undefined') ? args.showItem : 1;
+    this.auto = (typeof args.auto !== 'undefined') ? args.auto : false;
+    this.interval = (typeof args.interval !== 'undefined') ? args.interval : false;
     this.nodeList = document.querySelectorAll('.' + args.class);
+    this.resizeTimerID;
     this.elmArr = [];
     this.init();
   }
@@ -40,20 +31,14 @@ class LazySlider {
     for (let i = 0; i < this.nodeList.length; i++) {
       this.elmArr.push(new this.elmClass(this.nodeList[i]));
       this.elmArr[i].list.classList.add('slide-list');
-      this.elmArr[i].list.style.width = this.elmArr[i].itemW * this.elmArr[i].itemLen + 'px';
       [].map.call(this.elmArr[i].item, (el) => {
         el.classList.add('slide-item');
       });
-
-      this.elmArr[i].itemW = (this.elmArr[i].item.length > 0) ? this.elmArr[i].item[0].offsetWidth : 0;
+      this.elmArr[i].list.style.width = 100 / this.elmArr[i].showItem * this.elmArr[i].itemLen + '%';
+      if(this.auto) this.autoPlay(this.elmArr[i]);
     }
-    const _tmpElm = this.elmArr[0];
-    _tmpElm.elm.style.width = _tmpElm.showAreaW + 'px';
-    _tmpElm.list.classList.add('slide-list');
-    // _tmpElm.list.style.transition = 'transform 0.5s ease-out 0s';
 
     // this.naviFactory();
-    this.autoPlay();
   }
 
   naviFactory() {
@@ -67,43 +52,42 @@ class LazySlider {
    * 引数で指定したindex番号のslide-itemへ移動する
    * @param {Number} index
    */
-  action(index) {
-    const _tmpElm = this.elmArr[0];
-    let _amount = _tmpElm.showAreaW * index;
-    let _remainingItem = (-(_amount / _tmpElm.itemW) + _tmpElm.itemLen);
+  action(index, elm) {
+    let _nextAmount = elm.amount * index;
+    let _remainingItem = elm.itemLen - _nextAmount / elm.itemW;
 
     /**
      * 2アイテム表示に対して残りのアイテムが1つしかない場合などに、
      * 空白が表示されないように移動量を調整
      */
-    if(_remainingItem > 0 && _remainingItem < _tmpElm.showItem) {
-      _amount = (_tmpElm.showAreaW * (index - 1)) + (_tmpElm.itemW * _remainingItem);
+    if(_remainingItem > 0 && _remainingItem < elm.showItem) {
+      _nextAmount = (elm.itemW * _remainingItem) + (elm.amount * (index - 1));
     };
 
     /**
      * 端まで移動したら最初に戻す
      */
-    if(_amount > (_tmpElm.itemW * (_tmpElm.itemLen - 1))) {
-      _tmpElm.current = _amount = 0;
+    if(elm.itemW + _nextAmount > 100) {
+      elm.current = _nextAmount = 0;
     }
 
-    _tmpElm.list.style.transform = 'translate3d(' + -_amount + 'px,0,0)';
+    elm.list.style.transform = 'translate3d(' + -_nextAmount + '%,0,0)';
   }
 
   /**
    * actionをsetTimeoutで起動し、自動スライドを行う
    */
-  autoPlay() {
+  autoPlay(elm) {
     const timer = () => {
-      clearTimeout(this.elmArr[0].autoID);
-      this.elmArr[0].autoID = setTimeout(() => {
-        this.elmArr[0].current++;
-        this.action(this.elmArr[0].current);
-      }, 2000);
+      clearTimeout(elm.autoID);
+      elm.autoID = setTimeout(() => {
+        elm.current++;
+        this.action(elm.current, elm);
+      }, this.interval);
     };
 
     timer();
-    this.elmArr[0].list.addEventListener('transitionend', () => {
+    elm.list.addEventListener('transitionend', () => {
       timer();
     });
   }
