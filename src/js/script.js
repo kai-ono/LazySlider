@@ -1,6 +1,6 @@
 'use strict';
 
-const util = require('./mod/Utils');
+const utils = require('./mod/Utils');
 
 class LazySlider {
   /**
@@ -9,13 +9,13 @@ class LazySlider {
    * @param {Number} args.showItem 1度に表示する画像の枚数を設定
    */
   constructor(args) {
-    this.elmClass = function(arg) {
+    this.elmClass = function (arg) {
       this.elm = arg;
       this.list = this.elm.querySelector('ul');
       this.item = this.list.querySelectorAll('li');
       this.itemLen = this.item.length;
       this.itemW = 100 / this.itemLen;
-      this.amount = this.itemW * this.showItem;
+      this.showW = this.itemW * this.showItem;
       this.auto = true;
       this.autoID;
       this.current = 0;
@@ -23,6 +23,7 @@ class LazySlider {
     this.elmClass.prototype.showItem = (typeof args.showItem !== 'undefined') ? args.showItem : 1;
     this.auto = (typeof args.auto !== 'undefined') ? args.auto : false;
     this.interval = (typeof args.interval !== 'undefined') ? args.interval : false;
+    this.navi = (typeof args.navi === 'boolean') ? args.navi : true;
     this.nodeList = document.querySelectorAll('.' + args.class);
     this.resizeTimerID;
     this.elmArr = [];
@@ -39,62 +40,94 @@ class LazySlider {
         /**
          * IE10ではFlexアイテムの幅が親要素に合わせて自動調整されないため、個別にwidthを付与する
          */
-        if(util.isIE10()) el.style.width = 100 / this.elmArr[i].itemLen + '%';
+        if (utils.isIE10()) el.style.width = 100 / this.elmArr[i].itemLen + '%';
       });
       this.elmArr[i].list.style.width = 100 / this.elmArr[i].showItem * this.elmArr[i].itemLen + '%';
-      if(this.auto) this.autoPlay(this.elmArr[i]);
+      if (this.auto) this.autoPlay(this.elmArr[i]);
+      if (this.navi) this.naviFactory(this.elmArr[i]);
     }
-
-    // this.naviFactory();
   }
 
-  // naviFactory() {
-  //   const naviUl = document.createElement('<ul>');
-  //   const naviLi = document.createElement('<li>');
-  //   naviUl.appendChild(naviLi);
-  //   this.elmArr[0].appendChild(naviUl);
-  // }
+  /**
+   * 引数で指定したindex番号のslide-itemへ移動する
+   * @param {Object} obj
+   */
+  naviFactory(obj) {
+    const naviUl = document.createElement('ul');
+    const naviLiNext = document.createElement('li');
+    const naviLiPrev = document.createElement('li');
+    naviUl.classList.add('slide-navi');
+    naviLiNext.classList.add('slide-next');
+    naviLiPrev.classList.add('slide-prev');
+    naviUl.appendChild(naviLiNext);
+    naviUl.appendChild(naviLiPrev);
+    obj.elm.appendChild(naviUl);
+
+    naviLiNext.addEventListener('click', () => {
+      this.action((obj.current + obj.showItem), obj, true);
+    });
+    naviLiPrev.addEventListener('click', () => {
+      this.action((obj.current - obj.showItem), obj, false);
+    });
+  }
 
   /**
    * 引数で指定したindex番号のslide-itemへ移動する
    * @param {Number} index
+   * @param {Object} obj
    */
-  action(index, elm) {
-    let _nextAmount = elm.amount * index;
-    let _remainingItem = elm.itemLen - _nextAmount / elm.itemW;
-
+  action(index, obj, dir) {
     /**
      * 2アイテム表示に対して残りのアイテムが1つしかない場合などに、
      * 空白が表示されないように移動量を調整
      */
-    if(_remainingItem > 0 && _remainingItem < elm.showItem) {
-      _nextAmount = (elm.itemW * _remainingItem) + (elm.amount * (index - 1));
-    };
+    if(dir) {
+      const _prevIndex = index - obj.showItem;
+      const _remainingItem = obj.itemLen - index;
+      if (_remainingItem > 0 && _remainingItem < obj.showItem) index = _prevIndex + _remainingItem;
 
-    /**
-     * 端まで移動したら最初に戻す
-     */
-    if(elm.itemW + _nextAmount > 100) {
-      elm.current = _nextAmount = 0;
+      let _dev = {
+        index: index,
+        prevIdx: _prevIndex,
+        remain: _remainingItem,
+      };
+      console.log(_dev);
+    } else {
+      console.log("prev")
+      const _prevIndex = index + obj.showItem;
+      const _remainingItem = _prevIndex - index - 1;
+
+      let _dev = {
+        index: index,
+        prevIdx: _prevIndex,
+        remain: _remainingItem,
+      };
+      console.log(_dev);
+      if (_remainingItem > 0 && _remainingItem < obj.showItem) index = _prevIndex - _remainingItem;
     }
 
-    elm.list.style[util.getTransformWithPrefix()] = 'translate3d(' + -_nextAmount + '%,0,0)';
+    if (index > obj.itemLen - 1) index = 0;
+    if (index < 0) index = obj.itemLen - obj.showItem;
+
+    obj.list.style[utils.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * index) + '%,0,0)';
+    obj.current = index;
   }
 
   /**
    * actionをsetTimeoutで起動し、自動スライドを行う
+   * @param {Object} obj
    */
-  autoPlay(elm) {
+  autoPlay(obj) {
     const timer = () => {
-      clearTimeout(elm.autoID);
-      elm.autoID = setTimeout(() => {
-        elm.current++;
-        this.action(elm.current, elm);
+      clearTimeout(obj.autoID);
+      obj.autoID = setTimeout(() => {
+        obj.current = obj.current + obj.showItem;
+        this.action(obj.current, obj);
       }, this.interval);
     };
 
     timer();
-    elm.list.addEventListener('transitionend', () => {
+    obj.list.addEventListener('transitionend', () => {
       timer();
     });
   }

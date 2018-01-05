@@ -29,7 +29,7 @@ module.exports = function(gulp) {
       } ] ]
     })
     .bundle()
-    .pipe(source('LazySlider.js'))
+    .pipe(source('lazy-slider.js'))
     .pipe(buffer())
     .pipe(gulp.dest('dest/js/'))
     .pipe(rename({suffix: '.min'}))
