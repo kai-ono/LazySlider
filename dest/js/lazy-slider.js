@@ -43,8 +43,9 @@ var LazySlider = function () {
       this.current = 0;
     };
     this.elmClass.prototype.showItem = typeof args.showItem !== 'undefined' ? args.showItem : 1;
+    this.class = typeof args.class !== 'undefined' ? args.class : 'lazy-slider';
     this.auto = args.auto === false ? false : true;
-    this.interval = typeof args.interval !== 'undefined' ? args.interval : false;
+    this.interval = typeof args.interval !== 'undefined' ? args.interval : 3000;
     this.navi = args.navi === false ? false : true;
     this.nodeList = document.querySelectorAll('.' + args.class);
     this.resizeTimerID;

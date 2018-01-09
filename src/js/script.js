@@ -5,8 +5,11 @@ const utils = require('./mod/Utils');
 class LazySlider {
   /**
    * コンストラクタ
-   * @param {Object} args objectの引数です
-   * @param {Number} args.showItem 1度に表示する画像の枚数を設定
+   * @param {Object} args object型の引数です。
+   * @param {String} args.class HTML記述したスライダーのクラス名を指定。default = 'lazy-slider';
+   * @param {Number} args.showItem 1度に表示する画像の枚数を設定。default = 1;
+   * @param {Boolean} args.auto 自動スライドの設定。default = true;
+   * @param {Number} args.interval 自動スライドの間隔をミリ秒で指定。default = 3000;
    */
   constructor(args) {
     this.elmClass = function (arg) {
@@ -20,8 +23,9 @@ class LazySlider {
       this.current = 0;
     };
     this.elmClass.prototype.showItem = (typeof args.showItem !== 'undefined') ? args.showItem : 1;
+    this.class = (typeof args.class !== 'undefined') ? args.class : 'lazy-slider';
     this.auto = (args.auto === false) ? false : true;
-    this.interval = (typeof args.interval !== 'undefined') ? args.interval : false;
+    this.interval = (typeof args.interval !== 'undefined') ? args.interval : 3000;
     this.navi = (args.navi === false) ? false : true;
     this.nodeList = document.querySelectorAll('.' + args.class);
     this.resizeTimerID;
@@ -48,7 +52,7 @@ class LazySlider {
   }
 
   /**
-   * 引数で指定したindex番号のslide-itemへ移動する
+   * prev、nextボタンの生成、クリックイベント登録を行う
    * @param {Object} obj
    */
   naviFactory(obj) {
@@ -74,13 +78,12 @@ class LazySlider {
    * 引数で指定したindex番号のslide-itemへ移動する
    * @param {Number} index
    * @param {Object} obj
+   * @param {Object} dir スライド方向の指定 true = next; prev = false;
    */
   action(index, obj, dir) {
     /**
      * 2アイテム表示に対して残りのアイテムが1つしかない場合などに、
-     * 空白が表示されないように移動量を調整。スライド方向によって分岐。
-     * true = next;
-     * false = prev;
+     * 空白が表示されないように移動量を調整。
      */
     if(dir) {
       const _prevIndex = index - obj.showItem;
