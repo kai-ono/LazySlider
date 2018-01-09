@@ -16,14 +16,13 @@ class LazySlider {
       this.itemLen = this.item.length;
       this.itemW = 100 / this.itemLen;
       this.showW = this.itemW * this.showItem;
-      this.auto = true;
       this.autoID;
       this.current = 0;
     };
     this.elmClass.prototype.showItem = (typeof args.showItem !== 'undefined') ? args.showItem : 1;
-    this.auto = (typeof args.auto !== 'undefined') ? args.auto : false;
+    this.auto = (args.auto === false) ? false : true;
     this.interval = (typeof args.interval !== 'undefined') ? args.interval : false;
-    this.navi = (typeof args.navi === 'boolean') ? args.navi : true;
+    this.navi = (args.navi === false) ? false : true;
     this.nodeList = document.querySelectorAll('.' + args.class);
     this.resizeTimerID;
     this.elmArr = [];
@@ -79,30 +78,17 @@ class LazySlider {
   action(index, obj, dir) {
     /**
      * 2アイテム表示に対して残りのアイテムが1つしかない場合などに、
-     * 空白が表示されないように移動量を調整
+     * 空白が表示されないように移動量を調整。スライド方向によって分岐。
+     * true = next;
+     * false = prev;
      */
     if(dir) {
       const _prevIndex = index - obj.showItem;
       const _remainingItem = obj.itemLen - index;
       if (_remainingItem > 0 && _remainingItem < obj.showItem) index = _prevIndex + _remainingItem;
-
-      let _dev = {
-        index: index,
-        prevIdx: _prevIndex,
-        remain: _remainingItem,
-      };
-      console.log(_dev);
     } else {
-      console.log("prev")
       const _prevIndex = index + obj.showItem;
       const _remainingItem = _prevIndex - index - 1;
-
-      let _dev = {
-        index: index,
-        prevIdx: _prevIndex,
-        remain: _remainingItem,
-      };
-      console.log(_dev);
       if (_remainingItem > 0 && _remainingItem < obj.showItem) index = _prevIndex - _remainingItem;
     }
 
@@ -122,7 +108,7 @@ class LazySlider {
       clearTimeout(obj.autoID);
       obj.autoID = setTimeout(() => {
         obj.current = obj.current + obj.showItem;
-        this.action(obj.current, obj);
+        this.action(obj.current, obj, true);
       }, this.interval);
     };
 

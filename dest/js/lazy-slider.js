@@ -39,14 +39,13 @@ var LazySlider = function () {
       this.itemLen = this.item.length;
       this.itemW = 100 / this.itemLen;
       this.showW = this.itemW * this.showItem;
-      this.auto = true;
       this.autoID;
       this.current = 0;
     };
     this.elmClass.prototype.showItem = typeof args.showItem !== 'undefined' ? args.showItem : 1;
-    this.auto = typeof args.auto !== 'undefined' ? args.auto : false;
+    this.auto = args.auto === false ? false : true;
     this.interval = typeof args.interval !== 'undefined' ? args.interval : false;
-    this.navi = typeof args.navi === 'boolean' ? args.navi : true;
+    this.navi = args.navi === false ? false : true;
     this.nodeList = document.querySelectorAll('.' + args.class);
     this.resizeTimerID;
     this.elmArr = [];
@@ -104,24 +103,9 @@ var LazySlider = function () {
         var _prevIndex = index - obj.showItem;
         var _remainingItem = obj.itemLen - index;
         if (_remainingItem > 0 && _remainingItem < obj.showItem) index = _prevIndex + _remainingItem;
-
-        var _dev = {
-          index: index,
-          prevIdx: _prevIndex,
-          remain: _remainingItem
-        };
-        console.log(_dev);
       } else {
-        console.log("prev");
         var _prevIndex2 = index + obj.showItem;
         var _remainingItem2 = _prevIndex2 - index - 1;
-
-        var _dev2 = {
-          index: index,
-          prevIdx: _prevIndex2,
-          remain: _remainingItem2
-        };
-        console.log(_dev2);
         if (_remainingItem2 > 0 && _remainingItem2 < obj.showItem) index = _prevIndex2 - _remainingItem2;
       }
 
@@ -140,7 +124,7 @@ var LazySlider = function () {
         clearTimeout(obj.autoID);
         obj.autoID = setTimeout(function () {
           obj.current = obj.current + obj.showItem;
-          _this3.action(obj.current, obj);
+          _this3.action(obj.current, obj, true);
         }, _this3.interval);
       };
 
