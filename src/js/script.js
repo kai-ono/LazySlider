@@ -2,7 +2,7 @@
 
 const REF = require('./mod/Reference');
 const UTILS = require('./mod/Utils');
-const Elm = require('./mod/Element');
+const ELM = require('./mod/Element');
 
 class LazySlider {
   /**
@@ -28,7 +28,7 @@ class LazySlider {
 
   init() {
     for (let i = 0; i < this.nodeList.length; i++) {
-      this.elmArr.push(new Elm(this.nodeList[i]));
+      this.elmArr.push(new ELM(this.nodeList[i]));
       this.elmArr[i].list.classList.add(REF.list);
       [].map.call(this.elmArr[i].item, (el) => {
         el.classList.add(REF.item);

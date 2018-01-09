@@ -65,7 +65,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var REF = require('./mod/Reference');
 var UTILS = require('./mod/Utils');
-var Elm = require('./mod/Element');
+var ELM = require('./mod/Element');
 
 var LazySlider = function () {
   function LazySlider(args) {
@@ -89,7 +89,7 @@ var LazySlider = function () {
       var _this = this;
 
       var _loop = function _loop(i) {
-        _this.elmArr.push(new Elm(_this.nodeList[i]));
+        _this.elmArr.push(new ELM(_this.nodeList[i]));
         _this.elmArr[i].list.classList.add(REF.list);
         [].map.call(_this.elmArr[i].item, function (el) {
           el.classList.add(REF.item);
