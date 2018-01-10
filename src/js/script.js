@@ -2,6 +2,7 @@
 
 const REF = require('./mod/Reference');
 const UTILS = require('./mod/Utils');
+const FACTRIES = require('./mod/Factories');
 const ELM = require('./mod/Element');
 
 class LazySlider {
@@ -43,76 +44,20 @@ class LazySlider {
       this.elmArr[i].list.style.width = 100 / this.showItem * this.elmArr[i].itemLen + '%';
 
       if (this.auto) this.autoPlay(this.elmArr[i]);
-      if (this.btns) this.buttonFactory(this.elmArr[i]);
+      if (this.btns) FACTRIES.buttonFactory(this.elmArr[i], this);
       if (this.navi) {
-        this.naviFactory(this.elmArr[i]);
-        this.elmArr[i].actionCb = (obj) => {
+        FACTRIES.naviFactory(this.elmArr[i], this);
+        this.elmArr[i].actionCb.push((obj) => {
           this.setCurrentNavi(obj);
-        };
+        });
       };
       if (this.center) {
         this.centerSettings(this.elmArr[i]);
-        this.elmArr[i].actionCb = (obj) => {
+        this.elmArr[i].actionCb.push((obj) => {
           this.setCenter(obj);
-        };
+        });
       };
     }
-  }
-
-  /**
-   * prev、nextボタンの生成、イベント登録を行う
-   * @param {Object} obj this.elmClass
-   */
-  buttonFactory(obj) {
-    const _btnUl = document.createElement('ul');
-    const _btnLiNext = document.createElement('li');
-    const _btnLiPrev = document.createElement('li');
-    _btnUl.classList.add(REF.btns);
-    _btnLiNext.classList.add(REF.next);
-    _btnLiPrev.classList.add(REF.prev);
-    _btnUl.appendChild(_btnLiNext);
-    _btnUl.appendChild(_btnLiPrev);
-    obj.elm.appendChild(_btnUl);
-
-    _btnLiNext.addEventListener('click', () => {
-      this.action((obj.current + this.slideNum), obj, true);
-    });
-    _btnLiPrev.addEventListener('click', () => {
-      this.action((obj.current - this.slideNum), obj, false);
-    });
-  }
-
-  /**
-   * ナビゲーションの生成、イベント登録を行う
-   * @param {Object} obj this.elmClass
-   */
-  naviFactory(obj) {
-    const _naviUl = document.createElement('ul');
-    const _fragment = document.createDocumentFragment();
-    const _tmpNum = Math.ceil(obj.itemLen / this.slideNum);
-    const _num = (_tmpNum > this.showItem) ? _tmpNum - (this.showItem - 1) : _tmpNum;
-
-    _naviUl.classList.add(REF.navi);
-    for(let i = 0; i < _num; i++) {
-      const _naviLi = document.createElement('li');
-      _naviLi.classList.add(REF.curr + i);
-      _fragment.appendChild(_naviLi);
-      _naviLi.addEventListener('click', (e) => {
-        let _targetClasses = e.currentTarget.classList;
-        _targetClasses.forEach((value) => {
-          if(value.match(REF.curr) !== null) {
-            const _index = Math.ceil(parseInt(value.replace(REF.curr, '')) * this.slideNum);
-            this.action(_index, obj, true);
-          };
-        });
-      });
-    }
-
-    _naviUl.appendChild(_fragment);
-    obj.elm.appendChild(_naviUl);
-    obj.navi = _naviUl;
-    obj.naviChildren = _naviUl.querySelectorAll('li');
-    this.setCurrentNavi(obj);
   }
 
   /**
@@ -128,7 +73,7 @@ class LazySlider {
   }
 
   /**
-   * current要素にクラスを付与する
+   * Center有効時に中央表示された要素にクラスを付与する
    * @param {Object} obj this.elmClass
    */
   setCenter(obj) {
@@ -177,7 +122,9 @@ class LazySlider {
     obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * index) + '%,0,0)';
     obj.current = index;
 
-    obj.actionCb(obj);
+    for(let i = 0; i < obj.actionCb.length; i++) {
+      obj.actionCb[i](obj);
+    }
   }
 
   /**

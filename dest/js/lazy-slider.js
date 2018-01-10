@@ -16,11 +16,71 @@ var Element = function Element(arg) {
   this.current = 0;
   this.navi;
   this.naviChildren;
+  this.actionCb = [];
 };
 
 module.exports = Element;
 
 },{}],2:[function(require,module,exports){
+'use strict';
+
+var REF = require('./Reference');
+
+module.exports = {
+  buttonFactory: function buttonFactory(obj, _this) {
+    var _btnUl = document.createElement('ul');
+    var _btnLiNext = document.createElement('li');
+    var _btnLiPrev = document.createElement('li');
+    _btnUl.classList.add(REF.btns);
+    _btnLiNext.classList.add(REF.next);
+    _btnLiPrev.classList.add(REF.prev);
+    _btnUl.appendChild(_btnLiNext);
+    _btnUl.appendChild(_btnLiPrev);
+    obj.elm.appendChild(_btnUl);
+
+    _btnLiNext.addEventListener('click', function () {
+      _this.action(obj.current + _this.slideNum, obj, true);
+    });
+    _btnLiPrev.addEventListener('click', function () {
+      _this.action(obj.current - _this.slideNum, obj, false);
+    });
+  },
+
+  naviFactory: function naviFactory(obj, _this) {
+    var _naviUl = document.createElement('ul');
+    var _fragment = document.createDocumentFragment();
+    var _tmpNum = Math.ceil(obj.itemLen / _this.slideNum);
+    console.log({
+      a: _tmpNum,
+      b: _this.showItem
+    });
+    var _num = _tmpNum > _this.showItem + 1 ? _tmpNum - (_this.showItem - 1) : _tmpNum;
+
+    _naviUl.classList.add(REF.navi);
+    for (var i = 0; i < _num; i++) {
+      var _naviLi = document.createElement('li');
+      _naviLi.classList.add(REF.curr + i);
+      _fragment.appendChild(_naviLi);
+      _naviLi.addEventListener('click', function (e) {
+        var _targetClasses = e.currentTarget.classList;
+        _targetClasses.forEach(function (value) {
+          if (value.match(REF.curr) !== null) {
+            var _index = Math.ceil(parseInt(value.replace(REF.curr, '')) * _this.slideNum);
+            _this.action(_index, obj, true);
+          };
+        });
+      });
+    }
+
+    _naviUl.appendChild(_fragment);
+    obj.elm.appendChild(_naviUl);
+    obj.navi = _naviUl;
+    obj.naviChildren = _naviUl.querySelectorAll('li');
+    _this.setCurrentNavi(obj);
+  }
+};
+
+},{"./Reference":3}],3:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -36,7 +96,7 @@ module.exports = {
   cntr: 'slide-item-center'
 };
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -57,7 +117,7 @@ module.exports = {
   }
 };
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -66,6 +126,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var REF = require('./mod/Reference');
 var UTILS = require('./mod/Utils');
+var FACTRIES = require('./mod/Factories');
 var ELM = require('./mod/Element');
 
 var LazySlider = function () {
@@ -102,78 +163,24 @@ var LazySlider = function () {
         _this.elmArr[i].list.style.width = 100 / _this.showItem * _this.elmArr[i].itemLen + '%';
 
         if (_this.auto) _this.autoPlay(_this.elmArr[i]);
-        if (_this.btns) _this.buttonFactory(_this.elmArr[i]);
+        if (_this.btns) FACTRIES.buttonFactory(_this.elmArr[i], _this);
         if (_this.navi) {
-          _this.naviFactory(_this.elmArr[i]);
-          _this.elmArr[i].actionCb = function (obj) {
+          FACTRIES.naviFactory(_this.elmArr[i], _this);
+          _this.elmArr[i].actionCb.push(function (obj) {
             _this.setCurrentNavi(obj);
-          };
+          });
         };
         if (_this.center) {
           _this.centerSettings(_this.elmArr[i]);
-          _this.elmArr[i].actionCb = function (obj) {
+          _this.elmArr[i].actionCb.push(function (obj) {
             _this.setCenter(obj);
-          };
+          });
         };
       };
 
       for (var i = 0; i < this.nodeList.length; i++) {
         _loop(i);
       }
-    }
-  }, {
-    key: 'buttonFactory',
-    value: function buttonFactory(obj) {
-      var _this2 = this;
-
-      var _btnUl = document.createElement('ul');
-      var _btnLiNext = document.createElement('li');
-      var _btnLiPrev = document.createElement('li');
-      _btnUl.classList.add(REF.btns);
-      _btnLiNext.classList.add(REF.next);
-      _btnLiPrev.classList.add(REF.prev);
-      _btnUl.appendChild(_btnLiNext);
-      _btnUl.appendChild(_btnLiPrev);
-      obj.elm.appendChild(_btnUl);
-
-      _btnLiNext.addEventListener('click', function () {
-        _this2.action(obj.current + _this2.slideNum, obj, true);
-      });
-      _btnLiPrev.addEventListener('click', function () {
-        _this2.action(obj.current - _this2.slideNum, obj, false);
-      });
-    }
-  }, {
-    key: 'naviFactory',
-    value: function naviFactory(obj) {
-      var _this3 = this;
-
-      var _naviUl = document.createElement('ul');
-      var _fragment = document.createDocumentFragment();
-      var _tmpNum = Math.ceil(obj.itemLen / this.slideNum);
-      var _num = _tmpNum > this.showItem ? _tmpNum - (this.showItem - 1) : _tmpNum;
-
-      _naviUl.classList.add(REF.navi);
-      for (var i = 0; i < _num; i++) {
-        var _naviLi = document.createElement('li');
-        _naviLi.classList.add(REF.curr + i);
-        _fragment.appendChild(_naviLi);
-        _naviLi.addEventListener('click', function (e) {
-          var _targetClasses = e.currentTarget.classList;
-          _targetClasses.forEach(function (value) {
-            if (value.match(REF.curr) !== null) {
-              var _index = Math.ceil(parseInt(value.replace(REF.curr, '')) * _this3.slideNum);
-              _this3.action(_index, obj, true);
-            };
-          });
-        });
-      }
-
-      _naviUl.appendChild(_fragment);
-      obj.elm.appendChild(_naviUl);
-      obj.navi = _naviUl;
-      obj.naviChildren = _naviUl.querySelectorAll('li');
-      this.setCurrentNavi(obj);
     }
   }, {
     key: 'setCurrentNavi',
@@ -201,10 +208,10 @@ var LazySlider = function () {
   }, {
     key: 'action',
     value: function action(index, obj, dir) {
-      var _this4 = this;
+      var _this2 = this;
 
       var _isLast = function _isLast(item) {
-        return item > 0 && item < _this4.showItem;
+        return item > 0 && item < _this2.showItem;
       };
       if (dir) {
         var _prevIndex = index - this.slideNum;
@@ -222,18 +229,20 @@ var LazySlider = function () {
       obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * index) + '%,0,0)';
       obj.current = index;
 
-      obj.actionCb(obj);
+      for (var i = 0; i < obj.actionCb.length; i++) {
+        obj.actionCb[i](obj);
+      }
     }
   }, {
     key: 'autoPlay',
     value: function autoPlay(obj) {
-      var _this5 = this;
+      var _this3 = this;
 
       var timer = function timer() {
         obj.autoID = setTimeout(function () {
-          obj.current = obj.current + _this5.slideNum;
-          _this5.action(obj.current, obj, true);
-        }, _this5.interval);
+          obj.current = obj.current + _this3.slideNum;
+          _this3.action(obj.current, obj, true);
+        }, _this3.interval);
       };
 
       timer();
@@ -251,4 +260,4 @@ var LazySlider = function () {
 
 window.LazySlider = LazySlider;
 
-},{"./mod/Element":1,"./mod/Reference":2,"./mod/Utils":3}]},{},[4]);
+},{"./mod/Element":1,"./mod/Factories":2,"./mod/Reference":3,"./mod/Utils":4}]},{},[5]);

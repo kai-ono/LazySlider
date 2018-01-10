@@ -27,6 +27,7 @@ class Element {
     this.current = 0;
     this.navi;
     this.naviChildren;
+    this.actionCb = [];
   }
 }
 

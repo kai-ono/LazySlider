@@ -53,6 +53,16 @@
       </ul>
     </div>
 
+    <div class="aaa-slider lazy-slider-style">
+      <ul>
+        <li><img src="img/thumb1.jpg" /></li>
+        <li><img src="img/thumb2.jpg" /></li>
+        <li><img src="img/thumb3.jpg" /></li>
+        <li><img src="img/thumb4.jpg" /></li>
+        <li><img src="img/thumb5.jpg" /></li>
+      </ul>
+    </div>
+    
     <div class="dev-slider lazy-slider-style">
       <ul>
         <li><img src="img/thumb1.jpg" /></li>
@@ -74,7 +84,6 @@
     new LazySlider({
       class: 'test-slider',
       showItem: 3,
-      auto: false,
       interval: 2000,
       slideNum: 1,
       center: true,
@@ -82,15 +91,19 @@
     new LazySlider({
       class: 'sample-slider',
       showItem: 2,
-      //auto: false,
       interval: 2000,
       center: true,
       slideNum: 1,
     });
     new LazySlider({
+      class: 'aaa-slider',
+      showItem: 2,
+      interval: 2000,
+    });
+    new LazySlider({
       class: 'dev-slider',
       showItem: 1,
-      auto: false,
+      center: true,
       interval: 2000,
     });
   </script>

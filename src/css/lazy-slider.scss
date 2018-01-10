@@ -79,6 +79,7 @@ img {
     }
   }
   &.slide-center {
+    padding: 0 40px;
     .slide {
       &-item {
         & > img {
@@ -91,6 +92,12 @@ img {
             transform: scale(1);
           }
         }
+      }
+      &-prev {
+        left: -40px;
+      }
+      &-next {
+        right: 40px;
       }
     }
   }
