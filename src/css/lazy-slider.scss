@@ -78,4 +78,20 @@ img {
       }
     }
   }
+  &.slide-center {
+    .slide {
+      &-item {
+        & > img {
+          transform-origin: center;
+          transform: scale(0.9);
+          transition: transform 0.1s linear 0s;
+        }
+        &-center {
+          & > img {
+            transform: scale(1);
+          }
+        }
+      }
+    }
+  }
 }

@@ -10,4 +10,5 @@ module.exports = {
   navi: 'slide-navi',
   curr: 'current',
   actv: 'slide-navi-active',
+  cntr: 'slide-item-center',
 };

@@ -76,12 +76,16 @@
       showItem: 3,
       auto: false,
       interval: 2000,
+      slideNum: 1,
+      center: true,
     });
     new LazySlider({
       class: 'sample-slider',
       showItem: 2,
       //auto: false,
       interval: 2000,
+      center: true,
+      slideNum: 1,
     });
     new LazySlider({
       class: 'dev-slider',
@@ -89,6 +93,38 @@
       auto: false,
       interval: 2000,
     });
-</script>
+  </script>
+
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css"/>
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css"/>
+  <style>
+    .center * {
+      text-align: center
+    }
+    .center div {
+      border: 1px solid #000;
+    }
+  </style>
+  <script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+  <div class="center">
+      <div><h3>1</h3></div>
+      <div><h3>2</h3></div>
+      <div><h3>3</h3></div>
+      <div><h3>4</h3></div>
+      <div><h3>5</h3></div>
+      <div><h3>6</h3></div>
+    </div>
+  <script>
+    $(document).ready(function(){
+      $('.center').slick({
+        centerMode: true,
+        slidesToShow: 2,
+        arrows: false,
+        centerPadding: '40px'
+      });
+    });
+  </script>
 </body>
 </html>
