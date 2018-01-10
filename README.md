@@ -1,5 +1,5 @@
 ## Demo
-https://kai-ono.github.io/LazySlider/dest/
+https://kai-ono.github.io/lazy-slider/dest/
 
 ## Browser support
 * IE10 or greater
