@@ -83,12 +83,14 @@ img {
     .slide {
       &-item {
         & > img {
+          opacity: 0.5;
           transform-origin: center;
           transform: scale(0.9);
-          transition: transform 0.1s linear 0s;
+          transition: all 0.1s linear 0s;
         }
         &-center {
           & > img {
+            opacity: 1;
             transform: scale(1);
           }
         }
