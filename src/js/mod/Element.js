@@ -16,18 +16,24 @@ class Element {
    * @param {Object} args.navi ナビゲーションのul要素
    * @param {Object} args.naviChildren ナビゲーションの子要素
    */
-  constructor(arg) {
+  constructor(arg, showItem) {
     this.elm = arg;
     this.list = this.elm.querySelector('ul');
-    this.item = this.list.querySelectorAll('li');
+    this.item = [].slice.call(this.list.querySelectorAll('li'));
     this.itemLen = this.item.length;
     this.itemW = 100 / this.itemLen;
-    this.showW = this.itemW * this.showItem;
+    this.dupItemLen = 0;
+    this.showW = this.itemW * showItem;
     this.autoID;
     this.current = 0;
     this.navi;
     this.naviChildren;
     this.actionCb = [];
+    this.init(showItem);
+  }
+
+  init(showItem) {
+    this.list.style.width = 100 / showItem * this.itemLen + '%';
   }
 }
 

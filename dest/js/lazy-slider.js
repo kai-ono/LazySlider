@@ -1,23 +1,38 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Element = function Element(arg) {
-  _classCallCheck(this, Element);
+var Element = function () {
+  function Element(arg, showItem) {
+    _classCallCheck(this, Element);
 
-  this.elm = arg;
-  this.list = this.elm.querySelector('ul');
-  this.item = this.list.querySelectorAll('li');
-  this.itemLen = this.item.length;
-  this.itemW = 100 / this.itemLen;
-  this.showW = this.itemW * this.showItem;
-  this.autoID;
-  this.current = 0;
-  this.navi;
-  this.naviChildren;
-  this.actionCb = [];
-};
+    this.elm = arg;
+    this.list = this.elm.querySelector('ul');
+    this.item = [].slice.call(this.list.querySelectorAll('li'));
+    this.itemLen = this.item.length;
+    this.itemW = 100 / this.itemLen;
+    this.dupItemLen = 0;
+    this.showW = this.itemW * showItem;
+    this.autoID;
+    this.current = 0;
+    this.navi;
+    this.naviChildren;
+    this.actionCb = [];
+    this.init(showItem);
+  }
+
+  _createClass(Element, [{
+    key: 'init',
+    value: function init(showItem) {
+      this.list.style.width = 100 / showItem * this.itemLen + '%';
+    }
+  }]);
+
+  return Element;
+}();
 
 module.exports = Element;
 
@@ -27,7 +42,7 @@ module.exports = Element;
 var REF = require('./Reference');
 
 module.exports = {
-  buttonFactory: function buttonFactory(obj, _this) {
+  createButtons: function createButtons(obj, _this) {
     var _btnUl = document.createElement('ul');
     var _btnLiNext = document.createElement('li');
     var _btnLiPrev = document.createElement('li');
@@ -39,23 +54,20 @@ module.exports = {
     obj.elm.appendChild(_btnUl);
 
     _btnLiNext.addEventListener('click', function () {
-      _this.action(obj.current + _this.slideNum, obj, true);
+      obj.current = obj.current + _this.slideNum;
+      _this.action(obj.current, obj, true);
     });
     _btnLiPrev.addEventListener('click', function () {
-      _this.action(obj.current - _this.slideNum, obj, false);
+      obj.current = obj.current - _this.slideNum;
+      _this.action(obj.current, obj, false);
     });
   },
 
-  naviFactory: function naviFactory(obj, _this) {
+  createNavi: function createNavi(obj, _this) {
     var _naviUl = document.createElement('ul');
     var _fragment = document.createDocumentFragment();
     var _tmpNum = Math.ceil(obj.itemLen / _this.slideNum);
-    console.log({
-      a: _tmpNum,
-      b: _this.showItem
-    });
     var _num = _tmpNum > _this.showItem + 1 ? _tmpNum - (_this.showItem - 1) : _tmpNum;
-
     _naviUl.classList.add(REF.navi);
     for (var i = 0; i < _num; i++) {
       var _naviLi = document.createElement('li');
@@ -126,7 +138,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var REF = require('./mod/Reference');
 var UTILS = require('./mod/Utils');
-var FACTRIES = require('./mod/Factories');
+var FACTORY = require('./mod/Factory');
 var ELM = require('./mod/Element');
 
 var LazySlider = function () {
@@ -139,6 +151,7 @@ var LazySlider = function () {
     this.showItem = typeof args.showItem !== 'undefined' ? args.showItem : 1;
     this.slideNum = typeof args.slideNum !== 'undefined' ? args.slideNum : args.showItem;
     this.center = args.center === true ? true : false;
+    this.loop = args.loop === true ? true : false;
     this.btns = args.btns === false ? false : true;
     this.navi = args.navi === false ? false : true;
     this.nodeList = document.querySelectorAll('.' + args.class);
@@ -153,19 +166,20 @@ var LazySlider = function () {
       var _this = this;
 
       var _loop = function _loop(i) {
-        _this.elmArr.push(new ELM(_this.nodeList[i]));
+        _this.elmArr.push(new ELM(_this.nodeList[i], _this.showItem));
         _this.elmArr[i].list.classList.add(REF.list);
         [].map.call(_this.elmArr[i].item, function (el) {
           el.classList.add(REF.item);
 
           if (UTILS.isIE10()) el.style.width = 100 / _this.elmArr[i].itemLen + '%';
         });
-        _this.elmArr[i].list.style.width = 100 / _this.showItem * _this.elmArr[i].itemLen + '%';
 
+
+        if (_this.loop) _this.loopSettings(_this.elmArr[i]);
         if (_this.auto) _this.autoPlay(_this.elmArr[i]);
-        if (_this.btns) FACTRIES.buttonFactory(_this.elmArr[i], _this);
+        if (_this.btns) FACTORY.createButtons(_this.elmArr[i], _this);
         if (_this.navi) {
-          FACTRIES.naviFactory(_this.elmArr[i], _this);
+          FACTORY.createNavi(_this.elmArr[i], _this);
           _this.elmArr[i].actionCb.push(function (obj) {
             _this.setCurrentNavi(obj);
           });
@@ -181,6 +195,26 @@ var LazySlider = function () {
       for (var i = 0; i < this.nodeList.length; i++) {
         _loop(i);
       }
+    }
+  }, {
+    key: 'loopSettings',
+    value: function loopSettings(obj) {
+      var _fragment = document.createDocumentFragment();
+      var _dupArr = [];
+      for (var j = 0; j < 2; j++) {
+        for (var i = 0; i < obj.item.length; i++) {
+          var _dupNode = obj.item[i].cloneNode(true);
+          _dupNode.classList.add('duplicate-item');
+          _fragment.appendChild(_dupNode);
+          _dupArr.push(_dupNode);
+        }
+      }
+      obj.dupItemLen = _dupArr.length;
+      obj.item = _dupArr.concat(obj.item);
+      obj.list.appendChild(_fragment);
+      obj.list.style.width = 100 / this.showItem * obj.itemLen * 3 + '%';
+      obj.itemW = 100 / obj.item.length;
+      obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * obj.dupItemLen) + '%,0,0)';
     }
   }, {
     key: 'setCurrentNavi',
@@ -223,10 +257,10 @@ var LazySlider = function () {
         if (_isLast(_remainingItem2)) index = _prevIndex2 - _remainingItem2;
       }
 
-      if (index > obj.itemLen - this.showItem) index = 0;
+      if (index > obj.itemLen - this.showItem) index = obj.current - (obj.itemLen - this.showItem) - 1;
       if (index < 0) index = obj.itemLen - this.showItem;
 
-      obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * index) + '%,0,0)';
+      obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * index + obj.itemW * obj.dupItemLen) + '%,0,0)';
       obj.current = index;
 
       for (var i = 0; i < obj.actionCb.length; i++) {
@@ -260,4 +294,4 @@ var LazySlider = function () {
 
 window.LazySlider = LazySlider;
 
-},{"./mod/Element":1,"./mod/Factories":2,"./mod/Reference":3,"./mod/Utils":4}]},{},[5]);
+},{"./mod/Element":1,"./mod/Factory":2,"./mod/Reference":3,"./mod/Utils":4}]},{},[5]);

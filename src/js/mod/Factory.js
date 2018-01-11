@@ -8,7 +8,7 @@ module.exports = {
    * @param {Object} obj this.elmClass
    * @param {Object} _this 呼び出し元のthisを参照
    */
-  buttonFactory: (obj, _this) => {
+  createButtons: (obj, _this) => {
     const _btnUl = document.createElement('ul');
     const _btnLiNext = document.createElement('li');
     const _btnLiPrev = document.createElement('li');
@@ -20,10 +20,12 @@ module.exports = {
     obj.elm.appendChild(_btnUl);
 
     _btnLiNext.addEventListener('click', () => {
-      _this.action((obj.current + _this.slideNum), obj, true);
+      obj.current = obj.current + _this.slideNum;
+      _this.action(obj.current, obj, true);
     });
     _btnLiPrev.addEventListener('click', () => {
-      _this.action((obj.current - _this.slideNum), obj, false);
+      obj.current = obj.current - _this.slideNum;
+      _this.action(obj.current, obj, false);
     });
   },
 
@@ -32,16 +34,11 @@ module.exports = {
    * @param {Object} obj this.elmClass
    * @param {Object} _this 呼び出し元のthisを参照
    */
-  naviFactory: (obj, _this) => {
+  createNavi: (obj, _this) => {
     const _naviUl = document.createElement('ul');
     const _fragment = document.createDocumentFragment();
     const _tmpNum = Math.ceil(obj.itemLen / _this.slideNum);
-    console.log({
-      a: _tmpNum,
-      b: _this.showItem,
-    });
     const _num = (_tmpNum > _this.showItem + 1) ? _tmpNum - (_this.showItem - 1) : _tmpNum;
-
     _naviUl.classList.add(REF.navi);
     for(let i = 0; i < _num; i++) {
       const _naviLi = document.createElement('li');

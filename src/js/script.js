@@ -2,7 +2,7 @@
 
 const REF = require('./mod/Reference');
 const UTILS = require('./mod/Utils');
-const FACTRIES = require('./mod/Factories');
+const FACTORY = require('./mod/Factory');
 const ELM = require('./mod/Element');
 
 class LazySlider {
@@ -21,6 +21,7 @@ class LazySlider {
     this.showItem = (typeof args.showItem !== 'undefined') ? args.showItem : 1;
     this.slideNum = (typeof args.slideNum !== 'undefined') ? args.slideNum : args.showItem;
     this.center = (args.center === true) ? true : false;
+    this.loop = (args.loop === true) ? true : false;
     this.btns = (args.btns === false) ? false : true;
     this.navi = (args.navi === false) ? false : true;
     this.nodeList = document.querySelectorAll('.' + args.class);
@@ -31,7 +32,7 @@ class LazySlider {
 
   init() {
     for (let i = 0; i < this.nodeList.length; i++) {
-      this.elmArr.push(new ELM(this.nodeList[i]));
+      this.elmArr.push(new ELM(this.nodeList[i], this.showItem));
       this.elmArr[i].list.classList.add(REF.list);
       [].map.call(this.elmArr[i].item, (el) => {
         el.classList.add(REF.item);
@@ -41,12 +42,13 @@ class LazySlider {
          */
         if (UTILS.isIE10()) el.style.width = 100 / this.elmArr[i].itemLen + '%';
       });
-      this.elmArr[i].list.style.width = 100 / this.showItem * this.elmArr[i].itemLen + '%';
+      // this.elmArr[i].list.style.width = 100 / this.showItem * this.elmArr[i].itemLen + '%';
 
+      if (this.loop) this.loopSettings(this.elmArr[i]);
       if (this.auto) this.autoPlay(this.elmArr[i]);
-      if (this.btns) FACTRIES.buttonFactory(this.elmArr[i], this);
+      if (this.btns) FACTORY.createButtons(this.elmArr[i], this);
       if (this.navi) {
-        FACTRIES.naviFactory(this.elmArr[i], this);
+        FACTORY.createNavi(this.elmArr[i], this);
         this.elmArr[i].actionCb.push((obj) => {
           this.setCurrentNavi(obj);
         });
@@ -58,6 +60,30 @@ class LazySlider {
         });
       };
     }
+  }
+
+  /**
+   * ループ処理
+   * @param {Object} obj this.elmClass
+   */
+  loopSettings(obj) {
+    const _fragment = document.createDocumentFragment();
+    const _dupArr = [];
+    for(let j = 0; j < 2; j++) {
+      for(let i = 0; i < obj.item.length; i++) {
+        const _dupNode = obj.item[i].cloneNode(true);
+        _dupNode.classList.add('duplicate-item');
+        _fragment.appendChild(_dupNode);
+        _dupArr.push(_dupNode);
+      }
+    }
+    obj.dupItemLen = _dupArr.length;
+    obj.item = _dupArr.concat(obj.item);
+    obj.list.appendChild(_fragment);
+    obj.list.style.width = 100 / this.showItem * obj.itemLen * 3 + '%';
+    obj.itemW = 100 / obj.item.length;
+    obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * obj.dupItemLen) + '%,0,0)';
+    // obj.init(this.showItem);
   }
 
   /**
@@ -116,10 +142,10 @@ class LazySlider {
       if (_isLast(_remainingItem)) index = _prevIndex - _remainingItem;
     }
 
-    if (index > obj.itemLen - this.showItem) index = 0;
+    if (index > obj.itemLen - this.showItem) index = obj.current - (obj.itemLen - this.showItem) - 1;
     if (index < 0) index = obj.itemLen - this.showItem;
 
-    obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * index) + '%,0,0)';
+    obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * index + (obj.itemW * obj.dupItemLen)) + '%,0,0)';
     obj.current = index;
 
     for(let i = 0; i < obj.actionCb.length; i++) {
