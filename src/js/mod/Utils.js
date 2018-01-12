@@ -15,5 +15,12 @@ module.exports = {
     if(_bodyStyle.msTransform !== undefined) _transform = 'msTransform';
 
     return _transform;
+  },
+  setTransitionEnd: (elm, cb) => {
+    elm.addEventListener('transitionend', (e) => {
+      if(e.target == elm && e.propertyName === 'transform') {
+        cb();
+      }
+    });
   }
 };

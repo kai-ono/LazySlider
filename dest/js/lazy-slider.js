@@ -15,6 +15,7 @@ var Element = function () {
     this.itemLen = this.item.length;
     this.itemW = 100 / this.itemLen;
     this.dupItemLen = 0;
+    this.dupItemLeftLen = 0;
     this.showW = this.itemW * showItem;
     this.autoID;
     this.current = 0;
@@ -126,6 +127,13 @@ module.exports = {
     if (_bodyStyle.msTransform !== undefined) _transform = 'msTransform';
 
     return _transform;
+  },
+  setTransitionEnd: function setTransitionEnd(elm, cb) {
+    elm.addEventListener('transitionend', function (e) {
+      if (e.target == elm && e.propertyName === 'transform') {
+        cb();
+      }
+    });
   }
 };
 
@@ -174,8 +182,26 @@ var LazySlider = function () {
           if (UTILS.isIE10()) el.style.width = 100 / _this.elmArr[i].itemLen + '%';
         });
 
-
-        if (_this.loop) _this.loopSettings(_this.elmArr[i]);
+        if (_this.loop) {
+          _this.loopSettings(_this.elmArr[i]);
+          _this.elmArr[i].actionCb.push(function (obj) {
+            UTILS.setTransitionEnd(obj.list, function () {
+              if (obj.current === obj.itemLen - 1) {
+                obj.list.style.transitionDuration = 0 + 's';
+                for (var _i = 0; _i < obj.itemLen; _i++) {
+                  obj.item[_i].querySelector('img').style.transitionDuration = 0 + 's';
+                }
+                obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * (obj.dupItemLeftLen - 1)) + '%,0,0)';
+                setTimeout(function () {
+                  obj.list.style.transitionDuration = 0.5 + 's';
+                  for (var _i2 = 0; _i2 < obj.itemLen; _i2++) {
+                    obj.item[_i2].querySelector('img').style.transitionDuration = 0.1 + 's';
+                  }
+                }, 0);
+              }
+            });
+          });
+        };
         if (_this.auto) _this.autoPlay(_this.elmArr[i]);
         if (_this.btns) FACTORY.createButtons(_this.elmArr[i], _this);
         if (_this.navi) {
@@ -210,11 +236,12 @@ var LazySlider = function () {
         }
       }
       obj.dupItemLen = _dupArr.length;
+      obj.dupItemLeftLen = obj.item.length;
       obj.item = _dupArr.concat(obj.item);
       obj.list.appendChild(_fragment);
       obj.list.style.width = 100 / this.showItem * obj.itemLen * 3 + '%';
       obj.itemW = 100 / obj.item.length;
-      obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * obj.dupItemLen) + '%,0,0)';
+      obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * obj.dupItemLeftLen) + '%,0,0)';
     }
   }, {
     key: 'setCurrentNavi',
@@ -257,10 +284,10 @@ var LazySlider = function () {
         if (_isLast(_remainingItem2)) index = _prevIndex2 - _remainingItem2;
       }
 
-      if (index > obj.itemLen - this.showItem) index = obj.current - (obj.itemLen - this.showItem) - 1;
+      if (index > obj.itemLen - this.showItem) index = 0;
       if (index < 0) index = obj.itemLen - this.showItem;
 
-      obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * index + obj.itemW * obj.dupItemLen) + '%,0,0)';
+      obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * index + obj.itemW * obj.dupItemLeftLen) + '%,0,0)';
       obj.current = index;
 
       for (var i = 0; i < obj.actionCb.length; i++) {
@@ -280,7 +307,7 @@ var LazySlider = function () {
       };
 
       timer();
-      obj.list.addEventListener('transitionend', function () {
+      UTILS.setTransitionEnd(obj.list, function () {
         clearTimeout(obj.autoID);
         timer();
       });

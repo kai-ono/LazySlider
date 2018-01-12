@@ -42,9 +42,27 @@ class LazySlider {
          */
         if (UTILS.isIE10()) el.style.width = 100 / this.elmArr[i].itemLen + '%';
       });
-      // this.elmArr[i].list.style.width = 100 / this.showItem * this.elmArr[i].itemLen + '%';
 
-      if (this.loop) this.loopSettings(this.elmArr[i]);
+      if (this.loop) {
+        this.loopSettings(this.elmArr[i]);
+        this.elmArr[i].actionCb.push((obj) => {
+          UTILS.setTransitionEnd(obj.list, () => {
+            if(obj.current === obj.itemLen - 1) {
+              obj.list.style.transitionDuration = 0 + 's';
+              for(let i = 0; i < obj.itemLen; i++) {
+                obj.item[i].querySelector('img').style.transitionDuration = 0 + 's';
+              }
+              obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * (obj.dupItemLeftLen - 1)) + '%,0,0)';
+              setTimeout(() => {
+                obj.list.style.transitionDuration = 0.5 + 's';
+                for(let i = 0; i < obj.itemLen; i++) {
+                  obj.item[i].querySelector('img').style.transitionDuration = 0.1 + 's';
+                }
+              }, 0);
+            }
+          });
+        });
+      };
       if (this.auto) this.autoPlay(this.elmArr[i]);
       if (this.btns) FACTORY.createButtons(this.elmArr[i], this);
       if (this.navi) {
@@ -78,11 +96,12 @@ class LazySlider {
       }
     }
     obj.dupItemLen = _dupArr.length;
+    obj.dupItemLeftLen = obj.item.length;
     obj.item = _dupArr.concat(obj.item);
     obj.list.appendChild(_fragment);
     obj.list.style.width = 100 / this.showItem * obj.itemLen * 3 + '%';
     obj.itemW = 100 / obj.item.length;
-    obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * obj.dupItemLen) + '%,0,0)';
+    obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * obj.dupItemLeftLen) + '%,0,0)';
     // obj.init(this.showItem);
   }
 
@@ -142,10 +161,10 @@ class LazySlider {
       if (_isLast(_remainingItem)) index = _prevIndex - _remainingItem;
     }
 
-    if (index > obj.itemLen - this.showItem) index = obj.current - (obj.itemLen - this.showItem) - 1;
+    if (index > obj.itemLen - this.showItem) index = 0;
     if (index < 0) index = obj.itemLen - this.showItem;
 
-    obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * index + (obj.itemW * obj.dupItemLen)) + '%,0,0)';
+    obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * index + (obj.itemW * obj.dupItemLeftLen)) + '%,0,0)';
     obj.current = index;
 
     for(let i = 0; i < obj.actionCb.length; i++) {
@@ -166,7 +185,7 @@ class LazySlider {
     };
 
     timer();
-    obj.list.addEventListener('transitionend', () => {
+    UTILS.setTransitionEnd(obj.list, () => {
       clearTimeout(obj.autoID);
       timer();
     });

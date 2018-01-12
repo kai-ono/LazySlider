@@ -23,6 +23,7 @@ class Element {
     this.itemLen = this.item.length;
     this.itemW = 100 / this.itemLen;
     this.dupItemLen = 0;
+    this.dupItemLeftLen = 0;
     this.showW = this.itemW * showItem;
     this.autoID;
     this.current = 0;
