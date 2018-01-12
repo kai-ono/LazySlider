@@ -9,6 +9,8 @@ https://kai-ono.github.io/lazy-slider/dest/
 
 ## DOM example
 ```html
+<link rel="stylesheet" type="text/css" href="css/lazy-slider.css"/>
+<script type="text/javascript" src="js/lazy-slider.js"></script>
 <div class="lazy-slider lazy-slider-style">
   <ul>
     <li><img src="1.jpg" /></li>
