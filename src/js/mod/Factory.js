@@ -20,10 +20,12 @@ module.exports = {
     obj.elm.appendChild(_btnUl);
 
     _btnLiNext.addEventListener('click', () => {
+      if(_this.actionLock) return;
       obj.current = obj.current + _this.slideNum;
       _this.action(obj.current, obj, true);
     });
     _btnLiPrev.addEventListener('click', () => {
+      if(_this.actionLock) return;
       obj.current = obj.current - _this.slideNum;
       _this.action(obj.current, obj, false);
     });

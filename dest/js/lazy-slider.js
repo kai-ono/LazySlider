@@ -55,10 +55,12 @@ module.exports = {
     obj.elm.appendChild(_btnUl);
 
     _btnLiNext.addEventListener('click', function () {
+      if (_this.actionLock) return;
       obj.current = obj.current + _this.slideNum;
       _this.action(obj.current, obj, true);
     });
     _btnLiPrev.addEventListener('click', function () {
+      if (_this.actionLock) return;
       obj.current = obj.current - _this.slideNum;
       _this.action(obj.current, obj, false);
     });
@@ -162,6 +164,7 @@ var LazySlider = function () {
     this.loop = args.loop === true ? true : false;
     this.btns = args.btns === false ? false : true;
     this.navi = args.navi === false ? false : true;
+    this.actionLock = false;
     this.nodeList = document.querySelectorAll('.' + args.class);
     this.resizeTimerID;
     this.elmArr = [];
@@ -182,24 +185,16 @@ var LazySlider = function () {
           if (UTILS.isIE10()) el.style.width = 100 / _this.elmArr[i].itemLen + '%';
         });
 
+        _this.elmArr[i].actionCb.push(function (obj) {
+          UTILS.setTransitionEnd(obj.list, function () {
+            _this.actionLock = false;
+          });
+        });
+
         if (_this.loop) {
           _this.loopSettings(_this.elmArr[i]);
           _this.elmArr[i].actionCb.push(function (obj) {
-            UTILS.setTransitionEnd(obj.list, function () {
-              if (obj.current === obj.itemLen - 1) {
-                obj.list.style.transitionDuration = 0 + 's';
-                for (var _i = 0; _i < obj.itemLen; _i++) {
-                  obj.item[_i].querySelector('img').style.transitionDuration = 0 + 's';
-                }
-                obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * (obj.dupItemLeftLen - 1)) + '%,0,0)';
-                setTimeout(function () {
-                  obj.list.style.transitionDuration = 0.5 + 's';
-                  for (var _i2 = 0; _i2 < obj.itemLen; _i2++) {
-                    obj.item[_i2].querySelector('img').style.transitionDuration = 0.1 + 's';
-                  }
-                }, 0);
-              }
-            });
+            UTILS.setTransitionEnd(obj.list, function () {});
           });
         };
         if (_this.auto) _this.autoPlay(_this.elmArr[i]);
@@ -271,8 +266,10 @@ var LazySlider = function () {
     value: function action(index, obj, dir) {
       var _this2 = this;
 
+      this.actionLock = true;
+
       var _isLast = function _isLast(item) {
-        return item > 0 && item < _this2.showItem;
+        return item > 0 && item < _this2.showItem && !_this2.loop;
       };
       if (dir) {
         var _prevIndex = index - this.slideNum;
@@ -284,7 +281,8 @@ var LazySlider = function () {
         if (_isLast(_remainingItem2)) index = _prevIndex2 - _remainingItem2;
       }
 
-      if (index > obj.itemLen - this.showItem) index = 0;
+      if (index > obj.itemLen - 1) index = 0;
+
       if (index < 0) index = obj.itemLen - this.showItem;
 
       obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * index + obj.itemW * obj.dupItemLeftLen) + '%,0,0)';

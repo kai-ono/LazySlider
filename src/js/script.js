@@ -24,6 +24,7 @@ class LazySlider {
     this.loop = (args.loop === true) ? true : false;
     this.btns = (args.btns === false) ? false : true;
     this.navi = (args.navi === false) ? false : true;
+    this.actionLock = false;
     this.nodeList = document.querySelectorAll('.' + args.class);
     this.resizeTimerID;
     this.elmArr = [];
@@ -43,23 +44,29 @@ class LazySlider {
         if (UTILS.isIE10()) el.style.width = 100 / this.elmArr[i].itemLen + '%';
       });
 
+      this.elmArr[i].actionCb.push((obj) => {
+        UTILS.setTransitionEnd(obj.list, () => {
+          this.actionLock = false;
+        });
+      });
+
       if (this.loop) {
         this.loopSettings(this.elmArr[i]);
         this.elmArr[i].actionCb.push((obj) => {
           UTILS.setTransitionEnd(obj.list, () => {
-            if(obj.current === obj.itemLen - 1) {
-              obj.list.style.transitionDuration = 0 + 's';
-              for(let i = 0; i < obj.itemLen; i++) {
-                obj.item[i].querySelector('img').style.transitionDuration = 0 + 's';
-              }
-              obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * (obj.dupItemLeftLen - 1)) + '%,0,0)';
-              setTimeout(() => {
-                obj.list.style.transitionDuration = 0.5 + 's';
-                for(let i = 0; i < obj.itemLen; i++) {
-                  obj.item[i].querySelector('img').style.transitionDuration = 0.1 + 's';
-                }
-              }, 0);
-            }
+            // if(obj.current === obj.itemLen - this.showItem) {
+            //   obj.list.style.transitionDuration = 0 + 's';
+            //   for(let i = 0; i < obj.itemLen; i++) {
+            //     obj.item[i].querySelector('img').style.transitionDuration = 0 + 's';
+            //   }
+            //   obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * (obj.dupItemLeftLen - this.showItem)) + '%,0,0)';
+            //   setTimeout(() => {
+            //     obj.list.style.transitionDuration = 0.5 + 's';
+            //     for(let i = 0; i < obj.itemLen; i++) {
+            //       obj.item[i].querySelector('img').style.transitionDuration = 0.1 + 's';
+            //     }
+            //   }, 0);
+            // }
           });
         });
       };
@@ -102,7 +109,6 @@ class LazySlider {
     obj.list.style.width = 100 / this.showItem * obj.itemLen * 3 + '%';
     obj.itemW = 100 / obj.item.length;
     obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * obj.dupItemLeftLen) + '%,0,0)';
-    // obj.init(this.showItem);
   }
 
   /**
@@ -144,12 +150,15 @@ class LazySlider {
    * @param {Object} dir スライド方向の指定 true = next; prev = false;
    */
   action(index, obj, dir) {
+    this.actionLock = true;
+
     /**
      * 2アイテム表示に対して残りのアイテムが1つしかない場合などに、
      * 空白が表示されないように移動量を調整。
      */
     const _isLast = (item) => {
-      return item > 0 && item < this.showItem;
+      // return item > 0 && item < this.showItem;
+      return item > 0 && item < this.showItem && !this.loop;
     };
     if(dir) {
       const _prevIndex = index - this.slideNum;
@@ -161,7 +170,8 @@ class LazySlider {
       if (_isLast(_remainingItem)) index = _prevIndex - _remainingItem;
     }
 
-    if (index > obj.itemLen - this.showItem) index = 0;
+    if (index > obj.itemLen - 1) index = 0;
+    // if (index > obj.itemLen - this.showItem) index = 0;
     if (index < 0) index = obj.itemLen - this.showItem;
 
     obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * index + (obj.itemW * obj.dupItemLeftLen)) + '%,0,0)';
