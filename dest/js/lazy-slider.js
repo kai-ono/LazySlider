@@ -70,7 +70,7 @@ module.exports = {
     var _naviUl = document.createElement('ul');
     var _fragment = document.createDocumentFragment();
     var _tmpNum = Math.ceil(obj.itemLen / _this.slideNum);
-    var _num = _tmpNum > _this.showItem + 1 ? _tmpNum - (_this.showItem - 1) : _tmpNum;
+    var _num = _tmpNum > _this.showItem + 1 && !_this.loop ? _tmpNum - (_this.showItem - 1) : _tmpNum;
     _naviUl.classList.add(REF.navi);
     for (var i = 0; i < _num; i++) {
       var _naviLi = document.createElement('li');
@@ -159,7 +159,7 @@ var LazySlider = function () {
     this.auto = args.auto === false ? false : true;
     this.interval = typeof args.interval !== 'undefined' ? args.interval : 3000;
     this.showItem = typeof args.showItem !== 'undefined' ? args.showItem : 1;
-    this.slideNum = typeof args.slideNum !== 'undefined' ? args.slideNum : args.showItem;
+    this.slideNum = typeof args.slideNum !== 'undefined' ? args.slideNum : this.showItem;
     this.center = args.center === true ? true : false;
     this.loop = args.loop === true ? true : false;
     this.btns = args.btns === false ? false : true;
@@ -194,7 +194,22 @@ var LazySlider = function () {
         if (_this.loop) {
           _this.loopSettings(_this.elmArr[i]);
           _this.elmArr[i].actionCb.push(function (obj) {
-            UTILS.setTransitionEnd(obj.list, function () {});
+            UTILS.setTransitionEnd(obj.list, function () {
+              if (obj.current === obj.itemLen - _this.showItem + 1) {
+                obj.list.style.transitionDuration = 0 + 's';
+                for (var _i = 0; _i < obj.itemLen; _i++) {
+                  obj.item[_i].querySelector('img').style.transitionDuration = 0 + 's';
+                }
+
+                obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * (obj.dupItemLeftLen - _this.showItem + 1)) + '%,0,0)';
+                setTimeout(function () {
+                  obj.list.style.transitionDuration = 0.5 + 's';
+                  for (var _i2 = 0; _i2 < obj.itemLen; _i2++) {
+                    obj.item[_i2].querySelector('img').style.transitionDuration = 0.1 + 's';
+                  }
+                }, 0);
+              }
+            });
           });
         };
         if (_this.auto) _this.autoPlay(_this.elmArr[i]);
