@@ -14,6 +14,7 @@ var Element = function () {
     this.item = [].slice.call(this.list.querySelectorAll('li'));
     this.itemLen = this.item.length;
     this.itemW = 100 / this.itemLen;
+    this.remainingItem = 0;
     this.dupItemLen = 0;
     this.dupItemLeftLen = 0;
     this.showW = this.itemW * showItem;
@@ -57,12 +58,14 @@ module.exports = {
     _btnLiNext.addEventListener('click', function () {
       if (_this.actionLock) return;
       obj.current = obj.current + _this.slideNum;
-      _this.action(obj.current, obj, true);
+      obj.dir = true;
+      _this.action(obj.current, obj);
     });
     _btnLiPrev.addEventListener('click', function () {
       if (_this.actionLock) return;
       obj.current = obj.current - _this.slideNum;
-      _this.action(obj.current, obj, false);
+      obj.dir = false;
+      _this.action(obj.current, obj);
     });
   },
 
@@ -178,52 +181,51 @@ var LazySlider = function () {
 
       var _loop = function _loop(i) {
         _this.elmArr.push(new ELM(_this.nodeList[i], _this.showItem));
-        _this.elmArr[i].list.classList.add(REF.list);
-        [].map.call(_this.elmArr[i].item, function (el) {
+        var obj = _this.elmArr[i];
+        obj.list.classList.add(REF.list);
+        [].map.call(obj.item, function (el) {
           el.classList.add(REF.item);
 
-          if (UTILS.isIE10()) el.style.width = 100 / _this.elmArr[i].itemLen + '%';
+          if (UTILS.isIE10()) el.style.width = 100 / obj.itemLen + '%';
         });
 
-        _this.elmArr[i].actionCb.push(function (obj) {
-          UTILS.setTransitionEnd(obj.list, function () {
-            _this.actionLock = false;
-          });
+        UTILS.setTransitionEnd(obj.list, function () {
+          _this.actionLock = false;
         });
 
         if (_this.loop) {
-          _this.loopSettings(_this.elmArr[i]);
-          _this.elmArr[i].actionCb.push(function (obj) {
-            UTILS.setTransitionEnd(obj.list, function () {
-              if (obj.current === obj.itemLen - _this.showItem + 1) {
-                obj.list.style.transitionDuration = 0 + 's';
-                for (var _i = 0; _i < obj.itemLen; _i++) {
-                  obj.item[_i].querySelector('img').style.transitionDuration = 0 + 's';
-                }
-
-                obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * (obj.dupItemLeftLen - _this.showItem + 1)) + '%,0,0)';
-                setTimeout(function () {
-                  obj.list.style.transitionDuration = 0.5 + 's';
-                  for (var _i2 = 0; _i2 < obj.itemLen; _i2++) {
-                    obj.item[_i2].querySelector('img').style.transitionDuration = 0.1 + 's';
-                  }
-                }, 0);
+          _this.loopSettings(obj);
+          UTILS.setTransitionEnd(obj.list, function () {
+            if (obj.remainItem - _this.slideNum <= 0) {
+              obj.list.style.transitionDuration = 0 + 's';
+              for (var _i = 0; _i < obj.itemLen; _i++) {
+                obj.item[_i].querySelector('img').style.transitionDuration = 0 + 's';
               }
-            });
+
+              var _amount = obj.dir ? obj.itemW * (obj.itemLen - obj.remainItem) : obj.itemW * (obj.itemLen + obj.remainItem - 1);
+              obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -_amount + '%,0,0)';
+
+              setTimeout(function () {
+                obj.list.style.transitionDuration = 0.5 + 's';
+                for (var _i2 = 0; _i2 < obj.itemLen; _i2++) {
+                  obj.item[_i2].querySelector('img').style.transitionDuration = 0.1 + 's';
+                }
+              }, 0);
+            }
           });
         };
-        if (_this.auto) _this.autoPlay(_this.elmArr[i]);
-        if (_this.btns) FACTORY.createButtons(_this.elmArr[i], _this);
+        if (_this.auto) _this.autoPlay(obj);
+        if (_this.btns) FACTORY.createButtons(obj, _this);
         if (_this.navi) {
-          FACTORY.createNavi(_this.elmArr[i], _this);
-          _this.elmArr[i].actionCb.push(function (obj) {
-            _this.setCurrentNavi(obj);
+          FACTORY.createNavi(obj, _this);
+          obj.actionCb.push(function (_obj) {
+            _this.setCurrentNavi(_obj);
           });
         };
         if (_this.center) {
-          _this.centerSettings(_this.elmArr[i]);
-          _this.elmArr[i].actionCb.push(function (obj) {
-            _this.setCenter(obj);
+          _this.centerSettings(obj);
+          obj.actionCb.push(function (_obj) {
+            _this.setCenter(_obj);
           });
         };
       };
@@ -256,7 +258,7 @@ var LazySlider = function () {
   }, {
     key: 'setCurrentNavi',
     value: function setCurrentNavi(obj) {
-      var _index = Math.ceil(obj.current / this.slideNum);
+      var _index = Math.abs(Math.ceil(obj.current / this.slideNum));
       for (var i = 0; i < obj.naviChildren.length; i++) {
         obj.naviChildren[i].classList.remove(REF.actv);
       }
@@ -278,7 +280,7 @@ var LazySlider = function () {
     }
   }, {
     key: 'action',
-    value: function action(index, obj, dir) {
+    value: function action(index, obj) {
       var _this2 = this;
 
       this.actionLock = true;
@@ -286,19 +288,19 @@ var LazySlider = function () {
       var _isLast = function _isLast(item) {
         return item > 0 && item < _this2.showItem && !_this2.loop;
       };
-      if (dir) {
+      if (obj.dir) {
         var _prevIndex = index - this.slideNum;
-        var _remainingItem = obj.itemLen - index;
-        if (_isLast(_remainingItem)) index = _prevIndex + _remainingItem;
+        obj.remainItem = obj.itemLen - index;
+        if (_isLast(obj.remainItem)) index = _prevIndex + obj.remainItem;
       } else {
-        var _prevIndex2 = index + this.slideNum;
-        var _remainingItem2 = _prevIndex2;
-        if (_isLast(_remainingItem2)) index = _prevIndex2 - _remainingItem2;
+        var _prevIndex2 = Math.abs(index);
+        obj.remainItem = _prevIndex2;
+        if (_isLast(obj.remainItem)) index = _prevIndex2 - obj.remainItem;
       }
 
       if (index > obj.itemLen - 1) index = 0;
-
-      if (index < 0) index = obj.itemLen - this.showItem;
+      if (index < -this.showItem) index = 0;
+      if (index === 0) obj.remainItem = obj.itemLen;
 
       obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * index + obj.itemW * obj.dupItemLeftLen) + '%,0,0)';
       obj.current = index;

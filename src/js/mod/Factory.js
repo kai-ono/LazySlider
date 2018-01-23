@@ -22,12 +22,14 @@ module.exports = {
     _btnLiNext.addEventListener('click', () => {
       if(_this.actionLock) return;
       obj.current = obj.current + _this.slideNum;
-      _this.action(obj.current, obj, true);
+      obj.dir = true;
+      _this.action(obj.current, obj);
     });
     _btnLiPrev.addEventListener('click', () => {
       if(_this.actionLock) return;
       obj.current = obj.current - _this.slideNum;
-      _this.action(obj.current, obj, false);
+      obj.dir = false;
+      _this.action(obj.current, obj);
     });
   },
 
