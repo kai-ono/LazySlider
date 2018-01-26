@@ -289,6 +289,7 @@ var LazySlider = function () {
     value: function action(index, obj) {
       var _this2 = this;
 
+      clearTimeout(obj.autoID);
       this.actionLock = true;
       for (var i = 1; i < this.slideNum; i++) {
         index = obj.dir ? ++index : --index;
@@ -309,7 +310,7 @@ var LazySlider = function () {
 
       if (!this.loop) {
         if (index > obj.itemLen - this.showItem) index = 0;
-        if (index < 0) index = obj.itemLen - 1;
+        if (index < 0) index = obj.itemLen - this.showItem;
       }
 
       var _amount = -(obj.itemW * index + obj.itemW * obj.dupItemLeftLen);

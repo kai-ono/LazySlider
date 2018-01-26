@@ -165,6 +165,7 @@ class LazySlider {
    * @param {Object} dir スライド方向の指定 true = next; prev = false;
    */
   action(index, obj) {
+    clearTimeout(obj.autoID);
     this.actionLock = true;
     for(let i = 1; i < this.slideNum; i++) {
       index = (obj.dir) ? ++index : --index;
@@ -189,7 +190,7 @@ class LazySlider {
 
     if(!this.loop) {
       if(index > obj.itemLen - this.showItem) index = 0;
-      if(index < 0) index = obj.itemLen - 1;
+      if(index < 0) index = obj.itemLen - this.showItem;
     }
 
     const _amount = -(obj.itemW * index + (obj.itemW * obj.dupItemLeftLen));
