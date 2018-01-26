@@ -20,12 +20,14 @@ module.exports = {
     obj.elm.appendChild(_btnUl);
 
     _btnLiNext.addEventListener('click', () => {
-      obj.current = obj.current + _this.slideNum;
-      _this.action(obj.current, obj, true);
+      if(_this.actionLock) return;
+      obj.dir = true;
+      _this.action(++obj.current, obj);
     });
     _btnLiPrev.addEventListener('click', () => {
-      obj.current = obj.current - _this.slideNum;
-      _this.action(obj.current, obj, false);
+      if(_this.actionLock) return;
+      obj.dir = false;
+      _this.action(--obj.current, obj);
     });
   },
 
@@ -38,7 +40,7 @@ module.exports = {
     const _naviUl = document.createElement('ul');
     const _fragment = document.createDocumentFragment();
     const _tmpNum = Math.ceil(obj.itemLen / _this.slideNum);
-    const _num = (_tmpNum > _this.showItem + 1) ? _tmpNum - (_this.showItem - 1) : _tmpNum;
+    const _num = (_tmpNum > _this.showItem + 1 && !_this.loop) ? _tmpNum - (_this.showItem - 1) : _tmpNum;
     _naviUl.classList.add(REF.navi);
     for(let i = 0; i < _num; i++) {
       const _naviLi = document.createElement('li');

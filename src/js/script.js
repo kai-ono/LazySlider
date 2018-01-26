@@ -19,11 +19,12 @@ class LazySlider {
     this.auto = (args.auto === false) ? false : true;
     this.interval = (typeof args.interval !== 'undefined') ? args.interval : 3000;
     this.showItem = (typeof args.showItem !== 'undefined') ? args.showItem : 1;
-    this.slideNum = (typeof args.slideNum !== 'undefined') ? args.slideNum : args.showItem;
+    this.slideNum = (typeof args.slideNum !== 'undefined') ? args.slideNum : this.showItem;
     this.center = (args.center === true) ? true : false;
     this.loop = (args.loop === true) ? true : false;
     this.btns = (args.btns === false) ? false : true;
     this.navi = (args.navi === false) ? false : true;
+    this.actionLock = false;
     this.nodeList = document.querySelectorAll('.' + args.class);
     this.resizeTimerID;
     this.elmArr = [];
@@ -33,48 +34,64 @@ class LazySlider {
   init() {
     for (let i = 0; i < this.nodeList.length; i++) {
       this.elmArr.push(new ELM(this.nodeList[i], this.showItem));
-      this.elmArr[i].list.classList.add(REF.list);
-      [].map.call(this.elmArr[i].item, (el) => {
+      const obj = this.elmArr[i];
+      obj.list.classList.add(REF.list);
+      [].map.call(obj.item, (el) => {
         el.classList.add(REF.item);
 
         /**
          * IE10ではFlexアイテムの幅が親要素に合わせて自動調整されないため、個別にwidthを付与する
          */
-        if (UTILS.isIE10()) el.style.width = 100 / this.elmArr[i].itemLen + '%';
+        if (UTILS.isIE10()) el.style.width = 100 / obj.itemLen + '%';
+      });
+
+      UTILS.setTransitionEnd(obj.list, () => {
+        this.actionLock = false;
       });
 
       if (this.loop) {
-        this.loopSettings(this.elmArr[i]);
-        this.elmArr[i].actionCb.push((obj) => {
-          UTILS.setTransitionEnd(obj.list, () => {
-            if(obj.current === obj.itemLen - 1) {
-              obj.list.style.transitionDuration = 0 + 's';
-              for(let i = 0; i < obj.itemLen; i++) {
-                obj.item[i].querySelector('img').style.transitionDuration = 0 + 's';
-              }
-              obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * (obj.dupItemLeftLen - 1)) + '%,0,0)';
-              setTimeout(() => {
-                obj.list.style.transitionDuration = 0.5 + 's';
-                for(let i = 0; i < obj.itemLen; i++) {
-                  obj.item[i].querySelector('img').style.transitionDuration = 0.1 + 's';
-                }
-              }, 0);
+        this.loopSettings(obj);
+        UTILS.setTransitionEnd(obj.list, () => {
+          if(obj.current < 0 || obj.current > obj.itemLen - 1) {
+            const endPoint = (obj.current < 0) ? false : true; // Right end is true.
+            // console.log({
+            //   cur: obj.current,
+            //   dir: obj.dir,
+            //   num: this.slideNum,
+            //   rem: obj.remainItem,
+            //   con: obj.remainItem - this.slideNum
+            // });
+            obj.list.style.transitionDuration = 0 + 's';
+            for(let i = 0; i < obj.itemLen; i++) {
+              obj.item[i].querySelector('img').style.transitionDuration = 0 + 's';
             }
-          });
+
+            const _amount = (obj.dir) ? obj.itemW * obj.current : obj.itemW * (obj.itemLen * 2 - this.slideNum);
+            obj.current = (endPoint) ? 0 : obj.itemLen - this.slideNum;
+            obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -_amount + '%,0,0)';
+            if(this.center) this.setCenter(obj);
+
+            setTimeout(() => {
+              obj.list.style.transitionDuration = 0.5 + 's';
+              for(let i = 0; i < obj.itemLen; i++) {
+                obj.item[i].querySelector('img').style.transitionDuration = 0.1 + 's';
+              }
+            }, 0);
+          }
         });
       };
-      if (this.auto) this.autoPlay(this.elmArr[i]);
-      if (this.btns) FACTORY.createButtons(this.elmArr[i], this);
+      if (this.auto) this.autoPlay(obj);
+      if (this.btns) FACTORY.createButtons(obj, this);
       if (this.navi) {
-        FACTORY.createNavi(this.elmArr[i], this);
-        this.elmArr[i].actionCb.push((obj) => {
-          this.setCurrentNavi(obj);
+        FACTORY.createNavi(obj, this);
+        obj.actionCb.push((_obj) => {
+          this.setCurrentNavi(_obj);
         });
       };
       if (this.center) {
-        this.centerSettings(this.elmArr[i]);
-        this.elmArr[i].actionCb.push((obj) => {
-          this.setCenter(obj);
+        this.centerSettings(obj);
+        obj.actionCb.push((_obj) => {
+          this.setCenter(_obj);
         });
       };
     }
@@ -102,7 +119,6 @@ class LazySlider {
     obj.list.style.width = 100 / this.showItem * obj.itemLen * 3 + '%';
     obj.itemW = 100 / obj.item.length;
     obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * obj.dupItemLeftLen) + '%,0,0)';
-    // obj.init(this.showItem);
   }
 
   /**
@@ -110,7 +126,11 @@ class LazySlider {
    * @param {Object} obj this.elmClass
    */
   setCurrentNavi(obj) {
-    const _index = Math.ceil(obj.current / this.slideNum);
+    let _index = Math.ceil(obj.current / this.slideNum);
+
+    if(obj.current < 0) _index = obj.naviChildren.length - 1;
+    if(_index > obj.naviChildren.length - 1) _index = 0;
+
     for(let i = 0; i < obj.naviChildren.length; i++) {
       obj.naviChildren[i].classList.remove(REF.actv);
     }
@@ -125,7 +145,8 @@ class LazySlider {
     for(let i = 0; i < obj.item.length; i++) {
       obj.item[i].classList.remove(REF.cntr);
     }
-    obj.item[obj.current + Math.floor(this.showItem / 2)].classList.add(REF.cntr);
+    const _index = (obj.current < 0) ? obj.item.length - 1 : obj.current;
+    obj.item[_index].classList.add(REF.cntr);
   }
 
   /**
@@ -143,15 +164,21 @@ class LazySlider {
    * @param {Object} obj this.elmClass
    * @param {Object} dir スライド方向の指定 true = next; prev = false;
    */
-  action(index, obj, dir) {
+  action(index, obj) {
+    clearTimeout(obj.autoID);
+    this.actionLock = true;
+    for(let i = 1; i < this.slideNum; i++) {
+      index = (obj.dir) ? ++index : --index;
+    }
+
     /**
      * 2アイテム表示に対して残りのアイテムが1つしかない場合などに、
      * 空白が表示されないように移動量を調整。
      */
     const _isLast = (item) => {
-      return item > 0 && item < this.showItem;
+      return item > 0 && item < this.slideNum;
     };
-    if(dir) {
+    if(obj.dir) {
       const _prevIndex = index - this.slideNum;
       const _remainingItem = obj.itemLen - index;
       if (_isLast(_remainingItem)) index = _prevIndex + _remainingItem;
@@ -161,12 +188,17 @@ class LazySlider {
       if (_isLast(_remainingItem)) index = _prevIndex - _remainingItem;
     }
 
-    if (index > obj.itemLen - this.showItem) index = 0;
-    if (index < 0) index = obj.itemLen - this.showItem;
+    if(!this.loop) {
+      if(index > obj.itemLen - this.showItem) index = 0;
+      if(index < 0) index = obj.itemLen - this.showItem;
+    }
 
-    obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * index + (obj.itemW * obj.dupItemLeftLen)) + '%,0,0)';
+    const _amount = -(obj.itemW * index + (obj.itemW * obj.dupItemLeftLen));
+
+    obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + _amount + '%,0,0)';
     obj.current = index;
 
+    // actionのcallbackを実行
     for(let i = 0; i < obj.actionCb.length; i++) {
       obj.actionCb[i](obj);
     }
@@ -179,8 +211,8 @@ class LazySlider {
   autoPlay(obj) {
     const timer = () => {
       obj.autoID = setTimeout(() => {
-        obj.current = obj.current + this.slideNum;
-        this.action(obj.current, obj, true);
+        obj.dir = true;
+        this.action(++obj.current, obj);
       }, this.interval);
     };
 

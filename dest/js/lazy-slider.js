@@ -14,6 +14,7 @@ var Element = function () {
     this.item = [].slice.call(this.list.querySelectorAll('li'));
     this.itemLen = this.item.length;
     this.itemW = 100 / this.itemLen;
+    this.dir = true;
     this.dupItemLen = 0;
     this.dupItemLeftLen = 0;
     this.showW = this.itemW * showItem;
@@ -55,12 +56,14 @@ module.exports = {
     obj.elm.appendChild(_btnUl);
 
     _btnLiNext.addEventListener('click', function () {
-      obj.current = obj.current + _this.slideNum;
-      _this.action(obj.current, obj, true);
+      if (_this.actionLock) return;
+      obj.dir = true;
+      _this.action(++obj.current, obj);
     });
     _btnLiPrev.addEventListener('click', function () {
-      obj.current = obj.current - _this.slideNum;
-      _this.action(obj.current, obj, false);
+      if (_this.actionLock) return;
+      obj.dir = false;
+      _this.action(--obj.current, obj);
     });
   },
 
@@ -68,7 +71,7 @@ module.exports = {
     var _naviUl = document.createElement('ul');
     var _fragment = document.createDocumentFragment();
     var _tmpNum = Math.ceil(obj.itemLen / _this.slideNum);
-    var _num = _tmpNum > _this.showItem + 1 ? _tmpNum - (_this.showItem - 1) : _tmpNum;
+    var _num = _tmpNum > _this.showItem + 1 && !_this.loop ? _tmpNum - (_this.showItem - 1) : _tmpNum;
     _naviUl.classList.add(REF.navi);
     for (var i = 0; i < _num; i++) {
       var _naviLi = document.createElement('li');
@@ -157,11 +160,12 @@ var LazySlider = function () {
     this.auto = args.auto === false ? false : true;
     this.interval = typeof args.interval !== 'undefined' ? args.interval : 3000;
     this.showItem = typeof args.showItem !== 'undefined' ? args.showItem : 1;
-    this.slideNum = typeof args.slideNum !== 'undefined' ? args.slideNum : args.showItem;
+    this.slideNum = typeof args.slideNum !== 'undefined' ? args.slideNum : this.showItem;
     this.center = args.center === true ? true : false;
     this.loop = args.loop === true ? true : false;
     this.btns = args.btns === false ? false : true;
     this.navi = args.navi === false ? false : true;
+    this.actionLock = false;
     this.nodeList = document.querySelectorAll('.' + args.class);
     this.resizeTimerID;
     this.elmArr = [];
@@ -175,45 +179,54 @@ var LazySlider = function () {
 
       var _loop = function _loop(i) {
         _this.elmArr.push(new ELM(_this.nodeList[i], _this.showItem));
-        _this.elmArr[i].list.classList.add(REF.list);
-        [].map.call(_this.elmArr[i].item, function (el) {
+        var obj = _this.elmArr[i];
+        obj.list.classList.add(REF.list);
+        [].map.call(obj.item, function (el) {
           el.classList.add(REF.item);
 
-          if (UTILS.isIE10()) el.style.width = 100 / _this.elmArr[i].itemLen + '%';
+          if (UTILS.isIE10()) el.style.width = 100 / obj.itemLen + '%';
+        });
+
+        UTILS.setTransitionEnd(obj.list, function () {
+          _this.actionLock = false;
         });
 
         if (_this.loop) {
-          _this.loopSettings(_this.elmArr[i]);
-          _this.elmArr[i].actionCb.push(function (obj) {
-            UTILS.setTransitionEnd(obj.list, function () {
-              if (obj.current === obj.itemLen - 1) {
-                obj.list.style.transitionDuration = 0 + 's';
-                for (var _i = 0; _i < obj.itemLen; _i++) {
-                  obj.item[_i].querySelector('img').style.transitionDuration = 0 + 's';
-                }
-                obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * (obj.dupItemLeftLen - 1)) + '%,0,0)';
-                setTimeout(function () {
-                  obj.list.style.transitionDuration = 0.5 + 's';
-                  for (var _i2 = 0; _i2 < obj.itemLen; _i2++) {
-                    obj.item[_i2].querySelector('img').style.transitionDuration = 0.1 + 's';
-                  }
-                }, 0);
+          _this.loopSettings(obj);
+          UTILS.setTransitionEnd(obj.list, function () {
+            if (obj.current < 0 || obj.current > obj.itemLen - 1) {
+              var endPoint = obj.current < 0 ? false : true;
+              obj.list.style.transitionDuration = 0 + 's';
+              for (var _i = 0; _i < obj.itemLen; _i++) {
+                obj.item[_i].querySelector('img').style.transitionDuration = 0 + 's';
               }
-            });
+
+              var _amount = obj.dir ? obj.itemW * obj.current : obj.itemW * (obj.itemLen * 2 - _this.slideNum);
+              obj.current = endPoint ? 0 : obj.itemLen - _this.slideNum;
+              obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -_amount + '%,0,0)';
+              if (_this.center) _this.setCenter(obj);
+
+              setTimeout(function () {
+                obj.list.style.transitionDuration = 0.5 + 's';
+                for (var _i2 = 0; _i2 < obj.itemLen; _i2++) {
+                  obj.item[_i2].querySelector('img').style.transitionDuration = 0.1 + 's';
+                }
+              }, 0);
+            }
           });
         };
-        if (_this.auto) _this.autoPlay(_this.elmArr[i]);
-        if (_this.btns) FACTORY.createButtons(_this.elmArr[i], _this);
+        if (_this.auto) _this.autoPlay(obj);
+        if (_this.btns) FACTORY.createButtons(obj, _this);
         if (_this.navi) {
-          FACTORY.createNavi(_this.elmArr[i], _this);
-          _this.elmArr[i].actionCb.push(function (obj) {
-            _this.setCurrentNavi(obj);
+          FACTORY.createNavi(obj, _this);
+          obj.actionCb.push(function (_obj) {
+            _this.setCurrentNavi(_obj);
           });
         };
         if (_this.center) {
-          _this.centerSettings(_this.elmArr[i]);
-          _this.elmArr[i].actionCb.push(function (obj) {
-            _this.setCenter(obj);
+          _this.centerSettings(obj);
+          obj.actionCb.push(function (_obj) {
+            _this.setCenter(_obj);
           });
         };
       };
@@ -247,6 +260,10 @@ var LazySlider = function () {
     key: 'setCurrentNavi',
     value: function setCurrentNavi(obj) {
       var _index = Math.ceil(obj.current / this.slideNum);
+
+      if (obj.current < 0) _index = obj.naviChildren.length - 1;
+      if (_index > obj.naviChildren.length - 1) _index = 0;
+
       for (var i = 0; i < obj.naviChildren.length; i++) {
         obj.naviChildren[i].classList.remove(REF.actv);
       }
@@ -258,7 +275,8 @@ var LazySlider = function () {
       for (var i = 0; i < obj.item.length; i++) {
         obj.item[i].classList.remove(REF.cntr);
       }
-      obj.item[obj.current + Math.floor(this.showItem / 2)].classList.add(REF.cntr);
+      var _index = obj.current < 0 ? obj.item.length - 1 : obj.current;
+      obj.item[_index].classList.add(REF.cntr);
     }
   }, {
     key: 'centerSettings',
@@ -268,13 +286,19 @@ var LazySlider = function () {
     }
   }, {
     key: 'action',
-    value: function action(index, obj, dir) {
+    value: function action(index, obj) {
       var _this2 = this;
 
+      clearTimeout(obj.autoID);
+      this.actionLock = true;
+      for (var i = 1; i < this.slideNum; i++) {
+        index = obj.dir ? ++index : --index;
+      }
+
       var _isLast = function _isLast(item) {
-        return item > 0 && item < _this2.showItem;
+        return item > 0 && item < _this2.slideNum;
       };
-      if (dir) {
+      if (obj.dir) {
         var _prevIndex = index - this.slideNum;
         var _remainingItem = obj.itemLen - index;
         if (_isLast(_remainingItem)) index = _prevIndex + _remainingItem;
@@ -284,14 +308,18 @@ var LazySlider = function () {
         if (_isLast(_remainingItem2)) index = _prevIndex2 - _remainingItem2;
       }
 
-      if (index > obj.itemLen - this.showItem) index = 0;
-      if (index < 0) index = obj.itemLen - this.showItem;
+      if (!this.loop) {
+        if (index > obj.itemLen - this.showItem) index = 0;
+        if (index < 0) index = obj.itemLen - this.showItem;
+      }
 
-      obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * index + obj.itemW * obj.dupItemLeftLen) + '%,0,0)';
+      var _amount = -(obj.itemW * index + obj.itemW * obj.dupItemLeftLen);
+
+      obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + _amount + '%,0,0)';
       obj.current = index;
 
-      for (var i = 0; i < obj.actionCb.length; i++) {
-        obj.actionCb[i](obj);
+      for (var _i3 = 0; _i3 < obj.actionCb.length; _i3++) {
+        obj.actionCb[_i3](obj);
       }
     }
   }, {
@@ -301,8 +329,8 @@ var LazySlider = function () {
 
       var timer = function timer() {
         obj.autoID = setTimeout(function () {
-          obj.current = obj.current + _this3.slideNum;
-          _this3.action(obj.current, obj, true);
+          obj.dir = true;
+          _this3.action(++obj.current, obj);
         }, _this3.interval);
       };
 
