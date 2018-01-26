@@ -52,20 +52,24 @@ class LazySlider {
       if (this.loop) {
         this.loopSettings(obj);
         UTILS.setTransitionEnd(obj.list, () => {
-          if(obj.remainItem - this.slideNum <= 0) {
-          // if(obj.itemLen - (obj.current + this.slideNum) <= 0) {
+          if(obj.current < 0 || obj.current > obj.itemLen - 1) {
+            const endPoint = (obj.current < 0) ? false : true; // Right end is true.
             // console.log({
             //   cur: obj.current,
             //   dir: obj.dir,
-            //   rem: obj.remainItem
+            //   num: this.slideNum,
+            //   rem: obj.remainItem,
+            //   con: obj.remainItem - this.slideNum
             // });
             obj.list.style.transitionDuration = 0 + 's';
             for(let i = 0; i < obj.itemLen; i++) {
               obj.item[i].querySelector('img').style.transitionDuration = 0 + 's';
             }
 
-            const _amount = (obj.dir) ? obj.itemW * (obj.itemLen - obj.remainItem) : obj.itemW * (obj.itemLen + obj.remainItem - 1);
+            const _amount = (obj.dir) ? obj.itemW * obj.current : obj.itemW * (obj.itemLen * 2 - this.slideNum);
+            obj.current = (endPoint) ? 0 : obj.itemLen - this.slideNum;
             obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -_amount + '%,0,0)';
+            if(this.center) this.setCenter(obj);
 
             setTimeout(() => {
               obj.list.style.transitionDuration = 0.5 + 's';
@@ -122,7 +126,11 @@ class LazySlider {
    * @param {Object} obj this.elmClass
    */
   setCurrentNavi(obj) {
-    const _index = Math.abs(Math.ceil(obj.current / this.slideNum));
+    let _index = Math.ceil(obj.current / this.slideNum);
+
+    if(obj.current < 0) _index = obj.naviChildren.length - 1;
+    if(_index > obj.naviChildren.length - 1) _index = 0;
+
     for(let i = 0; i < obj.naviChildren.length; i++) {
       obj.naviChildren[i].classList.remove(REF.actv);
     }
@@ -137,7 +145,8 @@ class LazySlider {
     for(let i = 0; i < obj.item.length; i++) {
       obj.item[i].classList.remove(REF.cntr);
     }
-    obj.item[obj.current + Math.floor(this.showItem / 2)].classList.add(REF.cntr);
+    const _index = (obj.current < 0) ? obj.item.length - 1 : obj.current;
+    obj.item[_index].classList.add(REF.cntr);
   }
 
   /**
@@ -157,31 +166,38 @@ class LazySlider {
    */
   action(index, obj) {
     this.actionLock = true;
+    for(let i = 1; i < this.slideNum; i++) {
+      index = (obj.dir) ? ++index : --index;
+    }
 
     /**
      * 2アイテム表示に対して残りのアイテムが1つしかない場合などに、
      * 空白が表示されないように移動量を調整。
      */
     const _isLast = (item) => {
-      return item > 0 && item < this.showItem && !this.loop;
+      return item > 0 && item < this.slideNum;
     };
     if(obj.dir) {
       const _prevIndex = index - this.slideNum;
-      obj.remainItem = obj.itemLen - index;
-      if (_isLast(obj.remainItem)) index = _prevIndex + obj.remainItem;
+      const _remainingItem = obj.itemLen - index;
+      if (_isLast(_remainingItem)) index = _prevIndex + _remainingItem;
     } else {
-      const _prevIndex = Math.abs(index);
-      obj.remainItem = _prevIndex;
-      if (_isLast(obj.remainItem)) index = _prevIndex - obj.remainItem;
+      const _prevIndex = index + this.slideNum;
+      const _remainingItem = _prevIndex;
+      if (_isLast(_remainingItem)) index = _prevIndex - _remainingItem;
     }
 
-    if (index > obj.itemLen - 1) index = 0;
-    if (index < -this.showItem) index = 0;
-    if(index === 0) obj.remainItem = obj.itemLen;
+    if(!this.loop) {
+      if(index > obj.itemLen - this.showItem) index = 0;
+      if(index < 0) index = obj.itemLen - 1;
+    }
 
-    obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + -(obj.itemW * index + (obj.itemW * obj.dupItemLeftLen)) + '%,0,0)';
+    const _amount = -(obj.itemW * index + (obj.itemW * obj.dupItemLeftLen));
+
+    obj.list.style[UTILS.getTransformWithPrefix()] = 'translate3d(' + _amount + '%,0,0)';
     obj.current = index;
 
+    // actionのcallbackを実行
     for(let i = 0; i < obj.actionCb.length; i++) {
       obj.actionCb[i](obj);
     }
@@ -194,8 +210,8 @@ class LazySlider {
   autoPlay(obj) {
     const timer = () => {
       obj.autoID = setTimeout(() => {
-        obj.current = obj.current + this.slideNum;
-        this.action(obj.current, obj, true);
+        obj.dir = true;
+        this.action(++obj.current, obj);
       }, this.interval);
     };
 

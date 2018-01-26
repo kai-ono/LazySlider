@@ -22,7 +22,6 @@ class Element {
     this.item = [].slice.call(this.list.querySelectorAll('li'));
     this.itemLen = this.item.length;
     this.itemW = 100 / this.itemLen;
-    this.remainingItem = 0;
     this.dir = true;
     this.dupItemLen = 0;
     this.dupItemLeftLen = 0;
