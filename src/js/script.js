@@ -162,7 +162,6 @@ class LazySlider {
    * 引数で指定したindex番号のitemへ移動する
    * @param {Number} index
    * @param {Object} obj this.elmClass
-   * @param {Object} dir スライド方向の指定 true = next; prev = false;
    */
   action(index, obj) {
     clearTimeout(obj.autoID);
