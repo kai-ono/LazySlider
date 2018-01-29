@@ -145,11 +145,6 @@ module.exports = {
 'use strict';
 
 module.exports = {
-  IsIE10: function IsIE10() {
-    var ua = window.navigator.userAgent.toLowerCase();
-    var ver = window.navigator.appVersion.toLowerCase();
-    return ua.indexOf("msie") != -1 && ver.indexOf("msie 10.") != -1;
-  },
   GetTransformWithPrefix: function GetTransformWithPrefix() {
     var bodyStyle = document.body.style;
     var transform = 'transform';
@@ -162,7 +157,7 @@ module.exports = {
   },
   SetTransitionEnd: function SetTransitionEnd(elm, cb) {
     elm.addEventListener('transitionend', function (e) {
-      if (e.target == elm && e.propertyName === 'transform') {
+      if (e.target == elm && e.propertyName.match('transform') !== null) {
         cb();
       }
     });
@@ -214,8 +209,6 @@ var LazySlider = function () {
         obj.list.classList.add(REF.list);
         [].map.call(obj.item, function (el) {
           el.classList.add(REF.item);
-
-          if (UTILS.IsIE10()) el.style.width = 100 / obj.itemLen + '%';
         });
 
         UTILS.SetTransitionEnd(obj.list, function () {

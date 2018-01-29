@@ -40,11 +40,6 @@ class LazySlider {
       obj.list.classList.add(REF.list);
       [].map.call(obj.item, (el) => {
         el.classList.add(REF.item);
-
-        /**
-         * IE10ではFlexアイテムの幅が親要素に合わせて自動調整されないため、個別にwidthを付与する
-         */
-        if (UTILS.IsIE10()) el.style.width = 100 / obj.itemLen + '%';
       });
 
       UTILS.SetTransitionEnd(obj.list, () => {
