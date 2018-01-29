@@ -81,7 +81,7 @@ img {
     }
   }
   &.slide-center {
-    padding: 0 10%;
+    padding: 0 20%;
     .slide {
       &-item {
         & > img {
@@ -100,10 +100,10 @@ img {
         }
       }
       &-prev {
-        left: -40px;
+        left: -20%;
       }
       &-next {
-        right: 40px;
+        right: 20%;
       }
     }
   }
