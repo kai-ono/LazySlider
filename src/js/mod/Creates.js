@@ -6,7 +6,7 @@ const UTILS = require('./Utils');
 module.exports = {
   /**
    * prev、nextボタンの生成、イベント登録を行う
-   * @param {Object} obj インスタンス化したElementクラス
+   * @param {Object} obj Elementクラス
    */
   Buttons: function(obj) {
     const btnUl = document.createElement('ul');
@@ -37,7 +37,7 @@ module.exports = {
 
   /**
    * ナビゲーションの生成、イベント登録を行う
-   * @param {Object} obj インスタンス化したElementクラス
+   * @param {Object} obj Elementクラス
    */
   Navi: function(obj) {
     const naviUl = document.createElement('ul');
@@ -69,7 +69,7 @@ module.exports = {
 
   /**
    * ループ処理の初期設定
-   * @param {Object} obj インスタンス化したElementクラス
+   * @param {Object} obj Elementクラス
    */
   Loop: function(obj) {
     const fragment = document.createDocumentFragment();

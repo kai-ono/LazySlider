@@ -96,7 +96,7 @@ class LazySlider {
 
   /**
    * current要素にクラスを付与する
-   * @param {Object} obj this.elmClass
+   * @param {Object} obj Elementクラス
    */
   SetCurrentNavi(obj) {
     let index = Math.ceil(obj.current / this.slideNum);
@@ -113,7 +113,7 @@ class LazySlider {
 
   /**
    * Center有効時に中央表示された要素にクラスを付与する
-   * @param {Object} obj this.elmClass
+   * @param {Object} obj Elementクラス
    */
   SetCenter(obj) {
     const index = (obj.current < 0) ? obj.item.length - 1 : obj.current;
@@ -127,7 +127,7 @@ class LazySlider {
 
   /**
    * centerをtrueにした場合の設定
-   * @param {Object} obj this.elmClass
+   * @param {Object} obj Elementクラス
    */
   CenterSettings(obj) {
     obj.elm.classList.add('slide-center');
@@ -137,7 +137,7 @@ class LazySlider {
   /**
    * 引数で指定したindex番号のitemへ移動する
    * @param {Number} index
-   * @param {Object} obj this.elmClass
+   * @param {Object} obj Elementクラス
    * @param {Object} dir スライド方向の指定 true = next; prev = false;
    */
   Action(index, obj) {
@@ -177,7 +177,7 @@ class LazySlider {
 
   /**
    * ActionをsetTimeoutで起動し、自動スライドを行う
-   * @param {Object} obj this.elmClass
+   * @param {Object} obj Elementクラス
    */
   AutoPlay(obj) {
     const timer = () => {
