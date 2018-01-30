@@ -1,0 +1,19 @@
+/*------------------------------------------
+  Styles
+------------------------------------------*/
+.lazy-slider-style {
+  .slide {
+    &-item {
+      span {
+        display: block;
+        margin: 0 2%;
+        padding: 10% 0;
+        text-align: center;
+        background: linear-gradient(to bottom, #7abcff 0%,#60abf8 44%,#4096ee 100%);
+        color: #fff;
+        font-size: 1.5em;
+        font-weight: bold;
+      }
+    }
+  }
+}
