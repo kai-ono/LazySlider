@@ -40,12 +40,13 @@ module.exports = {
    * @param {Object} obj Elementクラス
    */
   Navi: function(obj) {
+    const naviWrap = document.createElement('div');
     const naviUl = document.createElement('ul');
     const fragment = document.createDocumentFragment();
     const tmpNum = Math.ceil(obj.itemLen / this.slideNum);
     const num = (tmpNum > this.showItem + 1 && !this.loop) ? tmpNum - (this.showItem - 1) : tmpNum;
 
-    naviUl.classList.add(REF.navi);
+    naviWrap.classList.add(REF.navi);
     for(let i = 0; i < num; i++) {
       const naviLi = document.createElement('li');
       const naviLiChild = document.createElement('span');
@@ -63,7 +64,8 @@ module.exports = {
       });
     }
     naviUl.appendChild(fragment);
-    obj.elm.appendChild(naviUl);
+    naviWrap.appendChild(naviUl);
+    obj.elm.appendChild(naviWrap);
     obj.navi = naviUl;
     obj.naviChildren = naviUl.querySelectorAll('li');
     this.SetCurrentNavi(obj);

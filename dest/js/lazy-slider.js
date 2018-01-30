@@ -37,12 +37,13 @@ module.exports = {
   Navi: function Navi(obj) {
     var _this2 = this;
 
+    var naviWrap = document.createElement('div');
     var naviUl = document.createElement('ul');
     var fragment = document.createDocumentFragment();
     var tmpNum = Math.ceil(obj.itemLen / this.slideNum);
     var num = tmpNum > this.showItem + 1 && !this.loop ? tmpNum - (this.showItem - 1) : tmpNum;
 
-    naviUl.classList.add(REF.navi);
+    naviWrap.classList.add(REF.navi);
     for (var i = 0; i < num; i++) {
       var naviLi = document.createElement('li');
       var naviLiChild = document.createElement('span');
@@ -60,7 +61,8 @@ module.exports = {
       });
     }
     naviUl.appendChild(fragment);
-    obj.elm.appendChild(naviUl);
+    naviWrap.appendChild(naviUl);
+    obj.elm.appendChild(naviWrap);
     obj.navi = naviUl;
     obj.naviChildren = naviUl.querySelectorAll('li');
     this.SetCurrentNavi(obj);
