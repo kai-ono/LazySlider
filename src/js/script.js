@@ -54,7 +54,7 @@ class LazySlider {
 
             obj.list.style.transitionDuration = 0 + 's';
             for (let i = 0; i < obj.itemLen; i++) {
-              obj.item[i].querySelector('img').style.transitionDuration = 0 + 's';
+              obj.item[i].children[0].style.transitionDuration = 0 + 's';
             }
 
             const amount = (obj.dir) ? obj.itemW * obj.current : obj.itemW * (obj.itemLen * 2 - this.slideNum);
@@ -66,7 +66,7 @@ class LazySlider {
             setTimeout(() => {
               obj.list.style.transitionDuration = 0.5 + 's';
               for (let i = 0; i < obj.itemLen; i++) {
-                obj.item[i].querySelector('img').style.transitionDuration = 0.1 + 's';
+                obj.item[i].children[0].style.transitionDuration = 0.1 + 's';
               }
             }, 0);
           }

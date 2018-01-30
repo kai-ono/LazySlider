@@ -23,6 +23,7 @@ img {
     &-list {
       list-style: none;
       display: flex;
+      justify-content: space-between;
       transition-property: transform;
       transition-duration: 0.5s;
       transition-timing-function: ease-out;
@@ -61,22 +62,32 @@ img {
     }
     &-navi {
       position: absolute;
-      display: flex;
+      display: table;
       margin: 0 auto;
       justify-content: center;
+      border-radius: 7px;
+      background-color: rgba(0,0,0,0.3);
       right: 0;
       bottom: 10px;
       left: 0;
       & > * {
-        width: 10px;
-        height: 10px;
-        margin: 0 5px;
-        border-radius: 50%;
-        background-color: blue;
+        display: table-cell;
+        padding: 3px 4px;
+        opacity: 0.3;
         cursor: pointer;
+        &:hover {
+          opacity: 1;
+        }
+        & > span {
+          display: block;
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background-color: #aabbcc;
+        }
       }
       &-active {
-        background-color: red;
+        opacity: 1;
       }
     }
   }

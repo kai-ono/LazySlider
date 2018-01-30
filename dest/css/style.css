@@ -1,2 +1,2 @@
-.lazy-slider-style .slide-item span{display:block;margin:0 2%;padding:10% 0;text-align:center;background:-webkit-gradient(linear,left top,left bottom,from(#7abcff),color-stop(44%,#60abf8),to(#4096ee));background:-webkit-linear-gradient(top,#7abcff 0,#60abf8 44%,#4096ee 100%);background:linear-gradient(to bottom,#7abcff 0,#60abf8 44%,#4096ee 100%);color:#fff;font-size:1.5em;font-weight:700}
+.lazy-slider-style .slide-item span{display:block;margin:0 2%;padding:10% 0;text-align:center;background:-webkit-linear-gradient(315deg,#7abcff 0,#60abf8 44%,#4096ee 100%);background:linear-gradient(135deg,#7abcff 0,#60abf8 44%,#4096ee 100%);color:#fff;font-size:1.5em;font-weight:700}
 /*# sourceMappingURL=style.css.map */

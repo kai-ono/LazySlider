@@ -48,6 +48,8 @@ module.exports = {
     naviUl.classList.add(REF.navi);
     for(let i = 0; i < num; i++) {
       const naviLi = document.createElement('li');
+      const naviLiChild = document.createElement('span');
+      naviLi.appendChild(naviLiChild);
       naviLi.classList.add(REF.curr + i);
       fragment.appendChild(naviLi);
       naviLi.addEventListener('click', (e) => {

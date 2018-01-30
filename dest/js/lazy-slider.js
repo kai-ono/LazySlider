@@ -45,6 +45,8 @@ module.exports = {
     naviUl.classList.add(REF.navi);
     for (var i = 0; i < num; i++) {
       var naviLi = document.createElement('li');
+      var naviLiChild = document.createElement('span');
+      naviLi.appendChild(naviLiChild);
       naviLi.classList.add(REF.curr + i);
       fragment.appendChild(naviLi);
       naviLi.addEventListener('click', function (e) {
@@ -223,7 +225,7 @@ var LazySlider = function () {
 
               obj.list.style.transitionDuration = 0 + 's';
               for (var _i = 0; _i < obj.itemLen; _i++) {
-                obj.item[_i].querySelector('img').style.transitionDuration = 0 + 's';
+                obj.item[_i].children[0].style.transitionDuration = 0 + 's';
               }
 
               var amount = obj.dir ? obj.itemW * obj.current : obj.itemW * (obj.itemLen * 2 - _this.slideNum);
@@ -235,7 +237,7 @@ var LazySlider = function () {
               setTimeout(function () {
                 obj.list.style.transitionDuration = 0.5 + 's';
                 for (var _i2 = 0; _i2 < obj.itemLen; _i2++) {
-                  obj.item[_i2].querySelector('img').style.transitionDuration = 0.1 + 's';
+                  obj.item[_i2].children[0].style.transitionDuration = 0.1 + 's';
                 }
               }, 0);
             }
