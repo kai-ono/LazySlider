@@ -38,7 +38,7 @@ class Element {
         this.naviChildren;
         this.actionCb = [];
         this.dir = true;
-        this.swipe = new SWIPE(this);
+        this.swipe = new SWIPE(this, showItem);
         this.Init(showItem);
     }
 

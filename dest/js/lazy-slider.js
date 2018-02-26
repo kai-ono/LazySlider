@@ -117,7 +117,7 @@ var Element = function () {
         this.naviChildren;
         this.actionCb = [];
         this.dir = true;
-        this.swipe = new SWIPE(this);
+        this.swipe = new SWIPE(this, showItem);
         this.Init(showItem);
     }
 
@@ -137,16 +137,16 @@ module.exports = Element;
 'use strict';
 
 module.exports = {
-  clss: 'lazy-slider',
-  list: 'slide-list',
-  item: 'slide-item',
-  btns: 'slide-btns',
-  next: 'slide-next',
-  prev: 'slide-prev',
-  navi: 'slide-navi',
-  curr: 'current',
-  actv: 'slide-navi-active',
-  cntr: 'slide-item-center'
+    clss: 'lazy-slider',
+    list: 'slide-list',
+    item: 'slide-item',
+    btns: 'slide-btns',
+    next: 'slide-next',
+    prev: 'slide-prev',
+    navi: 'slide-navi',
+    curr: 'current',
+    actv: 'slide-navi-active',
+    cntr: 'slide-item-center'
 };
 
 },{}],4:[function(require,module,exports){
@@ -156,51 +156,55 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var UTIL = require('./Utils');
+
 var Swipe = function () {
-    function Swipe(args) {
+    function Swipe(args, showItem) {
         _classCallCheck(this, Swipe);
 
-        this.ls = args;
+        this.elm = args;
         this.list = args.list;
+        this.showItem = showItem;
         this.draggable = true;
+        this.dragging = false;
+        this.interrupted = false;
+        this.scrolling = false;
         this.touchThreshold = 5;
         this.touchObject = {};
-
-        console.log(this.list);
-
         this.init();
     }
 
     _createClass(Swipe, [{
         key: 'init',
         value: function init() {
-            var _this = this;
-
-            this.list.addEventListener('touchstart', function (e) {
-                _this.Handler.call(_this, e, {
-                    action: 'start'
-                });
+            UTIL.addElWithArgs.call(this, {
+                target: this.list,
+                events: ['touchstart', 'mousedown'],
+                func: this.Handler,
+                args: { action: 'start' }
             });
-            this.list.addEventListener('mousedown', function (e) {
-                _this.Handler.call(_this, e, {
-                    action: 'start'
-                });
+
+            UTIL.addElWithArgs.call(this, {
+                target: this.list,
+                events: ['touchmove', 'mousemove'],
+                func: this.Handler,
+                args: { action: 'move' }
+            });
+
+            UTIL.addElWithArgs.call(this, {
+                target: this.list,
+                events: ['touchend', 'touchcancel', 'mouseup', 'mouseleave'],
+                func: this.Handler,
+                args: { action: 'end' }
             });
         }
     }, {
         key: 'Handler',
         value: function Handler(event, obj) {
-            console.log({
-                this: this,
-                evtArg: obj.action,
-                obj: obj,
-                evt: event
-            });
-
             if (this.draggable === false && event.type.indexOf('mouse') !== -1) return;
 
-            this.fingerCount = event.touches !== undefined ? event.touches.length : 1;
-            this.minSwipe = this.ls.listW / this.touchThreshold;
+            this.touchObject.fingerCount = event.touches !== undefined ? event.touches.length : 1;
+            this.touchObject.minSwipe = this.elm.listW / this.touchThreshold;
 
             switch (obj.action) {
                 case 'start':
@@ -216,6 +220,36 @@ var Swipe = function () {
                     break;
             }
         }
+    }, {
+        key: 'Direction',
+        value: function Direction() {}
+    }, {
+        key: 'Start',
+        value: function Start(event) {
+            var touches = void 0;
+
+            this.interrupted = true;
+
+            if (this.touchObject.fingerCount !== 1 || this.elm.current <= this.showItem) {
+                this.touchObject = {};
+                return false;
+            }
+
+            if (event.touches !== undefined) {
+                touches = event.touches[0];
+            }
+
+            this.touchObject.startX = this.touchObject.curX = touches !== undefined ? touches.pageX : event.clientX;
+            this.touchObject.startY = this.touchObject.curY = touches !== undefined ? touches.pageY : event.clientY;
+
+            this.dragging = true;
+        }
+    }, {
+        key: 'End',
+        value: function End(event) {}
+    }, {
+        key: 'Move',
+        value: function Move(event) {}
     }]);
 
     return Swipe;
@@ -223,27 +257,37 @@ var Swipe = function () {
 
 module.exports = Swipe;
 
-},{}],5:[function(require,module,exports){
+},{"./Utils":5}],5:[function(require,module,exports){
 'use strict';
 
 module.exports = {
-  GetTransformWithPrefix: function GetTransformWithPrefix() {
-    var bodyStyle = document.body.style;
-    var transform = 'transform';
+    GetTransformWithPrefix: function GetTransformWithPrefix() {
+        var bodyStyle = document.body.style;
+        var transform = 'transform';
 
-    if (bodyStyle.webkitTransform !== undefined) transform = 'webkitTransform';
-    if (bodyStyle.mozTransform !== undefined) transform = 'mozTransform';
-    if (bodyStyle.msTransform !== undefined) transform = 'msTransform';
+        if (bodyStyle.webkitTransform !== undefined) transform = 'webkitTransform';
+        if (bodyStyle.mozTransform !== undefined) transform = 'mozTransform';
+        if (bodyStyle.msTransform !== undefined) transform = 'msTransform';
 
-    return transform;
-  },
-  SetTransitionEnd: function SetTransitionEnd(elm, cb) {
-    elm.addEventListener('transitionend', function (e) {
-      if (e.target == elm && e.propertyName.match('transform') !== null) {
-        cb();
-      }
-    });
-  }
+        return transform;
+    },
+    SetTransitionEnd: function SetTransitionEnd(elm, cb) {
+        elm.addEventListener('transitionend', function (e) {
+            if (e.target == elm && e.propertyName.match('transform') !== null) {
+                cb();
+            }
+        });
+    },
+
+    addElWithArgs: function addElWithArgs(obj) {
+        var _this = this;
+
+        for (var i = 0; i < obj.events.length; i++) {
+            obj.target.addEventListener(obj.events[i], function (e) {
+                obj.func.call(_this, e, obj.args);
+            });
+        }
+    }
 };
 
 },{}],6:[function(require,module,exports){
