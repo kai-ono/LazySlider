@@ -31,7 +31,7 @@ module.exports = {
       if(this.actionLock) return;
       obj.dir = dir;
       const nextCurrent = (dir) ? ++obj.current : --obj.current;
-      this.Action(nextCurrent, obj);
+      this.Action(nextCurrent, obj, false);
     }
   },
 
@@ -56,9 +56,9 @@ module.exports = {
       naviLi.addEventListener('click', (e) => {
         [].slice.call(e.currentTarget.classList).forEach((value) => {
           if(value.match(REF.curr) !== null) {
-            const index = Math.ceil(parseInt(value.replace(REF.curr, '')) * this.slideNum);
+            const index = Math.ceil(parseInt(value.replace(REF.curr, '')) * (this.slideNum - 1));
             obj.dir = true;
-            this.Action(index, obj);
+            this.Action(index, obj, true);
           };
         });
       });

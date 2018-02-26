@@ -1,5 +1,7 @@
 'use strict';
 
+const SWIPE = require('./Swipe');
+
 class Element {
   /**
    * コンストラクタ
@@ -35,6 +37,7 @@ class Element {
     this.naviChildren;
     this.actionCb = [];
     this.dir = true;
+    this.swipe = new SWIPE(this);
     this.Init(showItem);
   }
 

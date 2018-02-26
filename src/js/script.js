@@ -86,6 +86,24 @@ class LazySlider {
           this.SetCenter(cbObj);
         });
       };
+
+      // obj.list.addEventListener('touchstart', (e) => { SWIPE.Handler.call(this, e, {action: 'start'}); });
+      // obj.list.addEventListener('mousedown', (e) => {
+      //   SWIPE.Handler.call(this, e, {action: 'start'});
+      // });
+
+      // obj.list.addEventListener('touchstart mousedown', {
+      //   action: 'start'
+      // }, SWIPE.Handler);
+      // obj.list.addEventListener('touchmove mousemove', {
+      //   action: 'move'
+      // }, SWIPE.Handler);
+      // obj.list.addEventListener('touchend mouseup', {
+      //   action: 'end'
+      // }, SWIPE.Handler);
+      // obj.list.addEventListener('touchcancel mouseleave', {
+      //   action: 'end'
+      // }, SWIPE.Handler);
     }
   }
 
@@ -134,12 +152,14 @@ class LazySlider {
    * @param {Number} index
    * @param {Object} obj Elementクラス
    */
-  Action(index, obj) {
+  Action(index, obj, isNaviEvent) {
     clearTimeout(obj.autoID);
     this.actionLock = true;
 
-    for (let i = 1; i < this.slideNum; i++) {
-      index = (obj.dir) ? ++index : --index;
+    if(typeof isNaviEvent === 'undefined' || !isNaviEvent) {
+      for (let i = 1; i < this.slideNum; i++) {
+        index = (obj.dir) ? ++index : --index;
+      }
     }
 
     /**
@@ -177,7 +197,7 @@ class LazySlider {
     const timer = () => {
       obj.autoID = setTimeout(() => {
         obj.dir = true;
-        this.Action(++obj.current, obj);
+        this.Action(++obj.current, obj, false);
       }, this.interval);
     };
 
