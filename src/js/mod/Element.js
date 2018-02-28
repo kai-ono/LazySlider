@@ -1,7 +1,5 @@
 'use strict';
 
-const SWIPE = require('./Swipe');
-
 class Element {
     /**
      * コンストラクタ
@@ -26,6 +24,7 @@ class Element {
         this.elm = node;
         this.list = this.elm.querySelector('ul');
         this.listW = 0;
+        this.listPxW = 0;
         this.item = [].slice.call(this.list.querySelectorAll('li'));
         this.itemLen = this.item.length;
         this.itemW = 100 / this.itemLen;
@@ -38,12 +37,12 @@ class Element {
         this.naviChildren;
         this.actionCb = [];
         this.dir = true;
-        this.swipe = new SWIPE(this, showItem);
         this.Init(showItem);
     }
 
     Init(showItem) {
         this.listW = this.list.style.width = 100 / showItem * this.itemLen + '%';
+        this.listPxW = this.list.offsetWidth;
     }
 }
 

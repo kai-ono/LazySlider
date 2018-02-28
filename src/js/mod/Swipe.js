@@ -1,58 +1,54 @@
 'use strict';
 
-const UTIL = require('./Utils');
+const UTILS = require('./Utils');
 
 class Swipe {
     /**
      * コンストラクタ
      * @param {Object} args object型の引数。
      */
-    constructor(args, showItem) {
-        this.elm = args;
-        this.list = args.list;
-        this.showItem = showItem;
+    constructor(classParent, classElm) {
+        this.classParent = classParent;
+        this.classElm = classElm;
+        this.showItem = this.classParent.showItem;
+        this.elm = this.classElm.elm;
+        this.list = this.classElm.list;
         this.draggable = true;
         this.dragging = false;
         this.interrupted = false;
         this.scrolling = false;
+        this.swiping = false;
+        this.rtl = false;
+        this.animating = false;
+        this.swipeLeft = null;
+        this.touchMove = true;
         this.touchThreshold = 5;
         this.touchObject = {};
+        this.moveTimerID;
         this.init();
     }
 
     init() {
-        UTIL.addElWithArgs.call(this, {
+        UTILS.addElWithArgs.call(this, {
             target: this.list,
             events: [ 'touchstart', 'mousedown' ],
             func: this.Handler,
             args: {action: 'start'}
         });
 
-        UTIL.addElWithArgs.call(this, {
+        UTILS.addElWithArgs.call(this, {
             target: this.list,
             events: [ 'touchmove', 'mousemove' ],
             func: this.Handler,
             args: {action: 'move'}
         });
 
-        UTIL.addElWithArgs.call(this, {
+        UTILS.addElWithArgs.call(this, {
             target: this.list,
             events: [ 'touchend', 'touchcancel', 'mouseup', 'mouseleave' ],
             func: this.Handler,
             args: {action: 'end'}
         });
-        // obj.list.addEventListener('touchstart mousedown', {
-        //   action: 'start'
-        // }, SWIPE.Handler);
-        // obj.list.addEventListener('touchmove mousemove', {
-        //   action: 'move'
-        // }, SWIPE.Handler);
-        // obj.list.addEventListener('touchend mouseup', {
-        //   action: 'end'
-        // }, SWIPE.Handler);
-        // obj.list.addEventListener('touchcancel mouseleave', {
-        //   action: 'end'
-        // }, SWIPE.Handler);
     }
 
     Handler(event, obj) {
@@ -84,7 +80,8 @@ class Swipe {
 
         this.interrupted = true;
 
-        if (this.touchObject.fingerCount !== 1 || this.elm.current <= this.showItem) {
+        // if (this.touchObject.fingerCount !== 1 || this.elm.current <= this.showItem) {
+        if (this.touchObject.fingerCount !== 1) {
             this.touchObject = {};
             return false;
         }
@@ -93,16 +90,60 @@ class Swipe {
             touches = event.touches[0];
         }
 
-        this.touchObject.startX = this.touchObject.curX = touches !== undefined ? touches.pageX : event.clientX;
-        this.touchObject.startY = this.touchObject.curY = touches !== undefined ? touches.pageY : event.clientY;
+        this.touchObject.startX = this.touchObject.curX = (touches !== undefined) ? touches.pageX : event.clientX;
+        this.touchObject.startY = this.touchObject.curY = (touches !== undefined) ? touches.pageY : event.clientY;
 
         this.dragging = true;
     }
 
     End(event) {
+        clearTimeout(this.moveTimerID);
+
+        this.dragging = false;
+        this.swiping = false;
+
+        if (this.scrolling) {
+            this.scrolling = false;
+            return false;
+        }
+
+        this.interrupted = false;
+        this.shouldClick = (this.touchObject.swipeLength > 10) ? false : true;
+
+        if (this.touchObject.curX === undefined) {
+            return false;
+        }
+
+        if (this.touchObject.edgeHit === true) {
+            // this.$slider.trigger('edge', [_, _.Direction()]);
+        }
+
+        if (this.touchObject.startX !== this.touchObject.curX) {
+            this.classParent.Action(this.touchObject.current, this.classElm, true);
+        }
     }
 
     Move(event) {
+        if(!this.dragging) return;
+
+        let touches = event.touches;
+        this.touchObject.curX = touches !== undefined ? touches[0].pageX : event.clientX;
+        const currentPos = this.classElm.current * this.classElm.itemW;
+        const pxAmount = this.touchObject.curX - this.touchObject.startX;
+        const perAmount = pxAmount / this.classElm.listPxW * 100 - currentPos;
+        const tmpCurrent = (perAmount > 0) ? 0 : perAmount;
+        this.touchObject.current = Math.round(Math.abs(tmpCurrent) / this.classElm.itemW);
+
+        clearTimeout(this.moveTimerID);
+        this.moveTimerID = setTimeout(()=> {
+            this.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + perAmount + '%,0,0)';
+
+            console.log({ 
+                cur: currentPos,
+                amt: perAmount,
+                listw: parseInt(this.classElm.listW)
+            })
+        }, 8);
     }
 }
 

@@ -4,6 +4,7 @@ const REF = require('./mod/Reference');
 const UTILS = require('./mod/Utils');
 const CREATES = require('./mod/Creates');
 const ELM = require('./mod/Element');
+const SWIPE = require('./mod/Swipe');
 
 class LazySlider {
     /**
@@ -86,6 +87,7 @@ class LazySlider {
                     this.SetCenter(cbObj);
                 });
             };
+            this.swipe = new SWIPE(this, obj);
         }
     }
 

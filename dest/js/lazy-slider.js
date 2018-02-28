@@ -96,8 +96,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var SWIPE = require('./Swipe');
-
 var Element = function () {
     function Element(node, showItem) {
         _classCallCheck(this, Element);
@@ -105,6 +103,7 @@ var Element = function () {
         this.elm = node;
         this.list = this.elm.querySelector('ul');
         this.listW = 0;
+        this.listPxW = 0;
         this.item = [].slice.call(this.list.querySelectorAll('li'));
         this.itemLen = this.item.length;
         this.itemW = 100 / this.itemLen;
@@ -117,7 +116,6 @@ var Element = function () {
         this.naviChildren;
         this.actionCb = [];
         this.dir = true;
-        this.swipe = new SWIPE(this, showItem);
         this.Init(showItem);
     }
 
@@ -125,6 +123,7 @@ var Element = function () {
         key: 'Init',
         value: function Init(showItem) {
             this.listW = this.list.style.width = 100 / showItem * this.itemLen + '%';
+            this.listPxW = this.list.offsetWidth;
         }
     }]);
 
@@ -133,7 +132,7 @@ var Element = function () {
 
 module.exports = Element;
 
-},{"./Swipe":4}],3:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -156,42 +155,50 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var UTIL = require('./Utils');
+var UTILS = require('./Utils');
 
 var Swipe = function () {
-    function Swipe(args, showItem) {
+    function Swipe(classParent, classElm) {
         _classCallCheck(this, Swipe);
 
-        this.elm = args;
-        this.list = args.list;
-        this.showItem = showItem;
+        this.classParent = classParent;
+        this.classElm = classElm;
+        this.showItem = this.classParent.showItem;
+        this.elm = this.classElm.elm;
+        this.list = this.classElm.list;
         this.draggable = true;
         this.dragging = false;
         this.interrupted = false;
         this.scrolling = false;
+        this.swiping = false;
+        this.rtl = false;
+        this.animating = false;
+        this.swipeLeft = null;
+        this.touchMove = true;
         this.touchThreshold = 5;
         this.touchObject = {};
+        this.moveTimerID;
         this.init();
     }
 
     _createClass(Swipe, [{
         key: 'init',
         value: function init() {
-            UTIL.addElWithArgs.call(this, {
+            UTILS.addElWithArgs.call(this, {
                 target: this.list,
                 events: ['touchstart', 'mousedown'],
                 func: this.Handler,
                 args: { action: 'start' }
             });
 
-            UTIL.addElWithArgs.call(this, {
+            UTILS.addElWithArgs.call(this, {
                 target: this.list,
                 events: ['touchmove', 'mousemove'],
                 func: this.Handler,
                 args: { action: 'move' }
             });
 
-            UTIL.addElWithArgs.call(this, {
+            UTILS.addElWithArgs.call(this, {
                 target: this.list,
                 events: ['touchend', 'touchcancel', 'mouseup', 'mouseleave'],
                 func: this.Handler,
@@ -230,7 +237,7 @@ var Swipe = function () {
 
             this.interrupted = true;
 
-            if (this.touchObject.fingerCount !== 1 || this.elm.current <= this.showItem) {
+            if (this.touchObject.fingerCount !== 1) {
                 this.touchObject = {};
                 return false;
             }
@@ -246,10 +253,56 @@ var Swipe = function () {
         }
     }, {
         key: 'End',
-        value: function End(event) {}
+        value: function End(event) {
+            clearTimeout(this.moveTimerID);
+
+            this.dragging = false;
+            this.swiping = false;
+
+            if (this.scrolling) {
+                this.scrolling = false;
+                return false;
+            }
+
+            this.interrupted = false;
+            this.shouldClick = this.touchObject.swipeLength > 10 ? false : true;
+
+            if (this.touchObject.curX === undefined) {
+                return false;
+            }
+
+            if (this.touchObject.edgeHit === true) {}
+
+            if (this.touchObject.startX !== this.touchObject.curX) {
+                this.classParent.Action(this.touchObject.current, this.classElm, true);
+            }
+        }
     }, {
         key: 'Move',
-        value: function Move(event) {}
+        value: function Move(event) {
+            var _this = this;
+
+            if (!this.dragging) return;
+
+            var touches = event.touches;
+            this.touchObject.curX = touches !== undefined ? touches[0].pageX : event.clientX;
+            var currentPos = this.classElm.current * this.classElm.itemW;
+            var pxAmount = this.touchObject.curX - this.touchObject.startX;
+            var perAmount = pxAmount / this.classElm.listPxW * 100 - currentPos;
+            var tmpCurrent = perAmount > 0 ? 0 : perAmount;
+            this.touchObject.current = Math.round(Math.abs(tmpCurrent) / this.classElm.itemW);
+
+            clearTimeout(this.moveTimerID);
+            this.moveTimerID = setTimeout(function () {
+                _this.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + perAmount + '%,0,0)';
+
+                console.log({
+                    cur: currentPos,
+                    amt: perAmount,
+                    listw: parseInt(_this.classElm.listW)
+                });
+            }, 8);
+        }
     }]);
 
     return Swipe;
@@ -301,6 +354,7 @@ var REF = require('./mod/Reference');
 var UTILS = require('./mod/Utils');
 var CREATES = require('./mod/Creates');
 var ELM = require('./mod/Element');
+var SWIPE = require('./mod/Swipe');
 
 var LazySlider = function () {
     function LazySlider(args) {
@@ -381,6 +435,7 @@ var LazySlider = function () {
                         _this.SetCenter(cbObj);
                     });
                 };
+                _this.swipe = new SWIPE(_this, obj);
             };
 
             for (var i = 0; i < this.nodeList.length; i++) {
@@ -481,4 +536,4 @@ var LazySlider = function () {
 
 window.LazySlider = LazySlider;
 
-},{"./mod/Creates":1,"./mod/Element":2,"./mod/Reference":3,"./mod/Utils":5}]},{},[6]);
+},{"./mod/Creates":1,"./mod/Element":2,"./mod/Reference":3,"./mod/Swipe":4,"./mod/Utils":5}]},{},[6]);
