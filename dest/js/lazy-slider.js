@@ -57,7 +57,7 @@ module.exports = {
             naviLi.addEventListener('click', function (e) {
                 [].slice.call(e.currentTarget.classList).forEach(function (value) {
                     if (value.match(REF.curr) !== null) {
-                        var index = Math.ceil(parseInt(value.replace(REF.curr, '')) * (_this2.slideNum - 1));
+                        var index = Math.ceil(parseInt(value.replace(REF.curr, '')) * _this2.slideNum);
                         obj.dir = true;
                         _this2.Action(index, obj, true);
                     };
