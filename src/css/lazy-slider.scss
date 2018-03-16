@@ -13,8 +13,11 @@ img {
   position: relative;
   height: 100%;
   overflow: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
   img {
     vertical-align: top;
+    pointer-events: none;
   }
   ul, li {
     list-style: none;
@@ -106,12 +109,6 @@ img {
             transform: scale(1);
           }
         }
-      }
-      &-prev {
-        left: -20%;
-      }
-      &-next {
-        right: 20%;
       }
     }
   }
