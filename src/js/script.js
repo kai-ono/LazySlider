@@ -47,39 +47,47 @@ class LazySlider {
                 this.actionLock = false;
             });
 
-            if (this.loop) {
-                CREATES.Loop.call(this, obj);
-                UTILS.SetTransitionEnd(obj.list, () => {
-                    if (obj.current < 0 || obj.current > obj.itemLen - 1) {
-                        const endPoint = (obj.current < 0) ? false : true; // Right end is true.
-
-                        obj.list.style.transitionDuration = 0 + 's';
-                        for (let i = 0; i < obj.itemLen; i++) {
-                            obj.item[i].children[0].style.transitionDuration = 0 + 's';
-                        }
-
-                        const amount = (obj.dir) ? obj.itemW * obj.current : obj.itemW * (obj.itemLen * 2 - this.slideNum);
-                        obj.current = (endPoint) ? 0 : obj.itemLen - this.slideNum;
-                        obj.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + -amount + '%,0,0)';
-
-                        if (this.center) this.SetCenter(obj);
-
-                        setTimeout(() => {
-                            obj.list.style.transitionDuration = 0.5 + 's';
-                            for (let i = 0; i < obj.itemLen; i++) {
-                                obj.item[i].children[0].style.transitionDuration = 0.1 + 's';
-                            }
-                        }, 0);
-                    }
-                });
-            };
-
+            this.InitLoop(obj);
             this.AutoPlay(obj);
             this.CenterSettings(obj);
             CREATES.Buttons.call(this, obj);
             CREATES.Navi.call(this, obj);
+
             this.swipe = new SWIPE(this, obj);
         }
+    }
+
+    /**
+     * ループ処理の初期化を行う
+     * @param {Object} obj Elementクラス
+     */
+    InitLoop(obj) {
+        if (!this.loop) return;
+
+        CREATES.Loop.call(this, obj);
+        UTILS.SetTransitionEnd(obj.list, () => {
+            if (obj.current < 0 || obj.current > obj.itemLen - 1) {
+                const endPoint = (obj.current < 0) ? false : true; // Right end is true.
+
+                obj.list.style.transitionDuration = 0 + 's';
+                for (let i = 0; i < obj.itemLen; i++) {
+                    obj.item[i].children[0].style.transitionDuration = 0 + 's';
+                }
+
+                const amount = (obj.dir) ? obj.itemW * obj.current : obj.itemW * (obj.itemLen * 2 - this.slideNum);
+                obj.current = (endPoint) ? 0 : obj.itemLen - this.slideNum;
+                obj.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + -amount + '%,0,0)';
+
+                if (this.center) this.SetCenter(obj);
+
+                setTimeout(() => {
+                    obj.list.style.transitionDuration = 0.5 + 's';
+                    for (let i = 0; i < obj.itemLen; i++) {
+                        obj.item[i].children[0].style.transitionDuration = 0.1 + 's';
+                    }
+                }, 0);
+            }
+        });
     }
 
     /**
@@ -120,12 +128,12 @@ class LazySlider {
     CenterSettings(obj) {
         if (!this.center) return;
 
-        obj.elm.classList.add('slide-center');
-        this.SetCenter(obj);
-
         obj.actionCb.push((cbObj) => {
             this.SetCenter(cbObj);
         });
+
+        obj.elm.classList.add('slide-center');
+        this.SetCenter(obj);
     }
 
     /**

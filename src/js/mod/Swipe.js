@@ -72,15 +72,11 @@ class Swipe {
         }
     }
 
-    Direction() {
-    }
-
     Start(event) {
         let touches;
 
         this.interrupted = true;
 
-        // if (this.touchObject.fingerCount !== 1 || this.elm.current <= this.showItem) {
         if (this.touchObject.fingerCount !== 1) {
             this.touchObject = {};
             return false;
@@ -96,7 +92,7 @@ class Swipe {
         this.dragging = true;
     }
 
-    End(event) {
+    End() {
         clearTimeout(this.moveTimerID);
 
         this.dragging = false;
@@ -114,35 +110,27 @@ class Swipe {
             return false;
         }
 
-        if (this.touchObject.edgeHit === true) {
-            // this.$slider.trigger('edge', [_, _.Direction()]);
+        if (this.touchObject.startX !== this.touchObject.curX) {
+            this.touchObject.current = (this.classElm.dir) ? ++this.classElm.current : --this.classElm.current;//Math.round(Math.abs(tmpCurrent) / this.classElm.itemW) - this.classElm.dupItemLeftLen;
+            this.classParent.Action(this.touchObject.current, this.classElm, false);
         }
 
-        if (this.touchObject.startX !== this.touchObject.curX) {
-            this.classParent.Action(this.touchObject.current, this.classElm, true);
-        }
+        this.touchObject = {};
     }
 
     Move(event) {
+        clearTimeout(this.moveTimerID);
         if(!this.dragging) return;
 
         let touches = event.touches;
         this.touchObject.curX = touches !== undefined ? touches[0].pageX : event.clientX;
-        const currentPos = this.classElm.current * this.classElm.itemW;
+        const currentPos = (this.classElm.current + this.classElm.dupItemLeftLen) * this.classElm.itemW;
         const pxAmount = this.touchObject.curX - this.touchObject.startX;
-        const perAmount = pxAmount / this.classElm.listPxW * 100 - currentPos;
-        const tmpCurrent = (perAmount > 0) ? 0 : perAmount;
-        this.touchObject.current = Math.round(Math.abs(tmpCurrent) / this.classElm.itemW);
+        const perAmount = pxAmount / this.classElm.listPxW * 45 - currentPos;
+        this.classElm.dir = (pxAmount < 0) ? true : false;
 
-        clearTimeout(this.moveTimerID);
         this.moveTimerID = setTimeout(()=> {
             this.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + perAmount + '%,0,0)';
-
-            console.log({ 
-                cur: currentPos,
-                amt: perAmount,
-                listw: parseInt(this.classElm.listW)
-            })
         }, 8);
     }
 }

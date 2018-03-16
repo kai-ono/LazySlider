@@ -236,9 +236,6 @@ var Swipe = function () {
             }
         }
     }, {
-        key: 'Direction',
-        value: function Direction() {}
-    }, {
         key: 'Start',
         value: function Start(event) {
             var touches = void 0;
@@ -261,7 +258,7 @@ var Swipe = function () {
         }
     }, {
         key: 'End',
-        value: function End(event) {
+        value: function End() {
             clearTimeout(this.moveTimerID);
 
             this.dragging = false;
@@ -279,36 +276,30 @@ var Swipe = function () {
                 return false;
             }
 
-            if (this.touchObject.edgeHit === true) {}
-
             if (this.touchObject.startX !== this.touchObject.curX) {
-                this.classParent.Action(this.touchObject.current, this.classElm, true);
+                this.touchObject.current = this.classElm.dir ? ++this.classElm.current : --this.classElm.current;
+                this.classParent.Action(this.touchObject.current, this.classElm, false);
             }
+
+            this.touchObject = {};
         }
     }, {
         key: 'Move',
         value: function Move(event) {
             var _this = this;
 
+            clearTimeout(this.moveTimerID);
             if (!this.dragging) return;
 
             var touches = event.touches;
             this.touchObject.curX = touches !== undefined ? touches[0].pageX : event.clientX;
-            var currentPos = this.classElm.current * this.classElm.itemW;
+            var currentPos = (this.classElm.current + this.classElm.dupItemLeftLen) * this.classElm.itemW;
             var pxAmount = this.touchObject.curX - this.touchObject.startX;
-            var perAmount = pxAmount / this.classElm.listPxW * 100 - currentPos;
-            var tmpCurrent = perAmount > 0 ? 0 : perAmount;
-            this.touchObject.current = Math.round(Math.abs(tmpCurrent) / this.classElm.itemW);
+            var perAmount = pxAmount / this.classElm.listPxW * 45 - currentPos;
+            this.classElm.dir = pxAmount < 0 ? true : false;
 
-            clearTimeout(this.moveTimerID);
             this.moveTimerID = setTimeout(function () {
                 _this.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + perAmount + '%,0,0)';
-
-                console.log({
-                    cur: currentPos,
-                    amt: perAmount,
-                    listw: parseInt(_this.classElm.listW)
-                });
             }, 8);
         }
     }]);
@@ -389,10 +380,10 @@ var LazySlider = function () {
         value: function Init() {
             var _this = this;
 
-            var _loop = function _loop(i) {
-                _this.elmArr.push(new ELM(_this.nodeList[i], _this.showItem));
+            for (var i = 0; i < this.nodeList.length; i++) {
+                this.elmArr.push(new ELM(this.nodeList[i], this.showItem));
 
-                var obj = _this.elmArr[i];
+                var obj = this.elmArr[i];
 
                 obj.list.classList.add(REF.list);
                 [].map.call(obj.item, function (el) {
@@ -403,43 +394,46 @@ var LazySlider = function () {
                     _this.actionLock = false;
                 });
 
-                if (_this.loop) {
-                    CREATES.Loop.call(_this, obj);
-                    UTILS.SetTransitionEnd(obj.list, function () {
-                        if (obj.current < 0 || obj.current > obj.itemLen - 1) {
-                            var endPoint = obj.current < 0 ? false : true;
+                this.InitLoop(obj);
+                this.AutoPlay(obj);
+                this.CenterSettings(obj);
+                CREATES.Buttons.call(this, obj);
+                CREATES.Navi.call(this, obj);
 
-                            obj.list.style.transitionDuration = 0 + 's';
-                            for (var _i = 0; _i < obj.itemLen; _i++) {
-                                obj.item[_i].children[0].style.transitionDuration = 0 + 's';
-                            }
-
-                            var amount = obj.dir ? obj.itemW * obj.current : obj.itemW * (obj.itemLen * 2 - _this.slideNum);
-                            obj.current = endPoint ? 0 : obj.itemLen - _this.slideNum;
-                            obj.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + -amount + '%,0,0)';
-
-                            if (_this.center) _this.SetCenter(obj);
-
-                            setTimeout(function () {
-                                obj.list.style.transitionDuration = 0.5 + 's';
-                                for (var _i2 = 0; _i2 < obj.itemLen; _i2++) {
-                                    obj.item[_i2].children[0].style.transitionDuration = 0.1 + 's';
-                                }
-                            }, 0);
-                        }
-                    });
-                };
-
-                _this.AutoPlay(obj);
-                _this.CenterSettings(obj);
-                CREATES.Buttons.call(_this, obj);
-                CREATES.Navi.call(_this, obj);
-                _this.swipe = new SWIPE(_this, obj);
-            };
-
-            for (var i = 0; i < this.nodeList.length; i++) {
-                _loop(i);
+                this.swipe = new SWIPE(this, obj);
             }
+        }
+    }, {
+        key: 'InitLoop',
+        value: function InitLoop(obj) {
+            var _this2 = this;
+
+            if (!this.loop) return;
+
+            CREATES.Loop.call(this, obj);
+            UTILS.SetTransitionEnd(obj.list, function () {
+                if (obj.current < 0 || obj.current > obj.itemLen - 1) {
+                    var endPoint = obj.current < 0 ? false : true;
+
+                    obj.list.style.transitionDuration = 0 + 's';
+                    for (var i = 0; i < obj.itemLen; i++) {
+                        obj.item[i].children[0].style.transitionDuration = 0 + 's';
+                    }
+
+                    var amount = obj.dir ? obj.itemW * obj.current : obj.itemW * (obj.itemLen * 2 - _this2.slideNum);
+                    obj.current = endPoint ? 0 : obj.itemLen - _this2.slideNum;
+                    obj.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + -amount + '%,0,0)';
+
+                    if (_this2.center) _this2.SetCenter(obj);
+
+                    setTimeout(function () {
+                        obj.list.style.transitionDuration = 0.5 + 's';
+                        for (var _i = 0; _i < obj.itemLen; _i++) {
+                            obj.item[_i].children[0].style.transitionDuration = 0.1 + 's';
+                        }
+                    }, 0);
+                }
+            });
         }
     }, {
         key: 'SetCurrentNavi',
@@ -469,21 +463,21 @@ var LazySlider = function () {
     }, {
         key: 'CenterSettings',
         value: function CenterSettings(obj) {
-            var _this2 = this;
+            var _this3 = this;
 
             if (!this.center) return;
 
+            obj.actionCb.push(function (cbObj) {
+                _this3.SetCenter(cbObj);
+            });
+
             obj.elm.classList.add('slide-center');
             this.SetCenter(obj);
-
-            obj.actionCb.push(function (cbObj) {
-                _this2.SetCenter(cbObj);
-            });
         }
     }, {
         key: 'Action',
         value: function Action(index, obj, isNaviEvent) {
-            var _this3 = this;
+            var _this4 = this;
 
             clearTimeout(obj.autoID);
             this.actionLock = true;
@@ -495,7 +489,7 @@ var LazySlider = function () {
             }
 
             var isLast = function isLast(item) {
-                return item > 0 && item < _this3.slideNum;
+                return item > 0 && item < _this4.slideNum;
             };
             var prevIndex = obj.dir ? index - this.slideNum : index + this.slideNum;
             var remainingItem = obj.dir ? obj.itemLen - index : prevIndex;
@@ -511,22 +505,22 @@ var LazySlider = function () {
             obj.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + amount + '%,0,0)';
             obj.current = index;
 
-            for (var _i3 = 0; _i3 < obj.actionCb.length; _i3++) {
-                obj.actionCb[_i3](obj);
+            for (var _i2 = 0; _i2 < obj.actionCb.length; _i2++) {
+                obj.actionCb[_i2](obj);
             }
         }
     }, {
         key: 'AutoPlay',
         value: function AutoPlay(obj) {
-            var _this4 = this;
+            var _this5 = this;
 
             if (!this.auto) return;
 
             var timer = function timer() {
                 obj.autoID = setTimeout(function () {
                     obj.dir = true;
-                    _this4.Action(++obj.current, obj, false);
-                }, _this4.interval);
+                    _this5.Action(++obj.current, obj, false);
+                }, _this5.interval);
             };
 
             timer();
