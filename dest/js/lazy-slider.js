@@ -8,6 +8,8 @@ module.exports = {
     Buttons: function Buttons(obj) {
         var _this = this;
 
+        if (!this.btns) return;
+
         var btnUl = document.createElement('ul');
         var btnLiNext = document.createElement('li');
         var btnLiPrev = document.createElement('li');
@@ -36,6 +38,8 @@ module.exports = {
 
     Navi: function Navi(obj) {
         var _this2 = this;
+
+        if (!this.navi) return;
 
         var naviWrap = document.createElement('div');
         var naviUl = document.createElement('ul');
@@ -66,6 +70,10 @@ module.exports = {
         obj.navi = naviUl;
         obj.naviChildren = naviUl.querySelectorAll('li');
         this.SetCurrentNavi(obj);
+
+        obj.actionCb.push(function (cbObj) {
+            _this2.SetCurrentNavi(cbObj);
+        });
     },
 
     Loop: function Loop(obj) {
@@ -421,20 +429,11 @@ var LazySlider = function () {
                         }
                     });
                 };
-                if (_this.auto) _this.AutoPlay(obj);
-                if (_this.btns) CREATES.Buttons.call(_this, obj);
-                if (_this.navi) {
-                    CREATES.Navi.call(_this, obj);
-                    obj.actionCb.push(function (cbObj) {
-                        _this.SetCurrentNavi(cbObj);
-                    });
-                };
-                if (_this.center) {
-                    _this.CenterSettings(obj);
-                    obj.actionCb.push(function (cbObj) {
-                        _this.SetCenter(cbObj);
-                    });
-                };
+
+                _this.AutoPlay(obj);
+                _this.CenterSettings(obj);
+                CREATES.Buttons.call(_this, obj);
+                CREATES.Navi.call(_this, obj);
                 _this.swipe = new SWIPE(_this, obj);
             };
 
@@ -470,13 +469,21 @@ var LazySlider = function () {
     }, {
         key: 'CenterSettings',
         value: function CenterSettings(obj) {
+            var _this2 = this;
+
+            if (!this.center) return;
+
             obj.elm.classList.add('slide-center');
             this.SetCenter(obj);
+
+            obj.actionCb.push(function (cbObj) {
+                _this2.SetCenter(cbObj);
+            });
         }
     }, {
         key: 'Action',
         value: function Action(index, obj, isNaviEvent) {
-            var _this2 = this;
+            var _this3 = this;
 
             clearTimeout(obj.autoID);
             this.actionLock = true;
@@ -488,7 +495,7 @@ var LazySlider = function () {
             }
 
             var isLast = function isLast(item) {
-                return item > 0 && item < _this2.slideNum;
+                return item > 0 && item < _this3.slideNum;
             };
             var prevIndex = obj.dir ? index - this.slideNum : index + this.slideNum;
             var remainingItem = obj.dir ? obj.itemLen - index : prevIndex;
@@ -511,13 +518,15 @@ var LazySlider = function () {
     }, {
         key: 'AutoPlay',
         value: function AutoPlay(obj) {
-            var _this3 = this;
+            var _this4 = this;
+
+            if (!this.auto) return;
 
             var timer = function timer() {
                 obj.autoID = setTimeout(function () {
                     obj.dir = true;
-                    _this3.Action(++obj.current, obj, false);
-                }, _this3.interval);
+                    _this4.Action(++obj.current, obj, false);
+                }, _this4.interval);
             };
 
             timer();

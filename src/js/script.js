@@ -73,20 +73,11 @@ class LazySlider {
                     }
                 });
             };
-            if (this.auto) this.AutoPlay(obj);
-            if (this.btns) CREATES.Buttons.call(this, obj);
-            if (this.navi) {
-                CREATES.Navi.call(this, obj);
-                obj.actionCb.push((cbObj) => {
-                    this.SetCurrentNavi(cbObj);
-                });
-            };
-            if (this.center) {
-                this.CenterSettings(obj);
-                obj.actionCb.push((cbObj) => {
-                    this.SetCenter(cbObj);
-                });
-            };
+
+            this.AutoPlay(obj);
+            this.CenterSettings(obj);
+            CREATES.Buttons.call(this, obj);
+            CREATES.Navi.call(this, obj);
             this.swipe = new SWIPE(this, obj);
         }
     }
@@ -127,8 +118,14 @@ class LazySlider {
      * @param {Object} obj Elementクラス
      */
     CenterSettings(obj) {
+        if (!this.center) return;
+
         obj.elm.classList.add('slide-center');
         this.SetCenter(obj);
+
+        obj.actionCb.push((cbObj) => {
+            this.SetCenter(cbObj);
+        });
     }
 
     /**
@@ -178,6 +175,8 @@ class LazySlider {
      * @param {Object} obj Elementクラス
      */
     AutoPlay(obj) {
+        if (!this.auto) return;
+
         const timer = () => {
             obj.autoID = setTimeout(() => {
                 obj.dir = true;

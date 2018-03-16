@@ -9,6 +9,8 @@ module.exports = {
      * @param {Object} obj Elementクラス
      */
     Buttons: function(obj) {
+        if (!this.btns) return;
+
         const btnUl = document.createElement('ul');
         const btnLiNext = document.createElement('li');
         const btnLiPrev = document.createElement('li');
@@ -40,6 +42,8 @@ module.exports = {
      * @param {Object} obj Elementクラス
      */
     Navi: function(obj) {
+        if (!this.navi) return;
+
         const naviWrap = document.createElement('div');
         const naviUl = document.createElement('ul');
         const fragment = document.createDocumentFragment();
@@ -69,6 +73,10 @@ module.exports = {
         obj.navi = naviUl;
         obj.naviChildren = naviUl.querySelectorAll('li');
         this.SetCurrentNavi(obj);
+
+        obj.actionCb.push((cbObj) => {
+            this.SetCurrentNavi(cbObj);
+        });
     },
 
     /**
