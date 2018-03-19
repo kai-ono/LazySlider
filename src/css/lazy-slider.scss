@@ -13,8 +13,11 @@ img {
   position: relative;
   height: 100%;
   overflow: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
   img {
     vertical-align: top;
+    pointer-events: none;
   }
   ul, li {
     list-style: none;
@@ -25,7 +28,7 @@ img {
       display: flex;
       justify-content: space-between;
       transition-property: transform;
-      transition-duration: 0.5s;
+      transition-duration: 0.3s;
       transition-timing-function: ease-out;
     }
     &-item {
@@ -36,10 +39,6 @@ img {
       }
     }
     &-btns {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
       & > * {
         position: absolute;
         width: 10%;
@@ -110,12 +109,6 @@ img {
             transform: scale(1);
           }
         }
-      }
-      &-prev {
-        left: -20%;
-      }
-      &-next {
-        right: 20%;
       }
     }
   }

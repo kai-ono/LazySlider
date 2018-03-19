@@ -4,7 +4,7 @@ module.exports = function(gulp) {
 
     del('dest/*.html');
 
-    return gulp.src('./src/*.html')
+    return gulp.src('./src/**/*.html')
       .pipe(gulp.dest('./dest'));
   });
 };
