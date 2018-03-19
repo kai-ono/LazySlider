@@ -135,7 +135,7 @@ var Center = function () {
             for (var i = 0; i < obj.item.length; i++) {
                 obj.item[i].classList.remove(REF.cntr);
             }
-
+            console.log(obj);
             obj.item[index].classList.add(REF.cntr);
         }
     }]);
@@ -325,6 +325,9 @@ var Navi = function () {
             this.SetCurrentNavi(this.classElm);
 
             this.classElm.actionCb.push(function (cbObj) {
+                console.log({
+                    "test": cbObj
+                });
                 _this.SetCurrentNavi(cbObj);
             });
         }
@@ -393,7 +396,6 @@ var Swipe = function () {
         this.touchMove = true;
         this.touchThreshold = 5;
         this.touchObject = {};
-        this.moveTimerID;
         this.init();
     }
 
@@ -467,8 +469,6 @@ var Swipe = function () {
     }, {
         key: 'End',
         value: function End() {
-            clearTimeout(this.moveTimerID);
-
             this.dragging = false;
             this.swiping = false;
 
@@ -493,9 +493,6 @@ var Swipe = function () {
     }, {
         key: 'Move',
         value: function Move(event) {
-            var _this = this;
-
-            clearTimeout(this.moveTimerID);
             if (!this.dragging) return;
 
             var touches = event.touches;
@@ -505,9 +502,7 @@ var Swipe = function () {
             var perAmount = pxAmount / this.classElm.listPxW * 45 - currentPos;
             this.classElm.dir = pxAmount < 0 ? true : false;
 
-            this.moveTimerID = setTimeout(function () {
-                _this.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + perAmount + '%,0,0)';
-            }, 8);
+            this.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + perAmount + '%,0,0)';
         }
     }]);
 
@@ -520,6 +515,17 @@ module.exports = Swipe;
 'use strict';
 
 module.exports = {
+    GetPropertyWithPrefix: function GetPropertyWithPrefix(prop) {
+        var bodyStyle = document.body.style;
+        var resultProp = prop;
+        var tmpProp = prop.slice(0, 1).toUpperCase() + prop.slice(1);
+
+        if (bodyStyle.webkitTransform !== undefined) resultProp = 'webkit' + tmpProp;
+        if (bodyStyle.mozTransform !== undefined) resultProp = 'moz' + tmpProp;
+        if (bodyStyle.msTransform !== undefined) resultProp = 'ms' + tmpProp;
+
+        return resultProp;
+    },
     GetTransformWithPrefix: function GetTransformWithPrefix() {
         var bodyStyle = document.body.style;
         var transform = 'transform';
