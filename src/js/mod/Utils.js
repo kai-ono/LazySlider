@@ -1,6 +1,17 @@
 'use strict';
 
 module.exports = {
+    GetPropertyWithPrefix: (prop) => {
+        const bodyStyle = document.body.style;
+        let resultProp = prop;
+        let tmpProp = prop.slice(0, 1).toUpperCase() + prop.slice(1);
+
+        if (bodyStyle.webkitTransform !== undefined) resultProp = 'webkit' + tmpProp;
+        if (bodyStyle.mozTransform !== undefined) resultProp = 'moz' + tmpProp;
+        if (bodyStyle.msTransform !== undefined) resultProp = 'ms' + tmpProp;
+
+        return resultProp;
+    },
     GetTransformWithPrefix: () => {
         const bodyStyle = document.body.style;
         let transform = 'transform';
