@@ -1,6 +1,7 @@
 'use strict';
 
 const UTILS = require('./Utils');
+const CENTER = require('./Center');
 
 class Loop {
     /**
@@ -39,17 +40,17 @@ class Loop {
         if (this.classElm.current < 0 || this.classElm.current > this.classElm.itemLen - 1) {
             const endPoint = (this.classElm.current < 0) ? false : true; // Right end is true.
 
-            this.classElm.list.style.transitionDuration = 0 + 's';
+            this.classElm.list.style[UTILS.GetDurationWithPrefix()] = 0 + 's';
 
             for (let i = 0; i < this.classElm.itemLen; i++) {
-                this.classElm.item[i].children[0].style.transitionDuration = 0 + 's';
+                this.classElm.item[i].children[0].style[UTILS.GetDurationWithPrefix()] = 0 + 's';
             }
 
             const amount = (this.classElm.dir) ? this.classElm.itemW * this.classElm.current : this.classElm.itemW * (this.classElm.itemLen * 2 - this.slideNum);
             this.classElm.current = (endPoint) ? 0 : this.classElm.itemLen - this.slideNum;
             this.classElm.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + -amount + '%,0,0)';
 
-            if (this.lazySlider.center) this.lazySlider.SetCenter(this.classElm);
+            if (this.lazySlider.center) this.lazySlider.classCenter.SetCenter(this.classElm);
 
             setTimeout(() => {
                 this.classElm.list.style.transitionDuration = 0.5 + 's';

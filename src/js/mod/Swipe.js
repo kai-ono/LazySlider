@@ -15,7 +15,6 @@ class Swipe {
         this.list = this.classElm.list;
         this.draggable = true;
         this.dragging = false;
-        this.interrupted = false;
         this.scrolling = false;
         this.swiping = false;
         this.rtl = false;
@@ -73,9 +72,9 @@ class Swipe {
     }
 
     Start(event) {
-        let touches;
+        clearTimeout(this.classElm.autoID);
 
-        this.interrupted = true;
+        let touches;
 
         if (this.touchObject.fingerCount !== 1) {
             this.touchObject = {};
@@ -103,7 +102,6 @@ class Swipe {
             return false;
         }
 
-        this.interrupted = false;
         this.shouldClick = (this.touchObject.swipeLength > 10) ? false : true;
 
         if (this.touchObject.curX === undefined) {
@@ -111,7 +109,7 @@ class Swipe {
         }
 
         if (this.touchObject.startX !== this.touchObject.curX) {
-            this.touchObject.current = (this.classElm.dir) ? ++this.classElm.current : --this.classElm.current;//Math.round(Math.abs(tmpCurrent) / this.classElm.itemW) - this.classElm.dupItemLeftLen;
+            this.touchObject.current = (this.classElm.dir) ? ++this.classElm.current : --this.classElm.current;
             this.lazySlider.Action(this.touchObject.current, this.classElm, false);
         }
 
