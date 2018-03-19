@@ -7,10 +7,10 @@ class Swipe {
      * コンストラクタ
      * @param {Object} args object型の引数。
      */
-    constructor(classParent, classElm) {
-        this.classParent = classParent;
+    constructor(lazySlider, classElm) {
+        this.lazySlider = lazySlider;
         this.classElm = classElm;
-        this.showItem = this.classParent.showItem;
+        this.showItem = this.lazySlider.showItem;
         this.elm = this.classElm.elm;
         this.list = this.classElm.list;
         this.draggable = true;
@@ -112,7 +112,7 @@ class Swipe {
 
         if (this.touchObject.startX !== this.touchObject.curX) {
             this.touchObject.current = (this.classElm.dir) ? ++this.classElm.current : --this.classElm.current;//Math.round(Math.abs(tmpCurrent) / this.classElm.itemW) - this.classElm.dupItemLeftLen;
-            this.classParent.Action(this.touchObject.current, this.classElm, false);
+            this.lazySlider.Action(this.touchObject.current, this.classElm, false);
         }
 
         this.touchObject = {};

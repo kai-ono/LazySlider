@@ -2,8 +2,10 @@
 
 const REF = require('./mod/Reference');
 const UTILS = require('./mod/Utils');
-const CREATES = require('./mod/Creates');
 const ELM = require('./mod/Element');
+const BUTTON = require('./mod/Button');
+const NAVI = require('./mod/Navi');
+const LOOP = require('./mod/Loop');
 const SWIPE = require('./mod/Swipe');
 
 class LazySlider {
@@ -23,10 +25,11 @@ class LazySlider {
         this.auto = (args.auto === false) ? false : true;
         this.center = (args.center === true) ? true : false;
         this.loop = (args.loop === true) ? true : false;
-        this.btns = (args.btns === false) ? false : true;
+        this.btn = (args.btn === false) ? false : true;
         this.navi = (args.navi === false) ? false : true;
-        this.nodeList = document.querySelectorAll('.' + this.class);
+        this.swipe = (args.swipe === false) ? false : true;
         this.actionLock = false;
+        this.nodeList = document.querySelectorAll('.' + this.class);
         this.resizeTimerID;
         this.elmArr = [];
         this.Init();
@@ -47,64 +50,13 @@ class LazySlider {
                 this.actionLock = false;
             });
 
-            this.InitLoop(obj);
+            if (this.loop) { new LOOP(this, obj); }
+            if (this.btn) { new BUTTON(this, obj); }
+            if (this.navi) { new NAVI(this, obj); }
+            if (this.swipe) { new SWIPE(this, obj); }
             this.AutoPlay(obj);
             this.CenterSettings(obj);
-            CREATES.Buttons.call(this, obj);
-            CREATES.Navi.call(this, obj);
-
-            this.swipe = new SWIPE(this, obj);
         }
-    }
-
-    /**
-     * ループ処理の初期化を行う
-     * @param {Object} obj Elementクラス
-     */
-    InitLoop(obj) {
-        if (!this.loop) return;
-
-        CREATES.Loop.call(this, obj);
-        UTILS.SetTransitionEnd(obj.list, () => {
-            if (obj.current < 0 || obj.current > obj.itemLen - 1) {
-                const endPoint = (obj.current < 0) ? false : true; // Right end is true.
-
-                obj.list.style.transitionDuration = 0 + 's';
-                for (let i = 0; i < obj.itemLen; i++) {
-                    obj.item[i].children[0].style.transitionDuration = 0 + 's';
-                }
-
-                const amount = (obj.dir) ? obj.itemW * obj.current : obj.itemW * (obj.itemLen * 2 - this.slideNum);
-                obj.current = (endPoint) ? 0 : obj.itemLen - this.slideNum;
-                obj.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + -amount + '%,0,0)';
-
-                if (this.center) this.SetCenter(obj);
-
-                setTimeout(() => {
-                    obj.list.style.transitionDuration = 0.5 + 's';
-                    for (let i = 0; i < obj.itemLen; i++) {
-                        obj.item[i].children[0].style.transitionDuration = 0.1 + 's';
-                    }
-                }, 0);
-            }
-        });
-    }
-
-    /**
-     * current要素にクラスを付与する
-     * @param {Object} obj Elementクラス
-     */
-    SetCurrentNavi(obj) {
-        let index = Math.ceil(obj.current / this.slideNum);
-
-        if (index < 0) index = obj.naviChildren.length - 1;
-        if (index > obj.naviChildren.length - 1) index = 0;
-
-        for (let i = 0; i < obj.naviChildren.length; i++) {
-            obj.naviChildren[i].classList.remove(REF.actv);
-        }
-
-        obj.naviChildren[index].classList.add(REF.actv);
     }
 
     /**
@@ -134,6 +86,28 @@ class LazySlider {
 
         obj.elm.classList.add('slide-center');
         this.SetCenter(obj);
+    }
+
+    /**
+     * ActionをsetTimeoutで起動し、自動スライドを行う
+     * @param {Object} obj Elementクラス
+     */
+    AutoPlay(obj) {
+        if (!this.auto) return;
+
+        const timer = () => {
+            obj.autoID = setTimeout(() => {
+                obj.dir = true;
+                this.Action(++obj.current, obj, false);
+            }, this.interval);
+        };
+
+        timer();
+
+        UTILS.SetTransitionEnd(obj.list, () => {
+            clearTimeout(obj.autoID);
+            timer();
+        });
     }
 
     /**
@@ -176,28 +150,6 @@ class LazySlider {
         for (let i = 0; i < obj.actionCb.length; i++) {
             obj.actionCb[i](obj);
         }
-    }
-
-    /**
-     * ActionをsetTimeoutで起動し、自動スライドを行う
-     * @param {Object} obj Elementクラス
-     */
-    AutoPlay(obj) {
-        if (!this.auto) return;
-
-        const timer = () => {
-            obj.autoID = setTimeout(() => {
-                obj.dir = true;
-                this.Action(++obj.current, obj, false);
-            }, this.interval);
-        };
-
-        timer();
-
-        UTILS.SetTransitionEnd(obj.list, () => {
-            clearTimeout(obj.autoID);
-            timer();
-        });
     }
 };
 
