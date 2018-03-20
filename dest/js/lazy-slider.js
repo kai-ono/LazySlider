@@ -31,6 +31,7 @@ var Auto = function () {
             timer();
 
             UTILS.SetTransitionEnd(this.classElm.list, function () {
+                if (_this.classElm.dragging) return false;
                 clearTimeout(_this.classElm.autoID);
                 timer();
             });
@@ -383,15 +384,7 @@ var Swipe = function () {
         this.showItem = this.lazySlider.showItem;
         this.elm = this.classElm.elm;
         this.list = this.classElm.list;
-        this.draggable = true;
-        this.dragging = false;
-        this.scrolling = false;
-        this.swiping = false;
-        this.rtl = false;
-        this.animating = false;
-        this.swipeLeft = null;
-        this.touchMove = true;
-        this.touchThreshold = 5;
+        this.classElm.dragging = false;
         this.touchObject = {};
         this.init();
     }
@@ -423,10 +416,9 @@ var Swipe = function () {
     }, {
         key: 'Handler',
         value: function Handler(event, obj) {
-            if (this.draggable === false && event.type.indexOf('mouse') !== -1) return;
+            if (event.type.indexOf('mouse') !== -1) return;
 
             this.touchObject.fingerCount = event.touches !== undefined ? event.touches.length : 1;
-            this.touchObject.minSwipe = this.elm.listW / this.touchThreshold;
 
             switch (obj.action) {
                 case 'start':
@@ -445,6 +437,7 @@ var Swipe = function () {
     }, {
         key: 'Start',
         value: function Start(event) {
+            window.addEventListener('touchmove', this.NoScroll);
             clearTimeout(this.classElm.autoID);
 
             var touches = void 0;
@@ -461,18 +454,14 @@ var Swipe = function () {
             this.touchObject.startX = this.touchObject.curX = touches !== undefined ? touches.pageX : event.clientX;
             this.touchObject.startY = this.touchObject.curY = touches !== undefined ? touches.pageY : event.clientY;
 
-            this.dragging = true;
+            this.classElm.dragging = true;
         }
     }, {
         key: 'End',
         value: function End() {
-            this.dragging = false;
-            this.swiping = false;
+            window.removeEventListener('touchmove', this.NoScroll);
 
-            if (this.scrolling) {
-                this.scrolling = false;
-                return false;
-            }
+            this.classElm.dragging = false;
 
             this.shouldClick = this.touchObject.swipeLength > 10 ? false : true;
 
@@ -490,7 +479,7 @@ var Swipe = function () {
     }, {
         key: 'Move',
         value: function Move(event) {
-            if (!this.dragging) return;
+            if (!this.classElm.dragging) return;
 
             var touches = event.touches;
             this.touchObject.curX = touches !== undefined ? touches[0].pageX : event.clientX;
@@ -500,6 +489,11 @@ var Swipe = function () {
             this.classElm.dir = pxAmount < 0 ? true : false;
 
             this.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + perAmount + '%,0,0)';
+        }
+    }, {
+        key: 'NoScroll',
+        value: function NoScroll(e) {
+            e.preventDefault();
         }
     }]);
 
