@@ -39,3 +39,4 @@ https://kai-ono.github.io/lazy-slider/dest/
 | loop          | boolean        | false         |               |
 | btns          | boolean        | true          |               |
 | navi          | boolean        | true          |               |
+| swipe         | boolean        | true          |               |
