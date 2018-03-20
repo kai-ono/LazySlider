@@ -20,21 +20,21 @@ class Swipe {
 
     init() {
         UTILS.addElWithArgs.call(this, {
-            target: this.list,
+            target: this.classElm.list,
             events: [ 'touchstart', 'mousedown' ],
             func: this.Handler,
             args: {action: 'start'}
         });
 
         UTILS.addElWithArgs.call(this, {
-            target: this.list,
+            target: this.classElm.list,
             events: [ 'touchmove', 'mousemove' ],
             func: this.Handler,
             args: {action: 'move'}
         });
 
         UTILS.addElWithArgs.call(this, {
-            target: this.list,
+            target: this.classElm.list,
             events: [ 'touchend', 'touchcancel', 'mouseup', 'mouseleave' ],
             func: this.Handler,
             args: {action: 'end'}
@@ -42,8 +42,6 @@ class Swipe {
     }
 
     Handler(event, obj) {
-        if (event.type.indexOf('mouse') !== -1) return;
-
         this.touchObject.fingerCount = event.touches !== undefined ? event.touches.length : 1;
 
         switch (obj.action) {
@@ -89,7 +87,7 @@ class Swipe {
     End() {
         window.removeEventListener('touchmove', this.NoScroll);
 
-        if (!this.dragging) return false;
+        if (!this.classElm.dragging) return false;
         if (this.touchObject.curX === undefined) return false;
         this.classElm.dragging = false;
 
