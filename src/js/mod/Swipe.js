@@ -80,6 +80,7 @@ class Swipe {
 
     End() {
         window.removeEventListener('touchmove', this.NoScroll);
+        this.classElm.list.style.transitionDuration = 0.5 + 's';
 
         if (!this.classElm.dragging || this.touchObject.curX === undefined) return false;
         if (this.touchObject.startX !== this.touchObject.curX) {
@@ -93,12 +94,13 @@ class Swipe {
 
     Move(event) {
         if(!this.classElm.dragging) return;
+        this.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0.2 + 's';
 
         let touches = event.touches;
         this.touchObject.curX = touches !== undefined ? touches[0].pageX : event.clientX;
         const currentPos = (this.classElm.current + this.classElm.dupItemLeftLen) * this.classElm.itemW;
         const pxAmount = this.touchObject.curX - this.touchObject.startX;
-        const perAmount = pxAmount / this.classElm.listPxW * 45 - currentPos;
+        const perAmount = pxAmount / this.classElm.listPxW * 35 - currentPos;
         this.classElm.dir = (pxAmount < 0) ? true : false;
 
         this.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + perAmount + '%,0,0)';

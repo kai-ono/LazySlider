@@ -456,6 +456,7 @@ var Swipe = function () {
         key: 'End',
         value: function End() {
             window.removeEventListener('touchmove', this.NoScroll);
+            this.classElm.list.style.transitionDuration = 0.5 + 's';
 
             if (!this.classElm.dragging || this.touchObject.curX === undefined) return false;
             if (this.touchObject.startX !== this.touchObject.curX) {
@@ -470,12 +471,13 @@ var Swipe = function () {
         key: 'Move',
         value: function Move(event) {
             if (!this.classElm.dragging) return;
+            this.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0.2 + 's';
 
             var touches = event.touches;
             this.touchObject.curX = touches !== undefined ? touches[0].pageX : event.clientX;
             var currentPos = (this.classElm.current + this.classElm.dupItemLeftLen) * this.classElm.itemW;
             var pxAmount = this.touchObject.curX - this.touchObject.startX;
-            var perAmount = pxAmount / this.classElm.listPxW * 45 - currentPos;
+            var perAmount = pxAmount / this.classElm.listPxW * 35 - currentPos;
             this.classElm.dir = pxAmount < 0 ? true : false;
 
             this.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + perAmount + '%,0,0)';
