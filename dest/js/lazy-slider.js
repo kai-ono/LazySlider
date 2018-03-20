@@ -437,10 +437,11 @@ var Swipe = function () {
     }, {
         key: 'Start',
         value: function Start(event) {
+            window.addEventListener('touchmove', this.NoScroll);
+
             if (this.lazySlider.actionLock) return;
             this.lazySlider.actionLock = true;
 
-            window.addEventListener('touchmove', this.NoScroll);
             clearTimeout(this.classElm.autoID);
 
             var touches = void 0;
@@ -464,13 +465,9 @@ var Swipe = function () {
         value: function End() {
             window.removeEventListener('touchmove', this.NoScroll);
 
+            if (!this.dragging) return false;
+            if (this.touchObject.curX === undefined) return false;
             this.classElm.dragging = false;
-
-            this.shouldClick = this.touchObject.swipeLength > 10 ? false : true;
-
-            if (this.touchObject.curX === undefined) {
-                return false;
-            }
 
             if (this.touchObject.startX !== this.touchObject.curX) {
                 this.touchObject.current = this.classElm.dir ? ++this.classElm.current : --this.classElm.current;

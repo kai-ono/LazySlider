@@ -62,10 +62,11 @@ class Swipe {
     }
 
     Start(event) {
+        window.addEventListener('touchmove', this.NoScroll);
+
         if (this.lazySlider.actionLock) return;
         this.lazySlider.actionLock = true;
 
-        window.addEventListener('touchmove', this.NoScroll);
         clearTimeout(this.classElm.autoID);
 
         let touches;
@@ -88,13 +89,10 @@ class Swipe {
     End() {
         window.removeEventListener('touchmove', this.NoScroll);
 
+        if (!this.dragging) return false;
+        if (this.touchObject.curX === undefined) return false;
         this.classElm.dragging = false;
 
-        this.shouldClick = (this.touchObject.swipeLength > 10) ? false : true;
-
-        if (this.touchObject.curX === undefined) {
-            return false;
-        }
 
         if (this.touchObject.startX !== this.touchObject.curX) {
             this.touchObject.current = (this.classElm.dir) ? ++this.classElm.current : --this.classElm.current;
