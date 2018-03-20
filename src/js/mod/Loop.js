@@ -1,7 +1,6 @@
 'use strict';
 
 const UTILS = require('./Utils');
-const CENTER = require('./Center');
 
 class Loop {
     /**
@@ -31,7 +30,7 @@ class Loop {
         this.classElm.list.appendChild(this.fragment);
         this.classElm.list.style.width = 100 / this.lazySlider.showItem * (this.classElm.itemLen + this.classElm.dupItemLen) + '%';
         this.classElm.itemW = 100 / this.classElm.item.length;
-        this.classElm.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + -(this.classElm.itemW * this.classElm.dupItemLeftLen) + '%,0,0)';
+        this.classElm.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + -(this.classElm.itemW * this.classElm.dupItemLeftLen) + '%,0,0)';
 
         UTILS.SetTransitionEnd(this.classElm.list, () => { this.CallBack(); });
     }
@@ -40,15 +39,16 @@ class Loop {
         if (this.classElm.current < 0 || this.classElm.current > this.classElm.itemLen - 1) {
             const endPoint = (this.classElm.current < 0) ? false : true; // Right end is true.
 
-            this.classElm.list.style[UTILS.GetDurationWithPrefix()] = 0 + 's';
+            this.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0 + 's';
 
             for (let i = 0; i < this.classElm.itemLen; i++) {
-                this.classElm.item[i].children[0].style[UTILS.GetDurationWithPrefix()] = 0 + 's';
+                this.classElm.item[i].children[0].style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0 + 's';
             }
 
-            const amount = (this.classElm.dir) ? this.classElm.itemW * this.classElm.current : this.classElm.itemW * (this.classElm.itemLen * 2 - this.slideNum);
-            this.classElm.current = (endPoint) ? 0 : this.classElm.itemLen - this.slideNum;
-            this.classElm.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + -amount + '%,0,0)';
+            const amount = (this.classElm.dir) ? this.classElm.itemW * this.classElm.current : this.classElm.itemW * (this.classElm.itemLen * 2 - this.lazySlider.slideNum);
+
+            this.classElm.current = (endPoint) ? 0 : this.classElm.itemLen - this.lazySlider.slideNum;
+            this.classElm.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + -amount + '%,0,0)';
 
             if (this.lazySlider.center) this.lazySlider.classCenter.SetCenter(this.classElm);
 

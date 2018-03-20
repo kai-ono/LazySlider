@@ -135,7 +135,7 @@ var Center = function () {
             for (var i = 0; i < obj.item.length; i++) {
                 obj.item[i].classList.remove(REF.cntr);
             }
-            console.log(obj);
+
             obj.item[index].classList.add(REF.cntr);
         }
     }]);
@@ -196,7 +196,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var UTILS = require('./Utils');
-var CENTER = require('./Center');
 
 var Loop = function () {
     function Loop(lazySlider, classElm) {
@@ -228,7 +227,7 @@ var Loop = function () {
             this.classElm.list.appendChild(this.fragment);
             this.classElm.list.style.width = 100 / this.lazySlider.showItem * (this.classElm.itemLen + this.classElm.dupItemLen) + '%';
             this.classElm.itemW = 100 / this.classElm.item.length;
-            this.classElm.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + -(this.classElm.itemW * this.classElm.dupItemLeftLen) + '%,0,0)';
+            this.classElm.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + -(this.classElm.itemW * this.classElm.dupItemLeftLen) + '%,0,0)';
 
             UTILS.SetTransitionEnd(this.classElm.list, function () {
                 _this.CallBack();
@@ -242,15 +241,16 @@ var Loop = function () {
             if (this.classElm.current < 0 || this.classElm.current > this.classElm.itemLen - 1) {
                 var endPoint = this.classElm.current < 0 ? false : true;
 
-                this.classElm.list.style[UTILS.GetDurationWithPrefix()] = 0 + 's';
+                this.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0 + 's';
 
                 for (var i = 0; i < this.classElm.itemLen; i++) {
-                    this.classElm.item[i].children[0].style[UTILS.GetDurationWithPrefix()] = 0 + 's';
+                    this.classElm.item[i].children[0].style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0 + 's';
                 }
 
-                var amount = this.classElm.dir ? this.classElm.itemW * this.classElm.current : this.classElm.itemW * (this.classElm.itemLen * 2 - this.slideNum);
-                this.classElm.current = endPoint ? 0 : this.classElm.itemLen - this.slideNum;
-                this.classElm.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + -amount + '%,0,0)';
+                var amount = this.classElm.dir ? this.classElm.itemW * this.classElm.current : this.classElm.itemW * (this.classElm.itemLen * 2 - this.lazySlider.slideNum);
+
+                this.classElm.current = endPoint ? 0 : this.classElm.itemLen - this.lazySlider.slideNum;
+                this.classElm.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + -amount + '%,0,0)';
 
                 if (this.lazySlider.center) this.lazySlider.classCenter.SetCenter(this.classElm);
 
@@ -269,7 +269,7 @@ var Loop = function () {
 
 module.exports = Loop;
 
-},{"./Center":3,"./Utils":9}],6:[function(require,module,exports){
+},{"./Utils":9}],6:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -325,9 +325,6 @@ var Navi = function () {
             this.SetCurrentNavi(this.classElm);
 
             this.classElm.actionCb.push(function (cbObj) {
-                console.log({
-                    "test": cbObj
-                });
                 _this.SetCurrentNavi(cbObj);
             });
         }
@@ -526,26 +523,6 @@ module.exports = {
 
         return resultProp;
     },
-    GetTransformWithPrefix: function GetTransformWithPrefix() {
-        var bodyStyle = document.body.style;
-        var transform = 'transform';
-
-        if (bodyStyle.webkitTransform !== undefined) transform = 'webkitTransform';
-        if (bodyStyle.mozTransform !== undefined) transform = 'mozTransform';
-        if (bodyStyle.msTransform !== undefined) transform = 'msTransform';
-
-        return transform;
-    },
-    GetDurationWithPrefix: function GetDurationWithPrefix() {
-        var bodyStyle = document.body.style;
-        var transitionDuration = 'transitionDuration';
-
-        if (bodyStyle.webkitTransform !== undefined) transitionDuration = 'webkitTransitionDuration';
-        if (bodyStyle.mozTransform !== undefined) transitionDuration = 'mozTransitionDuration';
-        if (bodyStyle.msTransform !== undefined) transitionDuration = 'msTransitionDuration';
-
-        return transitionDuration;
-    },
     SetTransitionEnd: function SetTransitionEnd(elm, cb) {
         elm.addEventListener('transitionend', function (e) {
             if (e.target == elm && e.propertyName.match('transform') !== null) {
@@ -670,7 +647,7 @@ var LazySlider = function () {
 
             var amount = -(obj.itemW * index + obj.itemW * obj.dupItemLeftLen);
 
-            obj.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + amount + '%,0,0)';
+            obj.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + amount + '%,0,0)';
             obj.current = index;
 
             for (var _i = 0; _i < obj.actionCb.length; _i++) {

@@ -48,9 +48,6 @@ class Navi {
         this.SetCurrentNavi(this.classElm);
 
         this.classElm.actionCb.push((cbObj) => {
-            console.log({
-                "test": cbObj
-            });
             this.SetCurrentNavi(cbObj);
         });
     }

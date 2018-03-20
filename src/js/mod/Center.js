@@ -33,7 +33,7 @@ class Center {
         for (let i = 0; i < obj.item.length; i++) {
             obj.item[i].classList.remove(REF.cntr);
         }
-console.log(obj)
+
         obj.item[index].classList.add(REF.cntr);
     }
 }

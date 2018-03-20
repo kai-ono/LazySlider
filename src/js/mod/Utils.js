@@ -12,26 +12,6 @@ module.exports = {
 
         return resultProp;
     },
-    GetTransformWithPrefix: () => {
-        const bodyStyle = document.body.style;
-        let transform = 'transform';
-
-        if (bodyStyle.webkitTransform !== undefined) transform = 'webkitTransform';
-        if (bodyStyle.mozTransform !== undefined) transform = 'mozTransform';
-        if (bodyStyle.msTransform !== undefined) transform = 'msTransform';
-
-        return transform;
-    },
-    GetDurationWithPrefix: () => {
-        const bodyStyle = document.body.style;
-        let transitionDuration = 'transitionDuration';
-
-        if (bodyStyle.webkitTransform !== undefined) transitionDuration = 'webkitTransitionDuration';
-        if (bodyStyle.mozTransform !== undefined) transitionDuration = 'mozTransitionDuration';
-        if (bodyStyle.msTransform !== undefined) transitionDuration = 'msTransitionDuration';
-
-        return transitionDuration;
-    },
     SetTransitionEnd: (elm, cb) => {
         elm.addEventListener('transitionend', (e) => {
             if (e.target == elm && e.propertyName.match('transform') !== null) {
