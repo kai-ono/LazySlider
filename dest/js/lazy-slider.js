@@ -437,6 +437,8 @@ var Swipe = function () {
     }, {
         key: 'Start',
         value: function Start(event) {
+            if (this.lazySlider.actionLock) return;
+
             window.addEventListener('touchmove', this.NoScroll);
             clearTimeout(this.classElm.autoID);
 

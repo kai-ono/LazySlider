@@ -62,6 +62,8 @@ class Swipe {
     }
 
     Start(event) {
+        if (this.lazySlider.actionLock) return;
+
         window.addEventListener('touchmove', this.NoScroll);
         clearTimeout(this.classElm.autoID);
 
