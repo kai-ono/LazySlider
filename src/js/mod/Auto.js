@@ -25,6 +25,7 @@ class Auto {
         timer();
 
         UTILS.SetTransitionEnd(this.classElm.list, () => {
+            if (this.classElm.dragging) return false;
             clearTimeout(this.classElm.autoID);
             timer();
         });

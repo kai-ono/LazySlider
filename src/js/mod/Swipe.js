@@ -13,15 +13,7 @@ class Swipe {
         this.showItem = this.lazySlider.showItem;
         this.elm = this.classElm.elm;
         this.list = this.classElm.list;
-        this.draggable = true;
-        this.dragging = false;
-        this.scrolling = false;
-        this.swiping = false;
-        this.rtl = false;
-        this.animating = false;
-        this.swipeLeft = null;
-        this.touchMove = true;
-        this.touchThreshold = 5;
+        this.classElm.dragging = false;
         this.touchObject = {};
         this.init();
     }
@@ -50,10 +42,9 @@ class Swipe {
     }
 
     Handler(event, obj) {
-        if (this.draggable === false && event.type.indexOf('mouse') !== -1) return;
+        if (event.type.indexOf('mouse') !== -1) return;
 
         this.touchObject.fingerCount = event.touches !== undefined ? event.touches.length : 1;
-        this.touchObject.minSwipe = this.elm.listW / this.touchThreshold;
 
         switch (obj.action) {
             case 'start':
@@ -71,6 +62,7 @@ class Swipe {
     }
 
     Start(event) {
+        window.addEventListener('touchmove', this.NoScroll);
         clearTimeout(this.classElm.autoID);
 
         let touches;
@@ -87,17 +79,13 @@ class Swipe {
         this.touchObject.startX = this.touchObject.curX = (touches !== undefined) ? touches.pageX : event.clientX;
         this.touchObject.startY = this.touchObject.curY = (touches !== undefined) ? touches.pageY : event.clientY;
 
-        this.dragging = true;
+        this.classElm.dragging = true;
     }
 
     End() {
-        this.dragging = false;
-        this.swiping = false;
+        window.removeEventListener('touchmove', this.NoScroll);
 
-        if (this.scrolling) {
-            this.scrolling = false;
-            return false;
-        }
+        this.classElm.dragging = false;
 
         this.shouldClick = (this.touchObject.swipeLength > 10) ? false : true;
 
@@ -114,7 +102,7 @@ class Swipe {
     }
 
     Move(event) {
-        if(!this.dragging) return;
+        if(!this.classElm.dragging) return;
 
         let touches = event.touches;
         this.touchObject.curX = touches !== undefined ? touches[0].pageX : event.clientX;
@@ -124,6 +112,10 @@ class Swipe {
         this.classElm.dir = (pxAmount < 0) ? true : false;
 
         this.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + perAmount + '%,0,0)';
+    }
+
+    NoScroll(e) {
+        e.preventDefault();
     }
 }
 
