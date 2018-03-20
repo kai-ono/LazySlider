@@ -1,25 +1,16 @@
 'use strict';
 
 module.exports = {
-    GetTransformWithPrefix: () => {
+    GetPropertyWithPrefix: (prop) => {
         const bodyStyle = document.body.style;
-        let transform = 'transform';
+        let resultProp = prop;
+        let tmpProp = prop.slice(0, 1).toUpperCase() + prop.slice(1);
 
-        if (bodyStyle.webkitTransform !== undefined) transform = 'webkitTransform';
-        if (bodyStyle.mozTransform !== undefined) transform = 'mozTransform';
-        if (bodyStyle.msTransform !== undefined) transform = 'msTransform';
+        if (bodyStyle.webkitTransform !== undefined) resultProp = 'webkit' + tmpProp;
+        if (bodyStyle.mozTransform !== undefined) resultProp = 'moz' + tmpProp;
+        if (bodyStyle.msTransform !== undefined) resultProp = 'ms' + tmpProp;
 
-        return transform;
-    },
-    GetDurationWithPrefix: () => {
-        const bodyStyle = document.body.style;
-        let transitionDuration = 'transitionDuration';
-
-        if (bodyStyle.webkitTransform !== undefined) transitionDuration = 'webkitTransitionDuration';
-        if (bodyStyle.mozTransform !== undefined) transitionDuration = 'mozTransitionDuration';
-        if (bodyStyle.msTransform !== undefined) transitionDuration = 'msTransitionDuration';
-
-        return transitionDuration;
+        return resultProp;
     },
     SetTransitionEnd: (elm, cb) => {
         elm.addEventListener('transitionend', (e) => {

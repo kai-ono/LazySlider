@@ -94,7 +94,7 @@ class LazySlider {
 
         const amount = -(obj.itemW * index + (obj.itemW * obj.dupItemLeftLen));
 
-        obj.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + amount + '%,0,0)';
+        obj.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + amount + '%,0,0)';
         obj.current = index;
 
         // Actionのcallbackを実行

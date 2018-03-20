@@ -23,7 +23,6 @@ class Swipe {
         this.touchMove = true;
         this.touchThreshold = 5;
         this.touchObject = {};
-        this.moveTimerID;
         this.init();
     }
 
@@ -92,8 +91,6 @@ class Swipe {
     }
 
     End() {
-        clearTimeout(this.moveTimerID);
-
         this.dragging = false;
         this.swiping = false;
 
@@ -117,7 +114,6 @@ class Swipe {
     }
 
     Move(event) {
-        clearTimeout(this.moveTimerID);
         if(!this.dragging) return;
 
         let touches = event.touches;
@@ -127,9 +123,7 @@ class Swipe {
         const perAmount = pxAmount / this.classElm.listPxW * 45 - currentPos;
         this.classElm.dir = (pxAmount < 0) ? true : false;
 
-        this.moveTimerID = setTimeout(()=> {
-            this.list.style[UTILS.GetTransformWithPrefix()] = 'translate3d(' + perAmount + '%,0,0)';
-        }, 8);
+        this.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + perAmount + '%,0,0)';
     }
 }
 
