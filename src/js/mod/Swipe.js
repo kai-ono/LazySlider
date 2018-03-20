@@ -62,42 +62,33 @@ class Swipe {
     Start(event) {
         window.addEventListener('touchmove', this.NoScroll);
 
-        if (this.lazySlider.actionLock) return;
-        this.lazySlider.actionLock = true;
-
-        clearTimeout(this.classElm.autoID);
-
-        let touches;
-
-        if (this.touchObject.fingerCount !== 1) {
+        if (this.lazySlider.actionLock || this.touchObject.fingerCount !== 1) {
             this.touchObject = {};
             return false;
         }
 
-        if (event.touches !== undefined) {
-            touches = event.touches[0];
-        }
+        clearTimeout(this.classElm.autoID);
+        this.lazySlider.actionLock = true;
+        let touches;
+
+        if (event.touches !== undefined) touches = event.touches[0];
 
         this.touchObject.startX = this.touchObject.curX = (touches !== undefined) ? touches.pageX : event.clientX;
         this.touchObject.startY = this.touchObject.curY = (touches !== undefined) ? touches.pageY : event.clientY;
-
         this.classElm.dragging = true;
     }
 
     End() {
         window.removeEventListener('touchmove', this.NoScroll);
 
-        if (!this.classElm.dragging) return false;
-        if (this.touchObject.curX === undefined) return false;
-        this.classElm.dragging = false;
-
-
+        if (!this.classElm.dragging || this.touchObject.curX === undefined) return false;
         if (this.touchObject.startX !== this.touchObject.curX) {
             this.touchObject.current = (this.classElm.dir) ? ++this.classElm.current : --this.classElm.current;
             this.lazySlider.Action(this.touchObject.current, this.classElm, false);
         }
 
         this.touchObject = {};
+        this.classElm.dragging = false;
     }
 
     Move(event) {
