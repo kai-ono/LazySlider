@@ -363,7 +363,8 @@ module.exports = {
     navi: 'slide-navi',
     curr: 'current',
     actv: 'slide-navi-active',
-    cntr: 'slide-item-center'
+    cntr: 'slide-item-center',
+    grab: 'grabbing'
 };
 
 },{}],8:[function(require,module,exports){
@@ -373,6 +374,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var REF = require('./Reference');
 var UTILS = require('./Utils');
 
 var Swipe = function () {
@@ -436,6 +438,7 @@ var Swipe = function () {
         key: 'Start',
         value: function Start(event) {
             window.addEventListener('touchmove', this.NoScroll);
+            this.classElm.list.classList.add(REF.grab);
 
             if (this.lazySlider.actionLock || this.touchObject.fingerCount !== 1) {
                 this.touchObject = {};
@@ -456,6 +459,7 @@ var Swipe = function () {
         key: 'End',
         value: function End() {
             window.removeEventListener('touchmove', this.NoScroll);
+            this.classElm.list.classList.remove(REF.grab);
             this.classElm.list.style.transitionDuration = 0.5 + 's';
 
             if (!this.classElm.dragging || this.touchObject.curX === undefined) return false;
@@ -494,7 +498,7 @@ var Swipe = function () {
 
 module.exports = Swipe;
 
-},{"./Utils":9}],9:[function(require,module,exports){
+},{"./Reference":7,"./Utils":9}],9:[function(require,module,exports){
 'use strict';
 
 module.exports = {
