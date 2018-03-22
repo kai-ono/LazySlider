@@ -30,6 +30,10 @@ img {
       transition-property: transform;
       transition-duration: 0.3s;
       transition-timing-function: ease-out;
+      cursor: grab;
+      &.grabbing {
+        cursor: grabbing;
+      }
     }
     &-item {
       flex-grow: 1;
@@ -47,6 +51,7 @@ img {
         background-color: rgba(0, 0, 0, 0.7);
         top: 0;
         bottom: 0;
+        cursor: pointer;
       }
     }
     &-prev {

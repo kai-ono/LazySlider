@@ -1,5 +1,6 @@
 'use strict';
 
+const REF = require('./Reference');
 const UTILS = require('./Utils');
 
 class Swipe {
@@ -61,6 +62,7 @@ class Swipe {
 
     Start(event) {
         window.addEventListener('touchmove', this.NoScroll);
+        this.classElm.list.classList.add(REF.grab);
 
         if (this.lazySlider.actionLock || this.touchObject.fingerCount !== 1) {
             this.touchObject = {};
@@ -80,6 +82,7 @@ class Swipe {
 
     End() {
         window.removeEventListener('touchmove', this.NoScroll);
+        this.classElm.list.classList.remove(REF.grab);
         this.classElm.list.style.transitionDuration = 0.5 + 's';
 
         if (!this.classElm.dragging || this.touchObject.curX === undefined) return false;
