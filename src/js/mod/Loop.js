@@ -1,5 +1,6 @@
 'use strict';
 
+const REF = require('./Reference');
 const UTILS = require('./Utils');
 
 class Loop {
@@ -19,7 +20,7 @@ class Loop {
         for (let i = 0; i < 2; i++) {
             for (let j = 0; j < this.classElm.item.length; j++) {
                 const dupNode = this.classElm.item[j].cloneNode(true);
-                dupNode.classList.add('duplicate-item');
+                dupNode.classList.add(REF.dupi);
                 this.fragment.appendChild(dupNode);
                 this.dupArr.push(dupNode);
             }

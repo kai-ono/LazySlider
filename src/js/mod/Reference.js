@@ -10,6 +10,8 @@ module.exports = {
     navi: 'slide-navi',
     curr: 'current',
     actv: 'slide-navi-active',
-    cntr: 'slide-item-center',
+    cntr: 'slide-center',
+    itmc: 'slide-item-center',
+    dupi: 'duplicate-item',
     grab: 'grabbing',
 };

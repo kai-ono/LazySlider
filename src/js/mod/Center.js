@@ -4,7 +4,7 @@ const REF = require('./Reference');
 
 class Center {
     /**
-     * LazySliderクラスのActionをsetTimeoutで起動し、自動スライドを行う
+     * 中央に表示されるアイテムにクラスを付与する
      * @param {Object} lazySlider LazySliderクラス
      * @param {Object} classElm Elementクラス
      */
@@ -19,7 +19,7 @@ class Center {
             this.SetCenter(cbObj);
         });
 
-        this.classElm.elm.classList.add('slide-center');
+        this.classElm.elm.classList.add(REF.cntr);
         this.SetCenter(this.classElm);
     }
 
@@ -31,10 +31,10 @@ class Center {
         const index = (obj.current < 0) ? obj.item.length - 1 : obj.current;
 
         for (let i = 0; i < obj.item.length; i++) {
-            obj.item[i].classList.remove(REF.cntr);
+            obj.item[i].classList.remove(REF.itmc);
         }
 
-        obj.item[index].classList.add(REF.cntr);
+        obj.item[index].classList.add(REF.itmc);
     }
 }
 

@@ -2,7 +2,6 @@
 
 class Element {
     /**
-     * コンストラクタ
      * スライダー毎に必要な値、要素のクラス
      * @param {Object} args object型の引数。
      * @param {Object} args.elm スライダー要素
@@ -20,8 +19,9 @@ class Element {
      * @param {Object} args.actionCb Actionメソッドのコールバック
      * @param {Boolean} args.dir スライドする方向。true = 右
      */
-    constructor(node, showItem) {
-        this.elm = node;
+    constructor(elm, showItem) {
+        this.elm = elm;
+        this.showItem = showItem;
         this.list = this.elm.querySelector('ul');
         this.listW = 0;
         this.listPxW = 0;
@@ -30,18 +30,18 @@ class Element {
         this.itemW = 100 / this.itemLen;
         this.dupItemLen = 0;
         this.dupItemLeftLen = 0;
-        this.showW = this.itemW * showItem;
+        this.showW = this.itemW * this.showItem;
         this.autoID;
         this.current = 0;
         this.navi;
         this.naviChildren;
         this.actionCb = [];
         this.dir = true;
-        this.Init(showItem);
+        this.Init();
     }
 
-    Init(showItem) {
-        this.listW = this.list.style.width = 100 / showItem * this.itemLen + '%';
+    Init() {
+        this.listW = this.list.style.width = 100 / this.showItem * this.itemLen + '%';
         this.listPxW = this.list.offsetWidth;
     }
 }

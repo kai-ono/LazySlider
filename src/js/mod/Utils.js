@@ -1,6 +1,11 @@
 'use strict';
 
 module.exports = {
+    /**
+     * prefixを付与したプロパティを返します
+     * @param {Object} elm イベント登録する要素
+     * @param {Object} cb コールバック関数
+     */
     GetPropertyWithPrefix: (prop) => {
         const bodyStyle = document.body.style;
         let resultProp = prop;
@@ -12,6 +17,11 @@ module.exports = {
 
         return resultProp;
     },
+    /**
+     * 対象の要素にtransitionendイベントを登録します
+     * @param {Object} elm イベント登録する要素
+     * @param {Object} cb コールバック関数
+     */
     SetTransitionEnd: (elm, cb) => {
         elm.addEventListener('transitionend', (e) => {
             if (e.target == elm && e.propertyName.match('transform') !== null) {
