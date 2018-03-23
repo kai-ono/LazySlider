@@ -125,7 +125,7 @@ var Center = function () {
                 _this.SetCenter(cbObj);
             });
 
-            this.classElm.elm.classList.add('slide-center');
+            this.classElm.elm.classList.add(REF.cntr);
             this.SetCenter(this.classElm);
         }
     }, {
@@ -134,10 +134,10 @@ var Center = function () {
             var index = obj.current < 0 ? obj.item.length - 1 : obj.current;
 
             for (var i = 0; i < obj.item.length; i++) {
-                obj.item[i].classList.remove(REF.cntr);
+                obj.item[i].classList.remove(REF.itmc);
             }
 
-            obj.item[index].classList.add(REF.cntr);
+            obj.item[index].classList.add(REF.itmc);
         }
     }]);
 
@@ -154,10 +154,11 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Element = function () {
-    function Element(node, showItem) {
+    function Element(elm, showItem) {
         _classCallCheck(this, Element);
 
-        this.elm = node;
+        this.elm = elm;
+        this.showItem = showItem;
         this.list = this.elm.querySelector('ul');
         this.listW = 0;
         this.listPxW = 0;
@@ -166,20 +167,20 @@ var Element = function () {
         this.itemW = 100 / this.itemLen;
         this.dupItemLen = 0;
         this.dupItemLeftLen = 0;
-        this.showW = this.itemW * showItem;
+        this.showW = this.itemW * this.showItem;
         this.autoID;
         this.current = 0;
         this.navi;
         this.naviChildren;
         this.actionCb = [];
         this.dir = true;
-        this.Init(showItem);
+        this.Init();
     }
 
     _createClass(Element, [{
         key: 'Init',
-        value: function Init(showItem) {
-            this.listW = this.list.style.width = 100 / showItem * this.itemLen + '%';
+        value: function Init() {
+            this.listW = this.list.style.width = 100 / this.showItem * this.itemLen + '%';
             this.listPxW = this.list.offsetWidth;
         }
     }]);
@@ -196,6 +197,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var REF = require('./Reference');
 var UTILS = require('./Utils');
 
 var Loop = function () {
@@ -217,7 +219,7 @@ var Loop = function () {
             for (var i = 0; i < 2; i++) {
                 for (var j = 0; j < this.classElm.item.length; j++) {
                     var dupNode = this.classElm.item[j].cloneNode(true);
-                    dupNode.classList.add('duplicate-item');
+                    dupNode.classList.add(REF.dupi);
                     this.fragment.appendChild(dupNode);
                     this.dupArr.push(dupNode);
                 }
@@ -270,7 +272,7 @@ var Loop = function () {
 
 module.exports = Loop;
 
-},{"./Utils":9}],6:[function(require,module,exports){
+},{"./Reference":7,"./Utils":9}],6:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -363,7 +365,9 @@ module.exports = {
     navi: 'slide-navi',
     curr: 'current',
     actv: 'slide-navi-active',
-    cntr: 'slide-item-center',
+    cntr: 'slide-center',
+    itmc: 'slide-item-center',
+    dupi: 'duplicate-item',
     grab: 'grabbing'
 };
 
@@ -513,6 +517,7 @@ module.exports = {
 
         return resultProp;
     },
+
     SetTransitionEnd: function SetTransitionEnd(elm, cb) {
         elm.addEventListener('transitionend', function (e) {
             if (e.target == elm && e.propertyName.match('transform') !== null) {
