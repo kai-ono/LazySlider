@@ -2,7 +2,7 @@
 
 module.exports = {
     /**
-     * prefixを付与したプロパティを返します
+     * prefixを付与したプロパティを返す
      * @param {Object} elm イベント登録する要素
      * @param {Object} cb コールバック関数
      */
@@ -18,7 +18,7 @@ module.exports = {
         return resultProp;
     },
     /**
-     * 対象の要素にtransitionendイベントを登録します
+     * 対象の要素にtransitionendイベントを登録する
      * @param {Object} elm イベント登録する要素
      * @param {Object} cb コールバック関数
      */
@@ -30,7 +30,7 @@ module.exports = {
         });
     },
     /**
-     * 複数のイベントに同じ引数付きの関数を登録します
+     * 複数のイベントに同じ引数付きの関数を登録する
      * @param {Object} obj object型の引数。
      * @param {String} obj.target イベントを登録する要素
      * @param {Array} obj.events 登録するイベント配列

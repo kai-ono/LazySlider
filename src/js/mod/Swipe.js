@@ -5,7 +5,7 @@ const UTILS = require('./Utils');
 
 class Swipe {
     /**
-     * コンストラクタ
+     * スワイプ機能を追加する
      * @param {Object} args object型の引数。
      */
     constructor(lazySlider, classElm) {
