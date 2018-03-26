@@ -10,7 +10,7 @@
     "img": "gulp img",
     "css": "gulp css",
     "js": "gulp js",
-    "server": "gulp serer",
+    "server": "gulp server",
     "watch": "gulp watch",
     "start": "gulp"
   },
