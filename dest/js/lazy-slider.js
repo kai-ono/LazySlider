@@ -159,10 +159,10 @@ var Element = function () {
 
         this.elm = elm;
         this.showItem = showItem;
-        this.list = this.elm.querySelector('ul');
+        this.list = this.elm.querySelector(':scope > *');
         this.listW = 0;
         this.listPxW = 0;
-        this.item = [].slice.call(this.list.querySelectorAll('li'));
+        this.item = [].slice.call(this.list.querySelectorAll(':scope > *'));
         this.itemLen = this.item.length;
         this.itemW = 100 / this.itemLen;
         this.dupItemLen = 0;
