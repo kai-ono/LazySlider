@@ -258,9 +258,9 @@ var Loop = function () {
                 if (this.lazySlider.center) this.lazySlider.classCenter.SetCenter(this.classElm);
 
                 setTimeout(function () {
-                    _this2.classElm.list.style.transitionDuration = 0.5 + 's';
+                    _this2.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0.5 + 's';
                     for (var _i = 0; _i < _this2.classElm.itemLen; _i++) {
-                        _this2.classElm.item[_i].children[0].style.transitionDuration = 0.1 + 's';
+                        _this2.classElm.item[_i].children[0].style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0.1 + 's';
                     }
                 }, 0);
             }
