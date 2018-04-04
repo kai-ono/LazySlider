@@ -558,6 +558,8 @@ var SWIPE = require('./mod/Swipe');
 
 var LazySlider = function () {
     function LazySlider(args) {
+        var _this = this;
+
         _classCallCheck(this, LazySlider);
 
         this.class = typeof args.class !== 'undefined' ? args.class : REF.clss;
@@ -574,13 +576,16 @@ var LazySlider = function () {
         this.nodeList = document.querySelectorAll('.' + this.class);
         this.resizeTimerID;
         this.elmArr = [];
-        this.Init();
+
+        window.addEventListener('load', function () {
+            _this.Init();
+        });
     }
 
     _createClass(LazySlider, [{
         key: 'Init',
         value: function Init() {
-            var _this = this;
+            var _this2 = this;
 
             for (var i = 0; i < this.nodeList.length; i++) {
                 this.elmArr.push(new ELM(this.nodeList[i], this.showItem));
@@ -593,7 +598,7 @@ var LazySlider = function () {
                 });
 
                 UTILS.SetTransitionEnd(obj.list, function () {
-                    _this.actionLock = false;
+                    _this2.actionLock = false;
                 });
 
                 if (this.loop) {
@@ -619,7 +624,7 @@ var LazySlider = function () {
     }, {
         key: 'Action',
         value: function Action(index, obj, isNaviEvent) {
-            var _this2 = this;
+            var _this3 = this;
 
             clearTimeout(obj.autoID);
             this.actionLock = true;
@@ -631,7 +636,7 @@ var LazySlider = function () {
             }
 
             var isLast = function isLast(item) {
-                return item > 0 && item < _this2.slideNum;
+                return item > 0 && item < _this3.slideNum;
             };
             var prevIndex = obj.dir ? index - this.slideNum : index + this.slideNum;
             var remainingItem = obj.dir ? obj.itemLen - index : prevIndex;

@@ -34,7 +34,10 @@ class LazySlider {
         this.nodeList = document.querySelectorAll('.' + this.class);
         this.resizeTimerID;
         this.elmArr = [];
-        this.Init();
+
+        window.addEventListener('load', () => {
+            this.Init();
+        });
     }
 
     Init() {
