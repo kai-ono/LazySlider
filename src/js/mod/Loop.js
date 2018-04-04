@@ -54,9 +54,9 @@ class Loop {
             if (this.lazySlider.center) this.lazySlider.classCenter.SetCenter(this.classElm);
 
             setTimeout(() => {
-                this.classElm.list.style.transitionDuration = 0.5 + 's';
+                this.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0.5 + 's';
                 for (let i = 0; i < this.classElm.itemLen; i++) {
-                    this.classElm.item[i].children[0].style.transitionDuration = 0.1 + 's';
+                    this.classElm.item[i].children[0].style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0.1 + 's';
                 }
             }, 0);
         }
