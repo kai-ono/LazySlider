@@ -159,10 +159,10 @@ var Element = function () {
 
         this.elm = elm;
         this.showItem = showItem;
-        this.list = this.elm.querySelector(':scope > *');
+        this.list = this.elm.children[0];
         this.listW = 0;
         this.listPxW = 0;
-        this.item = [].slice.call(this.list.querySelectorAll(':scope > *'));
+        this.item = [].slice.call(this.list.children);
         this.itemLen = this.item.length;
         this.itemW = 100 / this.itemLen;
         this.dupItemLen = 0;
@@ -519,7 +519,9 @@ module.exports = {
     },
 
     SetTransitionEnd: function SetTransitionEnd(elm, cb) {
-        elm.addEventListener('transitionend', function (e) {
+        var transitionEndWithPrefix = /webkit/i.test(navigator.appVersion) ? 'webkitTransitionEnd' : /firefox/i.test(navigator.userAgent) ? 'transitionend' : /msie/i.test(navigator.userAgent) ? 'MSTransitionEnd' : 'opera' in window ? 'oTransitionEnd' : '';
+
+        elm.addEventListener(transitionEndWithPrefix, function (e) {
             if (e.target == elm && e.propertyName.match('transform') !== null) {
                 cb();
             }
