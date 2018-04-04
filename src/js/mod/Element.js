@@ -22,10 +22,10 @@ class Element {
     constructor(elm, showItem) {
         this.elm = elm;
         this.showItem = showItem;
-        this.list = this.elm.querySelector(':scope > *');
+        this.list = this.elm.children[0];
         this.listW = 0;
         this.listPxW = 0;
-        this.item = [].slice.call(this.list.querySelectorAll(':scope > *'));
+        this.item = [].slice.call(this.list.children);
         this.itemLen = this.item.length;
         this.itemW = 100 / this.itemLen;
         this.dupItemLen = 0;

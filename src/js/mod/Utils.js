@@ -23,7 +23,13 @@ module.exports = {
      * @param {Object} cb コールバック関数
      */
     SetTransitionEnd: (elm, cb) => {
-        elm.addEventListener('transitionend', (e) => {
+        var transitionEndWithPrefix = (/webkit/i).test(navigator.appVersion) ? 'webkitTransitionEnd' :
+            (/firefox/i).test(navigator.userAgent) ? 'transitionend' :
+            (/msie/i).test(navigator.userAgent) ? 'MSTransitionEnd' :
+            'opera' in window ? 'oTransitionEnd' :
+            '';
+
+        elm.addEventListener(transitionEndWithPrefix, (e) => {
             if (e.target == elm && e.propertyName.match('transform') !== null) {
                 cb();
             }
