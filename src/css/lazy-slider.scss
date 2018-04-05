@@ -110,19 +110,9 @@ img {
     padding: 0 20%;
     .slide {
       &-item {
-        & > img {
-          opacity: 0.5;
-          transform-origin: center;
-          transform: scale(0.9);
-          transition-property: opacity, transform;
-          transition-duration: 0.1s;
-          transition-timing-function: ease-out;
-        }
+        opacity: 0.5;
         &-center {
-          & > img {
-            opacity: 1;
-            transform: scale(1);
-          }
+          opacity: 1;
         }
       }
     }
