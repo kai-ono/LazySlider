@@ -6,6 +6,8 @@ https://kai-ono.github.io/lazy-slider/dest/
 * Chrome latest
 * Safari latest
 * Firefox latest
+* Android4.4 or greater
+* iOS7 or greater
 
 ## DOM example
 ```html
