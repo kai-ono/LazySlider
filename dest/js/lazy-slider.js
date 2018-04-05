@@ -392,12 +392,33 @@ var Swipe = function () {
         this.list = this.classElm.list;
         this.classElm.dragging = false;
         this.touchObject = {};
+        this.linkElm;
+        this.hasLink = false;
+        this.disabledClick = true;
+        this.swiping = false;
         this.init();
     }
 
     _createClass(Swipe, [{
         key: 'init',
         value: function init() {
+            this.linkElm = this.classElm.list.querySelectorAll('a');
+            this.hasLink = this.linkElm.length > 0;
+            if (this.hasLink) {
+                UTILS.addElWithArgs.call(this, {
+                    target: this.linkElm,
+                    events: ['click'],
+                    func: this.clickHandler,
+                    args: { action: 'clicked' }
+                });
+                UTILS.addElWithArgs.call(this, {
+                    target: this.linkElm,
+                    events: ['dragstart'],
+                    func: this.pvtDefault,
+                    args: { action: 'dragstart' }
+                });
+            }
+
             UTILS.addElWithArgs.call(this, {
                 target: this.classElm.list,
                 events: ['touchstart', 'mousedown'],
@@ -441,7 +462,9 @@ var Swipe = function () {
     }, {
         key: 'Start',
         value: function Start(event) {
-            window.addEventListener('touchmove', this.NoScroll);
+            this.disabledClick = true;
+            this.swiping = false;
+            window.addEventListener('touchmove', this.pvtDefault);
             this.classElm.list.classList.add(REF.grab);
 
             if (this.lazySlider.actionLock || this.touchObject.fingerCount !== 1) {
@@ -450,7 +473,6 @@ var Swipe = function () {
             }
 
             clearTimeout(this.classElm.autoID);
-            this.lazySlider.actionLock = true;
             var touches = void 0;
 
             if (event.touches !== undefined) touches = event.touches[0];
@@ -462,7 +484,7 @@ var Swipe = function () {
     }, {
         key: 'End',
         value: function End() {
-            window.removeEventListener('touchmove', this.NoScroll);
+            window.removeEventListener('touchmove', this.pvtDefault);
             this.classElm.list.classList.remove(REF.grab);
             this.classElm.list.style.transitionDuration = 0.5 + 's';
 
@@ -473,12 +495,15 @@ var Swipe = function () {
             }
 
             this.touchObject = {};
+            this.disabledClick = this.swiping ? true : false;
             this.classElm.dragging = false;
         }
     }, {
         key: 'Move',
         value: function Move(event) {
             if (!this.classElm.dragging) return;
+            this.lazySlider.actionLock = this.swiping = true;
+
             this.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0.2 + 's';
 
             var touches = event.touches;
@@ -491,9 +516,18 @@ var Swipe = function () {
             this.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + perAmount + '%,0,0)';
         }
     }, {
-        key: 'NoScroll',
-        value: function NoScroll(e) {
-            e.preventDefault();
+        key: 'pvtDefault',
+        value: function pvtDefault(event) {
+            event.preventDefault();
+        }
+    }, {
+        key: 'clickHandler',
+        value: function clickHandler(event) {
+            if (this.swiping) {
+                event.stopImmediatePropagation();
+                event.stopPropagation();
+                event.preventDefault();
+            }
         }
     }]);
 
@@ -531,10 +565,28 @@ module.exports = {
     addElWithArgs: function addElWithArgs(obj) {
         var _this = this;
 
-        for (var i = 0; i < obj.events.length; i++) {
-            obj.target.addEventListener(obj.events[i], function (e) {
-                obj.func.call(_this, e, obj.args);
-            });
+        var target = typeof obj.target.length === 'undefined' ? [obj.target] : [].slice.call(obj.target);
+
+        for (var i = 0; i < target.length; i++) {
+            for (var j = 0; j < obj.events.length; j++) {
+                target[i].addEventListener(obj.events[j], function (e) {
+                    obj.func.call(_this, e, obj.args);
+                });
+            }
+        }
+    },
+
+    removeElWithArgs: function removeElWithArgs(obj) {
+        var _this2 = this;
+
+        var target = typeof obj.target.length === 'undefined' ? [obj.target] : [].slice.call(obj.target);
+
+        for (var i = 0; i < target.length; i++) {
+            for (var j = 0; j < obj.events.length; j++) {
+                target[i].removeEventListener(obj.events[j], function (e) {
+                    obj.func.call(_this2, e, obj.args);
+                });
+            }
         }
     }
 };
