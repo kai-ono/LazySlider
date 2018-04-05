@@ -36,7 +36,7 @@ module.exports = {
         });
     },
     /**
-     * 複数のイベントに同じ引数付きの関数を登録する
+     * 指定した要素に複数のイベントと同じ引数付きの関数を登録する
      * @param {Object} obj object型の引数。
      * @param {String} obj.target イベントを登録する要素
      * @param {Array} obj.events 登録するイベント配列
@@ -44,10 +44,33 @@ module.exports = {
      * @param {Object} obj.args 関数に渡す引数
      */
     addElWithArgs: function(obj) {
-        for (let i = 0; i < obj.events.length; i++) {
-            obj.target.addEventListener(obj.events[i], (e) => {
-                obj.func.call(this, e, obj.args);
-            });
+        let target = (typeof obj.target.length === 'undefined') ? [ obj.target ] : [].slice.call(obj.target);
+
+        for (let i = 0; i < target.length; i++) {
+            for (let j = 0; j < obj.events.length; j++) {
+                target[i].addEventListener(obj.events[j], (e) => {
+                    obj.func.call(this, e, obj.args);
+                });
+            }
+        }
+    },
+    /**
+     * 指定した要素から複数のイベントと同じ引数付きの関数を排除する
+     * @param {Object} obj object型の引数。
+     * @param {String} obj.target イベントを登録する要素
+     * @param {Array} obj.events 登録するイベント配列
+     * @param {Object} obj.func 実行する関数
+     * @param {Object} obj.args 関数に渡す引数
+     */
+    removeElWithArgs: function(obj) {
+        let target = (typeof obj.target.length === 'undefined') ? [ obj.target ] : [].slice.call(obj.target);
+
+        for (let i = 0; i < target.length; i++) {
+            for (let j = 0; j < obj.events.length; j++) {
+                target[i].removeEventListener(obj.events[j], (e) => {
+                    obj.func.call(this, e, obj.args);
+                });
+            }
         }
     }
 };

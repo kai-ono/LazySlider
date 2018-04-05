@@ -16,10 +16,31 @@ class Swipe {
         this.list = this.classElm.list;
         this.classElm.dragging = false;
         this.touchObject = {};
+        this.linkElm;
+        this.hasLink = false;
+        this.disabledClick = true;
+        this.swiping = false;
         this.init();
     }
 
     init() {
+        this.linkElm = this.classElm.list.querySelectorAll('a');
+        this.hasLink = this.linkElm.length > 0;
+        if(this.hasLink) {
+            UTILS.addElWithArgs.call(this, {
+                target: this.linkElm,
+                events: [ 'click' ],
+                func: this.clickHandler,
+                args: {action: 'clicked'}
+            });
+            UTILS.addElWithArgs.call(this, {
+                target: this.linkElm,
+                events: [ 'dragstart' ],
+                func: this.pvtDefault,
+                args: {action: 'dragstart'}
+            });
+        }
+
         UTILS.addElWithArgs.call(this, {
             target: this.classElm.list,
             events: [ 'touchstart', 'mousedown' ],
@@ -61,7 +82,9 @@ class Swipe {
     }
 
     Start(event) {
-        window.addEventListener('touchmove', this.NoScroll);
+        this.disabledClick = true;
+        this.swiping = false;
+        window.addEventListener('touchmove', this.pvtDefault);
         this.classElm.list.classList.add(REF.grab);
 
         if (this.lazySlider.actionLock || this.touchObject.fingerCount !== 1) {
@@ -70,7 +93,6 @@ class Swipe {
         }
 
         clearTimeout(this.classElm.autoID);
-        this.lazySlider.actionLock = true;
         let touches;
 
         if (event.touches !== undefined) touches = event.touches[0];
@@ -81,7 +103,7 @@ class Swipe {
     }
 
     End() {
-        window.removeEventListener('touchmove', this.NoScroll);
+        window.removeEventListener('touchmove', this.pvtDefault);
         this.classElm.list.classList.remove(REF.grab);
         this.classElm.list.style.transitionDuration = 0.5 + 's';
 
@@ -92,11 +114,14 @@ class Swipe {
         }
 
         this.touchObject = {};
+        this.disabledClick = (this.swiping) ? true : false;
         this.classElm.dragging = false;
     }
 
     Move(event) {
         if(!this.classElm.dragging) return;
+        this.lazySlider.actionLock = this.swiping = true;
+
         this.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0.2 + 's';
 
         let touches = event.touches;
@@ -109,8 +134,16 @@ class Swipe {
         this.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + perAmount + '%,0,0)';
     }
 
-    NoScroll(e) {
-        e.preventDefault();
+    pvtDefault(event) {
+        event.preventDefault();
+    }
+
+    clickHandler(event) {
+        if(this.swiping) {
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+            event.preventDefault();
+        }
     }
 }
 
