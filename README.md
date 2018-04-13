@@ -18,7 +18,6 @@ https://kai-ono.github.io/lazy-slider/dest/
 | Android5.0   | Galaxy S5      | OK                | OK     |
 | Android6.0.1 | Galaxy S6      | OK                | OK     |
 | Android8.0.0 | Xperia XZ      | --                | OK     |
-| Android8.0.0 | Xperia XZ      | --                | OK     |
 | iOS5.1.1     | iPhone4S       | OK                | --     |
 | iOS6.0       | iPhone5        | OK                | --     |
 | iOS7.0       | iPhone5        | OK                | --     |
