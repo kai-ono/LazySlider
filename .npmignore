@@ -1,0 +1,7 @@
+gulp
+src
+node_modules/
+gulpfile.js
+.node-version
+.eslintrc
+.babelrc
