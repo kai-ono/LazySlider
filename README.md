@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/kai-ono/lazy-slider.svg?branch=master)](https://travis-ci.org/kai-ono/lazy-slider)
+
 ## Demo
 https://kai-ono.github.io/lazy-slider/dest/
 
