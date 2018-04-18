@@ -18,6 +18,7 @@
   },
   "files": [
     "dest",
+    "src",
     "LICENSE"
   ],
   "homepage": "https://github.com/kai-ono/lazy-slider#readme",
