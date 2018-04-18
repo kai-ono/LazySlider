@@ -715,6 +715,16 @@ var LazySlider = function () {
 
 ;
 
-window.LazySlider = LazySlider;
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+    module.exports = LazySlider;
+} else {
+    if (typeof define === 'function' && define.amd) {
+        define([], function () {
+            return LazySlider;
+        });
+    } else {
+        window.LazySlider = LazySlider;
+    }
+};
 
 },{"./mod/Auto":1,"./mod/Button":2,"./mod/Center":3,"./mod/Element":4,"./mod/Loop":5,"./mod/Navi":6,"./mod/Reference":7,"./mod/Swipe":8,"./mod/Utils":9}]},{},[10]);

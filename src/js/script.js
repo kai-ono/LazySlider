@@ -107,4 +107,14 @@ class LazySlider {
     }
 };
 
-window.LazySlider = LazySlider;
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+    module.exports = LazySlider;
+} else {
+    if (typeof define === 'function' && define.amd) {
+        define([], function() {
+            return LazySlider;
+        });
+    } else {
+        window.LazySlider = LazySlider;
+    }
+};
