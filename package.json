@@ -1,8 +1,8 @@
 {
   "name": "@kai-ono/lazy-slider",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "https://kai-ono.github.io/lazy-slider/dest/",
-  "main": "dest/js/lazy-slider.js",
+  "main": "index.js",
   "keywords": [
     "slider",
     "caroucel",
@@ -16,6 +16,10 @@
   "bugs": {
     "url": "https://github.com/kai-ono/lazy-slider/issues"
   },
+  "files": [
+    "dest",
+    "LICENSE"
+  ],
   "homepage": "https://github.com/kai-ono/lazy-slider#readme",
   "author": "kai-ono",
   "license": "MIT",
