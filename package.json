@@ -46,7 +46,7 @@
     "gulp-sourcemaps": "^2.6.1",
     "gulp-uglify": "^3.0.0",
     "gulp-webserver": "^0.9.1",
-    "postcss": "^6.0.12",
+    "postcss": "^6.0.21",
     "postcss-cssnext": "^3.0.2",
     "precss": "^2.0.0",
     "vinyl-buffer": "^1.0.0",
