@@ -27,6 +27,12 @@ https://kai-ono.github.io/lazy-slider/dest/
 | iOS7.0       | iPhone5        | OK                | --     |
 | iOS8.1.1     | iPhone4S       | OK                | --     |
 
+## Package Managers
+```
+npm install --save @kai-ono/lazy-slider
+```
+[![NPM](https://nodei.co/npm/@kai-ono/lazy-slider.png)](https://nodei.co/npm/@kai-ono/lazy-slider/)
+
 ## DOM example
 ```html
 <link rel="stylesheet" type="text/css" href="css/lazy-slider.css"/>
