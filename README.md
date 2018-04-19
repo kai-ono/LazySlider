@@ -33,6 +33,12 @@ npm install --save @kai-ono/lazy-slider
 ```
 [![NPM](https://nodei.co/npm/@kai-ono/lazy-slider.png)](https://nodei.co/npm/@kai-ono/lazy-slider/)
 
+### Usage
+```javascript
+const slider = require('@kai-ono/lazy-slider');
+new slider();
+```
+
 ## DOM example
 ```html
 <link rel="stylesheet" type="text/css" href="css/lazy-slider.css"/>
