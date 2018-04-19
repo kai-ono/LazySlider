@@ -1,6 +1,6 @@
 {
   "name": "@kai-ono/lazy-slider",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "https://kai-ono.github.io/lazy-slider/dest/",
   "main": "src/js/script.js",
   "keywords": [
@@ -16,6 +16,13 @@
   "bugs": {
     "url": "https://github.com/kai-ono/lazy-slider/issues"
   },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "package.json",
+    "dest",
+    "src"
+  ],
   "homepage": "https://github.com/kai-ono/lazy-slider#readme",
   "author": "kai-ono",
   "license": "MIT",
