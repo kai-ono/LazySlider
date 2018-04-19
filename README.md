@@ -1,4 +1,6 @@
+[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 [![Build Status](https://travis-ci.org/kai-ono/lazy-slider.svg?branch=master)](https://travis-ci.org/kai-ono/lazy-slider)
+[![Dependency Status](https://beta.gemnasium.com/badges/github.com/kai-ono/lazy-slider.svg)](https://beta.gemnasium.com/projects/github.com/kai-ono/lazy-slider)
 
 ## Demo
 https://kai-ono.github.io/lazy-slider/dest/
