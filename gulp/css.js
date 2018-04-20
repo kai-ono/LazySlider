@@ -1,12 +1,12 @@
-module.exports = function(gulp) {
+module.exports = function (gulp) {
   gulp.task('css', function () {
-    const del = require('del');
-    const rename = require('gulp-rename');
-    const postcss = require('gulp-postcss');
-    const sourcemaps = require('gulp-sourcemaps');
-    const cssnext = require('postcss-cssnext');
-    const precss = require('precss');
-    const csswring = require('csswring');
+    const del = require('del')
+    const rename = require('gulp-rename')
+    const postcss = require('gulp-postcss')
+    const sourcemaps = require('gulp-sourcemaps')
+    const cssnext = require('postcss-cssnext')
+    const precss = require('precss')
+    const csswring = require('csswring')
     const plugins = [
       cssnext({
         browsers: [
@@ -18,9 +18,9 @@ module.exports = function(gulp) {
       }),
       precss(),
       csswring()
-    ];
+    ]
 
-    del('dest/css/*');
+    del('dest/css/*')
 
     return gulp.src('./src/css/[!_]*.scss')
       .pipe(sourcemaps.init())
@@ -29,6 +29,6 @@ module.exports = function(gulp) {
         extname: '.css'
       }))
       .pipe(sourcemaps.write('.'))
-      .pipe(gulp.dest('./dest/css'));
-  });
-};
+      .pipe(gulp.dest('./dest/css'))
+  })
+}

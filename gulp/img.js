@@ -1,10 +1,10 @@
-module.exports = function(gulp) {
+module.exports = function (gulp) {
   gulp.task('img', function () {
-    const del = require('del');
+    const del = require('del')
 
-    del('dest/img/*');
+    del('dest/img/*')
 
     return gulp.src('./src/img/*')
-      .pipe(gulp.dest('./dest/img'));
-  });
-};
+      .pipe(gulp.dest('./dest/img'))
+  })
+}

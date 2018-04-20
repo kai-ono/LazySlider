@@ -1,6 +1,6 @@
 {
   "name": "@kai-ono/lazy-slider",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "https://kai-ono.github.io/lazy-slider/dest/",
   "main": "dest/js/lazy-slider.js",
   "keywords": [
@@ -35,7 +35,9 @@
     "js": "gulp js",
     "server": "gulp server",
     "watch": "gulp watch",
-    "start": "gulp"
+    "start": "gulp",
+    "lint": "gulp eslint",
+    "fix": "standard --fix"
   },
   "devDependencies": {
     "babel-eslint": "^7.1.1",
@@ -44,9 +46,14 @@
     "babelify": "^7.3.0",
     "csswring": "^6.0.1",
     "del": "^3.0.0",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.0.1",
     "gulp": "^3.9.1",
     "gulp-babel": "^7.0.1",
-    "gulp-eslint": "^3.0.1",
+    "gulp-eslint": "^4.0.2",
     "gulp-plumber": "^1.1.0",
     "gulp-postcss": "^7.0.0",
     "gulp-rename": "^1.2.2",
@@ -55,7 +62,8 @@
     "gulp-webserver": "^0.9.1",
     "postcss": "^6.0.21",
     "postcss-cssnext": "^3.0.2",
-    "precss": "^2.0.0"
+    "precss": "^2.0.0",
+    "standard": "^11.0.1"
   },
   "dependencies": {
     "classlist-polyfill": "^1.0.3",
