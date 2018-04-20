@@ -5,26 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
   <title>lazy-slider demo</title>
+  <link rel="stylesheet" href="lib/prism.css">
+  <script src="lib/prism.js"></script>
   <link rel="stylesheet" type="text/css" href="css/lazy-slider.css"/>
   <link rel="stylesheet" type="text/css" href="css/style.css"/>  
   <script type="text/javascript" src="js/lazy-slider.js"></script>
 </head>
 <body>
   <div style="max-width: 900px; margin: 0 auto;">
-    <div class="dev-slider lazy-slider-style">
-      <ul>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb1.jpg" /></a></li>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb2.jpg" /></a></li>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb3.jpg" /></a></li>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb4.jpg" /></a></li>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb5.jpg" /></a></li>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb6.jpg" /></a></li>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb7.jpg" /></a></li>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb8.jpg" /></a></li>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb9.jpg" /></a></li>
-      </ul>
-    </div>
-
     <div class="lazy-slider lazy-slider-style">
       <ul>
         <li><img src="img/thumb1.jpg" /></li>
@@ -38,8 +26,22 @@
         <li><img src="img/thumb9.jpg" /></li>
       </ul>
     </div>
+    <pre class="prettyprint linenums">new LazySlider();</pre>
 
-    <div class="lazy-slider lazy-slider-style">
+    <div class="sliders lazy-slider-style">
+      <ul>
+        <li><img src="img/thumb1.jpg" /></li>
+        <li><img src="img/thumb2.jpg" /></li>
+        <li><img src="img/thumb3.jpg" /></li>
+        <li><img src="img/thumb4.jpg" /></li>
+        <li><img src="img/thumb5.jpg" /></li>
+        <li><img src="img/thumb6.jpg" /></li>
+        <li><img src="img/thumb7.jpg" /></li>
+        <li><img src="img/thumb8.jpg" /></li>
+        <li><img src="img/thumb9.jpg" /></li>
+      </ul>
+    </div>
+    <div class="sliders lazy-slider-style">
       <ul>
         <li><span>1</span></li>
         <li><span>2</span></li>
@@ -48,6 +50,37 @@
         <li><span>5</span></li>
       </ul>
     </div>
+    <pre class="line-numbers" data-line="1-2,3"><code class="language-javascript" data-language="javascript">
+        new LazySlider({
+        class: 'sliders',
+        showItem: 4,
+        auto: false,
+        interval: 2000,
+        loop: true
+});
+    </code></pre>
+
+    <div class="dev-slider lazy-slider-style">
+      <ul>
+        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb1.jpg" /></a></li>
+        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb2.jpg" /></a></li>
+        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb3.jpg" /></a></li>
+        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb4.jpg" /></a></li>
+        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb5.jpg" /></a></li>
+        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb6.jpg" /></a></li>
+        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb7.jpg" /></a></li>
+        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb8.jpg" /></a></li>
+        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb9.jpg" /></a></li>
+      </ul>
+    </div>
+    <pre class="prettyprint">new LazySlider({
+        class: 'dev-slider',
+        showItem: 1,
+        center: true,
+        interval: 2000,
+        auto: false,
+        loop: true,
+});</pre>
 
     <div class="test-slider lazy-slider-style">
       <ul>
@@ -58,6 +91,12 @@
         <li><span>5</span></li>
       </ul>
     </div>
+    <pre class="prettyprint">new LazySlider({
+        class: 'test-slider',
+        showItem: 3,
+        interval: 2000,
+        loop: true,
+});</pre>
 
     <div class="sample-slider lazy-slider-style">
       <ul>
@@ -72,6 +111,13 @@
         <li><img src="img/thumb9.jpg" /></li>
       </ul>
     </div>
+    <pre class="prettyprint">new LazySlider({
+        class: 'sample-slider',
+        showItem: 2,
+        interval: 2000,
+        slideNum: 1,
+        loop: true,
+});</pre>
 
     <div class="aaa-slider lazy-slider-style">
       <ul>
@@ -82,10 +128,18 @@
         <li><span>5</span></li>
       </ul>
     </div>
+    <pre class="prettyprint">new LazySlider({
+        class: 'aaa-slider',
+        showItem: 2,
+        interval: 2000,
+        loop: true,
+});</pre>
   </div>
 
   <script type="text/javascript">
+    new LazySlider();
     new LazySlider({
+      class: 'sliders',
       showItem: 4,
       auto: false,
       interval: 2000,

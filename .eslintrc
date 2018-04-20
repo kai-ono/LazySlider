@@ -56,6 +56,10 @@
             "error",
             "never"
         ],
+        "array-bracket-spacing": [
+            "error",
+            "never"
+        ],
         "space-infix-ops": "error",
         "space-before-blocks": "error",
         "no-unused-vars": [

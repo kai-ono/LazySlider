@@ -1,1 +1,0 @@
-window.LazySlider = require('./LazySlider');
