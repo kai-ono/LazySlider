@@ -38,6 +38,7 @@
   }();
 
   var REF = {
+    load: 'loaded',
     clss: 'lazy-slider',
     list: 'slide-list',
     item: 'slide-item',
@@ -130,6 +131,7 @@
     _createClass(Element, [{
       key: 'Init',
       value: function Init() {
+        this.elm.classList.add(REF.load);
         this.listW = this.list.style.width = 100 / this.showItem * this.itemLen + '%';
         this.listPxW = this.list.offsetWidth;
       }

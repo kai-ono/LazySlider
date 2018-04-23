@@ -3,6 +3,7 @@
 ------------------------------------------*/
 .lazy-slider-style {
   opacity: 0;
+  transition: opacity 0.1s linear 0s;
   &.loaded {
     opacity: 1;
   }
