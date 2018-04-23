@@ -327,7 +327,7 @@ const LOOP = class Loop {
       if (this.lazySlider.center) this.lazySlider.classCenter.SetCenter(this.classElm)
 
       setTimeout(() => {
-        this.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0.5 + 's'
+        this.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = this.lazySlider.duration + 's'
         for (let i = 0; i < this.classElm.itemLen; i++) {
           this.classElm.item[i].children[0].style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0.1 + 's'
         }
@@ -485,7 +485,7 @@ const SWIPE = class Swipe {
   End () {
     window.removeEventListener('touchmove', this.pvtDefault)
     this.classElm.list.classList.remove(REF.grab)
-    this.classElm.list.style.transitionDuration = 0.5 + 's'
+    this.classElm.list.style.transitionDuration = this.lazySlider.duration + 's'
 
     if (!this.classElm.dragging || this.touchObject.curX === undefined) return false
     if (this.touchObject.startX !== this.touchObject.curX) {
@@ -540,6 +540,7 @@ class LazySlider {
     this.args = (typeof args !== 'undefined') ? args : {}
     this.class = (typeof this.args.class !== 'undefined') ? this.args.class : REF.clss
     this.interval = (typeof this.args.interval !== 'undefined') ? this.args.interval : 3000
+    this.duration = (typeof this.args.duration !== 'undefined') ? this.args.duration : 0.5
     this.showItem = (typeof this.args.showItem !== 'undefined') ? this.args.showItem : 1
     this.slideNum = (typeof this.args.slideNum !== 'undefined') ? this.args.slideNum : this.showItem
     this.auto = this.args.auto !== false

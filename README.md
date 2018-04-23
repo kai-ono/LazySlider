@@ -64,6 +64,7 @@ new slider();
 | class         | string         | 'lazy-loader' |               |
 | auto          | boolean        | true          |               |
 | interval      | integer        | 3000          |               |
+| duration      | integer        | 0.5           | 500ms         |
 | showItem      | integer        | 1             |               |
 | slideNum      | integer        | showItem      |               |
 | center        | boolean        | false         |               |
