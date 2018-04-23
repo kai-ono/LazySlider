@@ -41,13 +41,35 @@
         <li><img src="img/thumb9.jpg" /></li>
       </ul>
     </div>
-    <pre class="line-numbers"><code class="language-javascript" data-language="javascript">    new LazySlider({
+    <pre class="line-numbers"><code class="language-javascript" data-language="javascript">new LazySlider({
   class: 'col3-slider',
   showItem: 3,
   slideNum: 1,
   center: true,
   auto: false,
   loop: true
+});</code></pre>
+
+<div class="dev-slider lazy-slider-style">
+  <ul>
+    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb1.jpg" /></a></li>
+    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb2.jpg" /></a></li>
+    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb3.jpg" /></a></li>
+    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb4.jpg" /></a></li>
+    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb5.jpg" /></a></li>
+    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb6.jpg" /></a></li>
+    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb7.jpg" /></a></li>
+    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb8.jpg" /></a></li>
+    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb9.jpg" /></a></li>
+  </ul>
+</div>
+<pre class="line-numbers"><code class="language-javascript" data-language="javascript">new LazySlider({
+class: 'dev-slider',
+showItem: 1,
+center: true,
+interval: 2000,
+auto: false,
+loop: true,
 });</code></pre>
 
     <div class="sliders lazy-slider-style">
@@ -78,28 +100,6 @@
   auto: false,
   interval: 2000,
   loop: true
-});</code></pre>
-
-    <div class="dev-slider lazy-slider-style">
-      <ul>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb1.jpg" /></a></li>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb2.jpg" /></a></li>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb3.jpg" /></a></li>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb4.jpg" /></a></li>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb5.jpg" /></a></li>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb6.jpg" /></a></li>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb7.jpg" /></a></li>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb8.jpg" /></a></li>
-        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb9.jpg" /></a></li>
-      </ul>
-    </div>
-    <pre class="line-numbers"><code class="language-javascript" data-language="javascript">new LazySlider({
-  class: 'dev-slider',
-  showItem: 1,
-  center: true,
-  interval: 2000,
-  auto: false,
-  loop: true,
 });</code></pre>
 
     <div class="test-slider lazy-slider-style">
@@ -167,6 +167,14 @@
       loop: true
     });
     new LazySlider({
+      class: 'dev-slider',
+      showItem: 1,
+      center: true,
+      interval: 2000,
+      auto: false,
+      loop: true,
+    });
+    new LazySlider({
       class: 'sliders',
       showItem: 4,
       auto: false,
@@ -190,14 +198,6 @@
       class: 'aaa-slider',
       showItem: 2,
       interval: 2000,
-      loop: true,
-    });
-    new LazySlider({
-      class: 'dev-slider',
-      showItem: 1,
-      center: true,
-      interval: 2000,
-      auto: false,
       loop: true,
     });
   </script>

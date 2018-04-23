@@ -123,6 +123,7 @@
       this.current = 0;
       this.actionCb = [];
       this.dir = true;
+      this.adjustCenter = 0;
       this.Init();
     }
 
@@ -314,7 +315,7 @@
         this.classElm.list.appendChild(this.fragment);
         this.classElm.list.style.width = 100 / this.lazySlider.showItem * (this.classElm.itemLen + this.classElm.dupItemLen) + '%';
         this.classElm.itemW = 100 / this.classElm.item.length;
-        this.classElm.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + -(this.classElm.itemW * this.classElm.dupItemLeftLen) + '%,0,0)';
+        this.classElm.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + -(this.classElm.itemW * (this.classElm.dupItemLeftLen - this.classElm.adjustCenter)) + '%,0,0)';
 
         UTILS.SetTransitionEnd(this.classElm.list, function () {
           _this6.CallBack();
@@ -334,7 +335,7 @@
             this.classElm.item[i].children[0].style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0 + 's';
           }
 
-          var amount = this.classElm.dir ? this.classElm.itemW * this.classElm.current : this.classElm.itemW * (this.classElm.itemLen * 2 - this.lazySlider.slideNum);
+          var amount = this.classElm.dir ? this.classElm.itemW * (this.classElm.current - this.classElm.adjustCenter) : this.classElm.itemW * (this.classElm.itemLen * 2 - this.lazySlider.slideNum - this.classElm.adjustCenter);
 
           this.classElm.current = endPoint ? 0 : this.classElm.itemLen - this.lazySlider.slideNum;
           this.classElm.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + -amount + '%,0,0)';
@@ -360,6 +361,8 @@
 
       this.lazySlider = lazySlider;
       this.classElm = classElm;
+      this.classElm.adjustCenter = Math.floor(this.lazySlider.showItem / 2);
+      console.log(this.classElm);
       this.Init();
     }
 
@@ -378,7 +381,7 @@
     }, {
       key: 'SetCenter',
       value: function SetCenter(obj) {
-        var index = obj.current < 0 ? obj.item.length - 1 : obj.current + 1;
+        var index = obj.current < 0 ? obj.item.length - 1 : obj.current;
 
         for (var i = 0; i < obj.item.length; i++) {
           obj.item[i].classList.remove(REF.itmc);
@@ -598,6 +601,9 @@
             _this10.actionLock = false;
           });
 
+          if (this.center) {
+            this.classCenter = new CENTER(this, obj);
+          };
           if (this.loop) {
             void new LOOP(this, obj);
           }
@@ -613,9 +619,6 @@
           if (this.auto) {
             void new AUTO(this, obj);
           }
-          if (this.center) {
-            this.classCenter = new CENTER(this, obj);
-          };
         }
       }
     }, {
@@ -644,7 +647,7 @@
           if (index < 0) index = obj.itemLen - this.showItem;
         }
 
-        var amount = -(obj.itemW * index + obj.itemW * obj.dupItemLeftLen);
+        var amount = -(obj.itemW * (index - obj.adjustCenter) + obj.itemW * obj.dupItemLeftLen);
 
         obj.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + amount + '%,0,0)';
         obj.current = index;
