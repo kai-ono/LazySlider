@@ -359,7 +359,7 @@ const CENTER = class Center {
      * @param {Object} obj Elementクラス
      */
   SetCenter (obj) {
-    const index = (obj.current < 0) ? obj.item.length - 1 : obj.current
+    const index = (obj.current < 0) ? obj.item.length - 1 : obj.current + 1
 
     for (let i = 0; i < obj.item.length; i++) {
       obj.item[i].classList.remove(REF.itmc)
