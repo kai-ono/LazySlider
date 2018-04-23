@@ -1,6 +1,7 @@
 'use strict'
 
 const REF = {
+  load: 'loaded',
   clss: 'lazy-slider',
   list: 'slide-list',
   item: 'slide-item',
@@ -130,6 +131,7 @@ const ELM = class Element {
   }
 
   Init () {
+    this.elm.classList.add(REF.load)
     this.listW = this.list.style.width = 100 / this.showItem * this.itemLen + '%'
     this.listPxW = this.list.offsetWidth
   }

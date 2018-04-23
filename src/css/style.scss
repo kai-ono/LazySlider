@@ -2,6 +2,10 @@
   Styles
 ------------------------------------------*/
 .lazy-slider-style {
+  opacity: 0;
+  &.loaded {
+    opacity: 1;
+  }
   .slide {
     &-item {
       span {
