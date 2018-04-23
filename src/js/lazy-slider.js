@@ -506,7 +506,7 @@ const SWIPE = class Swipe {
 
     let touches = event.touches
     this.touchObject.curX = touches !== undefined ? touches[0].pageX : event.clientX
-    const currentPos = (this.classElm.current + this.classElm.dupItemLeftLen) * this.classElm.itemW
+    const currentPos = (this.classElm.current + this.classElm.dupItemLeftLen - this.classElm.adjustCenter) * this.classElm.itemW
     const pxAmount = this.touchObject.curX - this.touchObject.startX
     const perAmount = pxAmount / this.classElm.listPxW * 35 - currentPos
     this.classElm.dir = (pxAmount < 0)
