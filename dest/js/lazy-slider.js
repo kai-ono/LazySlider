@@ -378,7 +378,7 @@
     }, {
       key: 'SetCenter',
       value: function SetCenter(obj) {
-        var index = obj.current < 0 ? obj.item.length - 1 : obj.current;
+        var index = obj.current < 0 ? obj.item.length - 1 : obj.current + 1;
 
         for (var i = 0; i < obj.item.length; i++) {
           obj.item[i].classList.remove(REF.itmc);

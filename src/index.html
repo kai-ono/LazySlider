@@ -28,6 +28,28 @@
     </div>
     <pre class="line-numbers"><code class="language-javascript" data-language="javascript">new LazySlider();</code></pre>
 
+    <div class="col3-slider lazy-slider-style">
+      <ul>
+        <li><img src="img/thumb1.jpg" /></li>
+        <li><img src="img/thumb2.jpg" /></li>
+        <li><img src="img/thumb3.jpg" /></li>
+        <li><img src="img/thumb4.jpg" /></li>
+        <li><img src="img/thumb5.jpg" /></li>
+        <li><img src="img/thumb6.jpg" /></li>
+        <li><img src="img/thumb7.jpg" /></li>
+        <li><img src="img/thumb8.jpg" /></li>
+        <li><img src="img/thumb9.jpg" /></li>
+      </ul>
+    </div>
+    <pre class="line-numbers"><code class="language-javascript" data-language="javascript">    new LazySlider({
+  class: 'col3-slider',
+  showItem: 3,
+  slideNum: 1,
+  center: true,
+  auto: false,
+  loop: true
+});</code></pre>
+
     <div class="sliders lazy-slider-style">
       <ul>
         <li><img src="img/thumb1.jpg" /></li>
@@ -136,6 +158,14 @@
 
   <script type="text/javascript">
     new LazySlider();
+    new LazySlider({
+      class: 'col3-slider',
+      showItem: 3,
+      slideNum: 1,
+      center: true,
+      auto: false,
+      loop: true
+    });
     new LazySlider({
       class: 'sliders',
       showItem: 4,
