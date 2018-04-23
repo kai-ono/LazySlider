@@ -532,7 +532,7 @@
 
         var touches = event.touches;
         this.touchObject.curX = touches !== undefined ? touches[0].pageX : event.clientX;
-        var currentPos = (this.classElm.current + this.classElm.dupItemLeftLen) * this.classElm.itemW;
+        var currentPos = (this.classElm.current + this.classElm.dupItemLeftLen - this.classElm.adjustCenter) * this.classElm.itemW;
         var pxAmount = this.touchObject.curX - this.touchObject.startX;
         var perAmount = pxAmount / this.classElm.listPxW * 35 - currentPos;
         this.classElm.dir = pxAmount < 0;
