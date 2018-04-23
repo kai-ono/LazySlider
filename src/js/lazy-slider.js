@@ -125,6 +125,7 @@ const ELM = class Element {
     this.current = 0
     this.actionCb = []
     this.dir = true
+    this.adjustCenter = 0
     this.Init()
   }
 
@@ -299,7 +300,7 @@ const LOOP = class Loop {
     this.classElm.list.appendChild(this.fragment)
     this.classElm.list.style.width = 100 / this.lazySlider.showItem * (this.classElm.itemLen + this.classElm.dupItemLen) + '%'
     this.classElm.itemW = 100 / this.classElm.item.length
-    this.classElm.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + -(this.classElm.itemW * this.classElm.dupItemLeftLen) + '%,0,0)'
+    this.classElm.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + -(this.classElm.itemW * (this.classElm.dupItemLeftLen - this.classElm.adjustCenter)) + '%,0,0)'
 
     UTILS.SetTransitionEnd(this.classElm.list, () => {
       this.CallBack()
@@ -316,7 +317,7 @@ const LOOP = class Loop {
         this.classElm.item[i].children[0].style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0 + 's'
       }
 
-      const amount = (this.classElm.dir) ? this.classElm.itemW * this.classElm.current : this.classElm.itemW * (this.classElm.itemLen * 2 - this.lazySlider.slideNum)
+      const amount = (this.classElm.dir) ? this.classElm.itemW * (this.classElm.current - this.classElm.adjustCenter) : this.classElm.itemW * (this.classElm.itemLen * 2 - this.lazySlider.slideNum - this.classElm.adjustCenter)
 
       this.classElm.current = (endPoint) ? 0 : this.classElm.itemLen - this.lazySlider.slideNum
       this.classElm.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + -amount + '%,0,0)'
@@ -342,6 +343,8 @@ const CENTER = class Center {
   constructor (lazySlider, classElm) {
     this.lazySlider = lazySlider
     this.classElm = classElm
+    this.classElm.adjustCenter = Math.floor(this.lazySlider.showItem / 2)
+    console.log(this.classElm)
     this.Init()
   }
 
@@ -359,7 +362,7 @@ const CENTER = class Center {
      * @param {Object} obj Elementクラス
      */
   SetCenter (obj) {
-    const index = (obj.current < 0) ? obj.item.length - 1 : obj.current + 1
+    const index = (obj.current < 0) ? obj.item.length - 1 : obj.current
 
     for (let i = 0; i < obj.item.length; i++) {
       obj.item[i].classList.remove(REF.itmc)
@@ -567,6 +570,9 @@ class LazySlider {
         this.actionLock = false
       })
 
+      if (this.center) {
+        this.classCenter = new CENTER(this, obj)
+      };
       if (this.loop) {
         void new LOOP(this, obj)
       }
@@ -582,9 +588,6 @@ class LazySlider {
       if (this.auto) {
         void new AUTO(this, obj)
       }
-      if (this.center) {
-        this.classCenter = new CENTER(this, obj)
-      };
     }
   }
 
@@ -619,7 +622,7 @@ class LazySlider {
       if (index < 0) index = obj.itemLen - this.showItem
     }
 
-    const amount = -(obj.itemW * index + (obj.itemW * obj.dupItemLeftLen))
+    const amount = -(obj.itemW * (index - obj.adjustCenter) + obj.itemW * obj.dupItemLeftLen)
 
     obj.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + amount + '%,0,0)'
     obj.current = index
