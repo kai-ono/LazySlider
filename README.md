@@ -70,5 +70,7 @@ new slider();
 | center        | boolean        | false         |               |
 | loop          | boolean        | false         |               |
 | btns          | boolean        | true          |               |
+| prev          | string         | ''            | '.prevBtn'    |
+| next          | string         | ''            | '.nextBtn'    |
 | navi          | boolean        | true          |               |
 | swipe         | boolean        | true          |               |
