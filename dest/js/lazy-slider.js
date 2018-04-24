@@ -61,7 +61,6 @@
 
       if (bodyStyle.webkitTransform !== undefined) resultProp = 'webkit' + tmpProp;
       if (bodyStyle.mozTransform !== undefined) resultProp = 'moz' + tmpProp;
-      if (bodyStyle.msTransform !== undefined) resultProp = 'ms' + tmpProp;
 
       return resultProp;
     },
