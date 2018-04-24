@@ -67,7 +67,7 @@
     },
 
     SetTransitionEnd: function SetTransitionEnd(elm, cb) {
-      var transitionEndWithPrefix = /webkit/i.test(navigator.appVersion) ? 'webkitTransitionEnd' : /firefox/i.test(navigator.userAgent) ? 'transitionend' : 'opera' in window ? 'oTransitionEnd' : '';
+      var transitionEndWithPrefix = /webkit/i.test(navigator.appVersion) ? 'webkitTransitionEnd' : 'opera' in window ? 'oTransitionEnd' : 'transitionend';
 
       elm.addEventListener(transitionEndWithPrefix, function (e) {
         if (e.target === elm && e.propertyName.match('transform') !== null) {

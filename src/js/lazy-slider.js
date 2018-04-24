@@ -40,9 +40,8 @@ const UTILS = {
      */
   SetTransitionEnd: (elm, cb) => {
     const transitionEndWithPrefix = (/webkit/i).test(navigator.appVersion) ? 'webkitTransitionEnd'
-      : (/firefox/i).test(navigator.userAgent) ? 'transitionend'
-        : 'opera' in window ? 'oTransitionEnd'
-          : ''
+      : 'opera' in window ? 'oTransitionEnd'
+        : 'transitionend'
 
     elm.addEventListener(transitionEndWithPrefix, (e) => {
       if (e.target === elm && e.propertyName.match('transform') !== null) {
