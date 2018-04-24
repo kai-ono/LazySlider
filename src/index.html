@@ -40,11 +40,16 @@
         <li><img src="img/thumb8.jpg" /></li>
         <li><img src="img/thumb9.jpg" /></li>
       </ul>
+      <div class="prevBtn">prev</div>
+      <div class="nextBtn">next</div>
     </div>
     <pre class="line-numbers"><code class="language-javascript" data-language="javascript">new LazySlider({
   class: 'col3-slider',
   showItem: 3,
   slideNum: 1,
+  duration: 0.1,
+  prev: '.prevBtn',
+  next: '.nextBtn',
   center: true,
   auto: false,
   loop: true
@@ -163,6 +168,8 @@ loop: true,
       showItem: 3,
       slideNum: 1,
       duration: 0.1,
+      prev: '.prevBtn',
+      next: '.nextBtn',
       center: true,
       auto: false,
       loop: true

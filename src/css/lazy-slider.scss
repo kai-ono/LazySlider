@@ -46,26 +46,25 @@ img {
         height: auto;
       }
     }
-    &-btns {
-      & > * {
+    &-prev,
+    &-next {
+      position: absolute;
+      width: 5%;
+      height: 100%;
+      margin: auto 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      top: 0;
+      bottom: 0;
+      cursor: pointer;
+      &::after {
+        content: "";
         position: absolute;
-        width: 5%;
-        height: 100%;
-        margin: auto 0;
-        background-color: rgba(0, 0, 0, 0.7);
-        top: 0;
-        bottom: 0;
-        cursor: pointer;
-        &::after {
-          content: "";
-          position: absolute;
-          margin: -10px 0 0 -3px;
-          border-top: 10px solid transparent;
-          border-bottom: 10px solid transparent;
-          border-left: 10px solid rgba(255,255,255,0.2);
-          top: 50%;
-          left: 50%;
-        }
+        margin: -10px 0 0 -3px;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        border-left: 10px solid rgba(255,255,255,0.2);
+        top: 50%;
+        left: 50%;
       }
     }
     &-prev {
