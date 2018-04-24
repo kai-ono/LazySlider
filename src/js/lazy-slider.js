@@ -29,6 +29,7 @@ const UTILS = {
 
     if (bodyStyle.webkitTransform !== undefined) resultProp = 'webkit' + tmpProp
     if (bodyStyle.mozTransform !== undefined) resultProp = 'moz' + tmpProp
+    if (bodyStyle.msTransform !== undefined) resultProp = 'ms' + tmpProp
 
     return resultProp
   },
@@ -40,9 +41,8 @@ const UTILS = {
   SetTransitionEnd: (elm, cb) => {
     const transitionEndWithPrefix = (/webkit/i).test(navigator.appVersion) ? 'webkitTransitionEnd'
       : (/firefox/i).test(navigator.userAgent) ? 'transitionend'
-        : (/msie/i).test(navigator.userAgent) ? 'MSTransitionEnd'
-          : 'opera' in window ? 'oTransitionEnd'
-            : ''
+        : 'opera' in window ? 'oTransitionEnd'
+          : ''
 
     elm.addEventListener(transitionEndWithPrefix, (e) => {
       if (e.target === elm && e.propertyName.match('transform') !== null) {
