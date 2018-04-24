@@ -42,7 +42,6 @@
     clss: 'lazy-slider',
     list: 'slide-list',
     item: 'slide-item',
-    btns: 'slide-btns',
     next: 'slide-next',
     prev: 'slide-prev',
     navi: 'slide-navi',
@@ -146,9 +145,8 @@
 
       this.lazySlider = lazySlider;
       this.classElm = classElm;
-      this.btnUl = document.createElement('ul');
-      this.btnLiNext = document.createElement('li');
-      this.btnLiPrev = document.createElement('li');
+      this.hasPrev = this.lazySlider.prev !== '';
+      this.hasNext = this.lazySlider.next !== '';
       this.Init();
     }
 
@@ -157,19 +155,33 @@
       value: function Init() {
         var _this3 = this;
 
-        this.btnUl.classList.add(REF.btns);
-        this.btnLiNext.classList.add(REF.next);
-        this.btnLiPrev.classList.add(REF.prev);
-        this.btnUl.appendChild(this.btnLiNext);
-        this.btnUl.appendChild(this.btnLiPrev);
-        this.classElm.elm.appendChild(this.btnUl);
+        this.createButton();
 
-        this.btnLiNext.addEventListener('click', function () {
-          _this3.ButtonAction(true);
-        });
         this.btnLiPrev.addEventListener('click', function () {
           _this3.ButtonAction(false);
         });
+        this.btnLiNext.addEventListener('click', function () {
+          _this3.ButtonAction(true);
+        });
+      }
+    }, {
+      key: 'createButton',
+      value: function createButton() {
+        if (!this.hasPrev) {
+          this.btnLiPrev = document.createElement('div');
+          this.btnLiPrev.classList.add(REF.prev);
+          this.classElm.elm.appendChild(this.btnLiPrev);
+        } else {
+          this.btnLiPrev = this.classElm.elm.querySelector(this.lazySlider.prev);
+        }
+
+        if (!this.btnLiNext) {
+          this.btnLiNext = document.createElement('div');
+          this.btnLiNext.classList.add(REF.next);
+          this.classElm.elm.appendChild(this.btnLiNext);
+        } else {
+          this.btnLiNext = this.classElm.elm.querySelector(this.lazySlider.next);
+        }
       }
     }, {
       key: 'ButtonAction',
@@ -364,7 +376,6 @@
       this.lazySlider = lazySlider;
       this.classElm = classElm;
       this.classElm.adjustCenter = Math.floor(this.lazySlider.showItem / 2);
-      console.log(this.classElm);
       this.Init();
     }
 
@@ -570,6 +581,8 @@
       this.duration = typeof this.args.duration !== 'undefined' ? this.args.duration : 0.5;
       this.showItem = typeof this.args.showItem !== 'undefined' ? this.args.showItem : 1;
       this.slideNum = typeof this.args.slideNum !== 'undefined' ? this.args.slideNum : this.showItem;
+      this.prev = typeof this.args.prev !== 'undefined' ? this.args.prev : '';
+      this.next = typeof this.args.next !== 'undefined' ? this.args.next : '';
       this.auto = this.args.auto !== false;
       this.center = this.args.center === true;
       this.loop = this.args.loop === true;
