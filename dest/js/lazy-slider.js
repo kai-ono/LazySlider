@@ -175,7 +175,7 @@
           this.btnLiPrev = this.classElm.elm.querySelector(this.lazySlider.prev);
         }
 
-        if (!this.btnLiNext) {
+        if (!this.hasNext) {
           this.btnLiNext = document.createElement('div');
           this.btnLiNext.classList.add(REF.next);
           this.classElm.elm.appendChild(this.btnLiNext);
