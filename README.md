@@ -69,7 +69,7 @@ new slider();
 | slideNum      | integer        | showItem      |               |
 | center        | boolean        | false         |               |
 | loop          | boolean        | false         |               |
-| btns          | boolean        | true          |               |
+| btn           | boolean        | true          |               |
 | prev          | string         | ''            | '.prevBtn'    |
 | next          | string         | ''            | '.nextBtn'    |
 | navi          | boolean        | true          |               |
