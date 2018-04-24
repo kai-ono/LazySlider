@@ -1,6 +1,6 @@
 {
   "name": "@kai-ono/lazy-slider",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "https://kai-ono.github.io/lazy-slider/dest/",
   "main": "dest/js/lazy-slider.js",
   "keywords": [
