@@ -28,6 +28,7 @@
     </div>
     <pre class="line-numbers"><code class="language-javascript" data-language="javascript">new LazySlider();</code></pre>
 
+    <input id="btn" type="button" value="BUTTON">
     <div class="col3-slider lazy-slider-style">
       <ul>
         <li><img src="img/thumb1.jpg" /></li>
@@ -163,19 +164,22 @@ loop: true,
 
   <script type="text/javascript">
     new LazySlider();
-    new LazySlider({
-      class: 'col3-slider',
+    var col3Slider = new LazySlider({
+      elm: document.querySelector('.col3-slider'),
       showItem: 3,
       slideNum: 1,
       duration: 0.1,
       prev: '.prevBtn',
       next: '.nextBtn',
       center: true,
-      auto: false,
+      // auto: false,
       loop: true
     });
+    document.querySelector('#btn').addEventListener('click', function() {
+      col3Slider.ClearAllEvents()
+    });
     new LazySlider({
-      class: 'dev-slider',
+      elm: document.querySelector('.dev-slider'),
       showItem: 1,
       center: true,
       interval: 2000,
@@ -183,27 +187,27 @@ loop: true,
       loop: true,
     });
     new LazySlider({
-      class: 'sliders',
+      elm: document.querySelectorAll('.sliders'),
       showItem: 4,
       auto: false,
       interval: 2000,
       loop: true
     });
     new LazySlider({
-      class: 'test-slider',
+      elm: document.querySelector('.test-slider'),
       showItem: 3,
       interval: 2000,
       loop: true,
     });
     new LazySlider({
-      class: 'sample-slider',
+      elm: document.querySelector('.sample-slider'),
       showItem: 2,
       interval: 2000,
       slideNum: 1,
       loop: true,
     });
     new LazySlider({
-      class: 'aaa-slider',
+      elm: document.querySelector('.aaa-slider'),
       showItem: 2,
       interval: 2000,
       loop: true,
