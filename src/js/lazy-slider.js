@@ -60,13 +60,17 @@ const UTILS = {
   addElWithArgs: function (obj) {
     let target = (typeof obj.target.length === 'undefined') ? [ obj.target ] : [].slice.call(obj.target)
 
+    obj.listener = (e) => {
+      obj.func.call(this, e, obj.args)
+    }
+
     for (let i = 0; i < target.length; i++) {
       for (let j = 0; j < obj.events.length; j++) {
-        target[i].addEventListener(obj.events[j], (e) => {
-          obj.func.call(this, e, obj.args)
-        })
+        target[i].addEventListener(obj.events[j], obj.listener)
       }
     }
+
+    return obj
   },
   /**
      * 指定した要素から複数のイベントと同じ引数付きの関数を排除する
@@ -81,9 +85,7 @@ const UTILS = {
 
     for (let i = 0; i < target.length; i++) {
       for (let j = 0; j < obj.events.length; j++) {
-        target[i].removeEventListener(obj.events[j], (e) => {
-          obj.func.call(this, e, obj.args)
-        })
+        target[i].removeEventListener(obj.events[j], obj.listener)
       }
     }
   }
@@ -277,9 +279,15 @@ const AUTO = class Auto {
 
     UTILS.SetTransitionEnd(this.classElm.list, () => {
       if (this.classElm.dragging) return false
-      clearTimeout(this.classElm.autoID)
+      this.Clear()
       timer()
     })
+  }
+
+  Clear () {
+    const autoID = this.classElm.autoID
+    if (typeof autoID === 'undefined') return false
+    clearTimeout(autoID)
   }
 }
 
@@ -398,57 +406,69 @@ const SWIPE = class Swipe {
     this.hasLink = false
     this.disabledClick = true
     this.swiping = false
+    this.lazySlider.registedEventArr.swipe = []
+    this.swipeEventsArr = this.lazySlider.registedEventArr.swipe
     this.init()
   }
 
   init () {
     this.linkElm = this.classElm.list.querySelectorAll('a')
     this.hasLink = this.linkElm.length > 0
+    this.handleEvents(false)
+  }
+
+  handleEvents (isDestroy) {
     if (this.hasLink) {
-      UTILS.addElWithArgs.call(this, {
+      this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
         target: this.linkElm,
         events: [ 'click' ],
         func: this.clickHandler,
         args: {
           action: 'clicked'
         }
-      })
-      UTILS.addElWithArgs.call(this, {
+      }))
+      this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
         target: this.linkElm,
         events: [ 'dragstart' ],
         func: this.pvtDefault,
         args: {
           action: 'dragstart'
         }
-      })
+      }))
     }
 
-    UTILS.addElWithArgs.call(this, {
+    this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
       target: this.classElm.list,
       events: [ 'touchstart', 'mousedown' ],
       func: this.Handler,
       args: {
         action: 'start'
       }
-    })
+    }))
 
-    UTILS.addElWithArgs.call(this, {
+    this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
       target: this.classElm.list,
       events: [ 'touchmove', 'mousemove' ],
       func: this.Handler,
       args: {
         action: 'move'
       }
-    })
+    }))
 
-    UTILS.addElWithArgs.call(this, {
+    this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
       target: this.classElm.list,
       events: [ 'touchend', 'touchcancel', 'mouseup', 'mouseleave' ],
       func: this.Handler,
       args: {
         action: 'end'
       }
-    })
+    }))
+  }
+
+  ClearEvents () {
+    for (let i = 0; i < this.swipeEventsArr.length; i++) {
+      UTILS.removeElWithArgs(this.swipeEventsArr[i])
+    }
   }
 
   Handler (event, obj) {
@@ -472,7 +492,13 @@ const SWIPE = class Swipe {
   Start (event) {
     this.disabledClick = true
     this.swiping = false
-    window.addEventListener('touchmove', this.pvtDefault)
+    this.swipeEventsArr.window = UTILS.addElWithArgs.call(this, {
+      target: window,
+      events: [ 'touchmove' ],
+      func: this.pvtDefault,
+      args: {}
+    })
+
     this.classElm.list.classList.add(REF.grab)
 
     if (this.lazySlider.actionLock || this.touchObject.fingerCount !== 1) {
@@ -491,7 +517,7 @@ const SWIPE = class Swipe {
   }
 
   End () {
-    window.removeEventListener('touchmove', this.pvtDefault)
+    UTILS.removeElWithArgs(this.swipeEventsArr.window)
     this.classElm.list.classList.remove(REF.grab)
     this.classElm.list.style.transitionDuration = this.lazySlider.duration + 's'
 
@@ -546,7 +572,8 @@ class LazySlider {
      */
   constructor (args) {
     this.args = (typeof args !== 'undefined') ? args : {}
-    this.class = (typeof this.args.class !== 'undefined') ? this.args.class : REF.clss
+    this.node = (typeof this.args.elm !== 'undefined') ? this.args.elm : document.querySelectorAll('.' + REF.clss)
+    this.nodeArr = (this.node.length > 0) ? [].slice.call(this.node) : [ this.node ]
     this.interval = (typeof this.args.interval !== 'undefined') ? this.args.interval : 3000
     this.duration = (typeof this.args.duration !== 'undefined') ? this.args.duration : 0.5
     this.showItem = (typeof this.args.showItem !== 'undefined') ? this.args.showItem : 1
@@ -561,16 +588,14 @@ class LazySlider {
     this.swipe = this.args.swipe !== false
     this.actionLock = false
     this.elmArr = []
+    this.registedEventArr = []
 
-    window.addEventListener('load', () => {
-      this.nodeList = document.querySelectorAll('.' + this.class)
-      this.Init()
-    })
+    this.Init()
   }
 
   Init () {
-    for (let i = 0; i < this.nodeList.length; i++) {
-      this.elmArr.push(new ELM(this.nodeList[i], this.showItem))
+    for (let i = 0; i < this.nodeArr.length; i++) {
+      this.elmArr.push(new ELM(this.nodeArr[i], this.showItem))
 
       const obj = this.elmArr[i]
 
@@ -584,22 +609,22 @@ class LazySlider {
       })
 
       if (this.center) {
-        this.classCenter = new CENTER(this, obj)
+        this.CENTER = this.classCenter = new CENTER(this, obj)
       };
       if (this.loop) {
-        void new LOOP(this, obj)
+        this.LOOP = new LOOP(this, obj)
       }
       if (this.btn) {
-        void new BUTTON(this, obj)
+        this.BUTTON = new BUTTON(this, obj)
       }
       if (this.navi) {
-        void new NAVI(this, obj)
+        this.NAVI = new NAVI(this, obj)
       }
       if (this.swipe) {
-        void new SWIPE(this, obj)
+        this.SWIPE = new SWIPE(this, obj)
       }
       if (this.auto) {
-        void new AUTO(this, obj)
+        this.AUTO = new AUTO(this, obj)
       }
     }
   }
@@ -644,6 +669,19 @@ class LazySlider {
     for (let i = 0; i < obj.actionCb.length; i++) {
       obj.actionCb[i](obj)
     }
+  }
+
+  Destroy () {
+  }
+
+  ClearAllEvents () {
+    // this.CENTER
+    // this.LOOP
+    // this.BUTTON
+    // this.NAVI
+    // this.SWIPE.handleEvents(true)
+    this.SWIPE.ClearEvents()
+    // this.AUTO
   }
 };
 
