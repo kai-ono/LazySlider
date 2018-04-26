@@ -12,7 +12,7 @@ module.exports = function (gulp) {
       .pipe(eslint.failAfterError())
   })
 
-  gulp.task('js', ['eslint'], function () {
+  gulp.task('js', [ 'eslint' ], function () {
     const del = require('del')
     const babel = require('gulp-babel')
     const rename = require('gulp-rename')
@@ -22,8 +22,8 @@ module.exports = function (gulp) {
 
     gulp.src('src/js/*.js')
       .pipe(babel({
-        'presets': ['es2015'],
-        'plugins': ['transform-es2015-modules-umd'],
+        'presets': [ 'es2015' ],
+        'plugins': [ 'transform-es2015-modules-umd' ],
         'comments': false
       }))
       .pipe(gulp.dest('dest/js/'))
