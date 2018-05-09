@@ -88,6 +88,21 @@ const UTILS = {
         target[i].removeEventListener(obj.events[j], obj.listener)
       }
     }
+  },
+  /**
+     * 引数で渡したイベントを削除して空の配列を返す
+     * @param {Object} arr object型の引数。
+     * @param {String} arr.target イベントを削除する要素
+     * @param {Array} arr.events 削除するイベント配列
+     * @param {Object} arr.func 削除する関数
+     * @param {Object} arr.args 関数に渡す引数
+     * @returns {Array} 空の配列
+     */
+  ClearEvents (arr) {
+    for (let i = 0; i < arr.length; i++) {
+      UTILS.removeElWithArgs(arr[i])
+    }
+    return []
   }
 }
 
@@ -147,18 +162,25 @@ const BUTTON = class Button {
     this.classElm = classElm
     this.hasPrev = this.lazySlider.prev !== ''
     this.hasNext = this.lazySlider.next !== ''
+    this.buttonEventsArr = []
     this.Init()
   }
 
   Init () {
     this.createButton()
 
-    this.btnLiPrev.addEventListener('click', () => {
-      this.ButtonAction(false)
-    })
-    this.btnLiNext.addEventListener('click', () => {
-      this.ButtonAction(true)
-    })
+    this.buttonEventsArr.push(UTILS.addElWithArgs.call(this, {
+      target: this.btnLiPrev,
+      events: [ 'click' ],
+      func: this.ButtonAction,
+      args: false
+    }))
+    this.buttonEventsArr.push(UTILS.addElWithArgs.call(this, {
+      target: this.btnLiNext,
+      events: [ 'click' ],
+      func: this.ButtonAction,
+      args: true
+    }))
   }
 
   createButton () {
@@ -179,11 +201,15 @@ const BUTTON = class Button {
     }
   }
 
-  ButtonAction (dir) {
+  ButtonAction (e, dir) {
     if (this.lazySlider.actionLock) return
     this.classElm.dir = dir
     const nextCurrent = (dir) ? ++this.classElm.current : --this.classElm.current
     this.lazySlider.Action(nextCurrent, this.classElm, false)
+  }
+
+  ClearButtonEvents () {
+    this.buttonEventsArr = UTILS.ClearEvents(this.buttonEventsArr)
   }
 }
 
@@ -201,6 +227,7 @@ const NAVI = class Navi {
     this.fragment = document.createDocumentFragment()
     this.tmpNum = Math.ceil(this.classElm.itemLen / this.lazySlider.slideNum)
     this.num = (this.tmpNum > this.lazySlider.showItem + 1 && !this.lazySlider.loop) ? this.tmpNum - (this.lazySlider.showItem - 1) : this.tmpNum
+    this.naviEventsArr = []
     this.Init()
   }
 
@@ -213,15 +240,20 @@ const NAVI = class Navi {
       naviLi.appendChild(naviLiChild)
       naviLi.classList.add(REF.curr + i)
       this.fragment.appendChild(naviLi)
-      naviLi.addEventListener('click', (e) => {
-        [].slice.call(e.currentTarget.classList).forEach((value) => {
-          if (value.match(REF.curr) !== null) {
-            const index = Math.ceil(parseInt(value.replace(REF.curr, '')) * this.lazySlider.slideNum)
-            this.classElm.dir = true
-            this.lazySlider.Action(index, this.classElm, true)
-          };
-        })
-      })
+
+      this.naviEventsArr.push(UTILS.addElWithArgs.call(this, {
+        target: naviLi,
+        events: [ 'click' ],
+        func: (e) => {
+          [].slice.call(e.currentTarget.classList).forEach((value) => {
+            if (value.match(REF.curr) !== null) {
+              const index = Math.ceil(parseInt(value.replace(REF.curr, '')) * this.lazySlider.slideNum)
+              this.classElm.dir = true
+              this.lazySlider.Action(index, this.classElm, true)
+            };
+          })
+        }
+      }))
     }
 
     this.naviUl.appendChild(this.fragment)
@@ -252,6 +284,10 @@ const NAVI = class Navi {
     }
 
     obj.naviChildren[index].classList.add(REF.actv)
+  }
+
+  ClearNaviEvents () {
+    this.naviEventsArr = UTILS.ClearEvents(this.naviEventsArr)
   }
 }
 
@@ -406,8 +442,7 @@ const SWIPE = class Swipe {
     this.hasLink = false
     this.disabledClick = true
     this.swiping = false
-    this.lazySlider.registedEventArr.swipe = []
-    this.swipeEventsArr = this.lazySlider.registedEventArr.swipe
+    this.swipeEventsArr = []
     this.init()
   }
 
@@ -465,10 +500,8 @@ const SWIPE = class Swipe {
     }))
   }
 
-  ClearEvents () {
-    for (let i = 0; i < this.swipeEventsArr.length; i++) {
-      UTILS.removeElWithArgs(this.swipeEventsArr[i])
-    }
+  ClearSwipeEvents () {
+    this.swipeEventsArr = UTILS.ClearEvents(this.swipeEventsArr)
   }
 
   Handler (event, obj) {
@@ -672,16 +705,17 @@ class LazySlider {
   }
 
   Destroy () {
+    // this.CENTER
+    // this.LOOP
+    // this.SWIPE.handleEvents(true)
+    // this.AUTO
+    this.ClearAllEvents()
   }
 
   ClearAllEvents () {
-    // this.CENTER
-    // this.LOOP
-    // this.BUTTON
-    // this.NAVI
-    // this.SWIPE.handleEvents(true)
-    this.SWIPE.ClearEvents()
-    // this.AUTO
+    this.BUTTON.ClearButtonEvents()
+    this.NAVI.ClearNaviEvents()
+    this.SWIPE.ClearSwipeEvents()
   }
 };
 
