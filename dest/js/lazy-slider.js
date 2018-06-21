@@ -81,27 +81,33 @@
 
       var target = typeof obj.target.length === 'undefined' ? [obj.target] : [].slice.call(obj.target);
 
+      obj.listener = function (e) {
+        obj.func.call(_this, e, obj.args);
+      };
+
       for (var i = 0; i < target.length; i++) {
         for (var j = 0; j < obj.events.length; j++) {
-          target[i].addEventListener(obj.events[j], function (e) {
-            obj.func.call(_this, e, obj.args);
-          });
+          target[i].addEventListener(obj.events[j], obj.listener);
         }
       }
+
+      return obj;
     },
 
     removeElWithArgs: function removeElWithArgs(obj) {
-      var _this2 = this;
-
       var target = typeof obj.target.length === 'undefined' ? [obj.target] : [].slice.call(obj.target);
 
       for (var i = 0; i < target.length; i++) {
         for (var j = 0; j < obj.events.length; j++) {
-          target[i].removeEventListener(obj.events[j], function (e) {
-            obj.func.call(_this2, e, obj.args);
-          });
+          target[i].removeEventListener(obj.events[j], obj.listener);
         }
       }
+    },
+    ClearEvents: function ClearEvents(arr) {
+      for (var i = 0; i < arr.length; i++) {
+        UTILS.removeElWithArgs(arr[i]);
+      }
+      return [];
     }
   };
 
@@ -147,22 +153,27 @@
       this.classElm = classElm;
       this.hasPrev = this.lazySlider.prev !== '';
       this.hasNext = this.lazySlider.next !== '';
+      this.buttonEventsArr = [];
       this.Init();
     }
 
     _createClass(Button, [{
       key: 'Init',
       value: function Init() {
-        var _this3 = this;
-
         this.createButton();
 
-        this.btnLiPrev.addEventListener('click', function () {
-          _this3.ButtonAction(false);
-        });
-        this.btnLiNext.addEventListener('click', function () {
-          _this3.ButtonAction(true);
-        });
+        this.buttonEventsArr.push(UTILS.addElWithArgs.call(this, {
+          target: this.btnLiPrev,
+          events: ['click'],
+          func: this.ButtonAction,
+          args: false
+        }));
+        this.buttonEventsArr.push(UTILS.addElWithArgs.call(this, {
+          target: this.btnLiNext,
+          events: ['click'],
+          func: this.ButtonAction,
+          args: true
+        }));
       }
     }, {
       key: 'createButton',
@@ -185,11 +196,16 @@
       }
     }, {
       key: 'ButtonAction',
-      value: function ButtonAction(dir) {
+      value: function ButtonAction(e, dir) {
         if (this.lazySlider.actionLock) return;
         this.classElm.dir = dir;
         var nextCurrent = dir ? ++this.classElm.current : --this.classElm.current;
         this.lazySlider.Action(nextCurrent, this.classElm, false);
+      }
+    }, {
+      key: 'ClearButtonEvents',
+      value: function ClearButtonEvents() {
+        this.buttonEventsArr = UTILS.ClearEvents(this.buttonEventsArr);
       }
     }]);
 
@@ -207,13 +223,14 @@
       this.fragment = document.createDocumentFragment();
       this.tmpNum = Math.ceil(this.classElm.itemLen / this.lazySlider.slideNum);
       this.num = this.tmpNum > this.lazySlider.showItem + 1 && !this.lazySlider.loop ? this.tmpNum - (this.lazySlider.showItem - 1) : this.tmpNum;
+      this.naviEventsArr = [];
       this.Init();
     }
 
     _createClass(Navi, [{
       key: 'Init',
       value: function Init() {
-        var _this4 = this;
+        var _this2 = this;
 
         this.naviWrap.classList.add(REF.navi);
 
@@ -223,15 +240,20 @@
           naviLi.appendChild(naviLiChild);
           naviLi.classList.add(REF.curr + i);
           this.fragment.appendChild(naviLi);
-          naviLi.addEventListener('click', function (e) {
-            [].slice.call(e.currentTarget.classList).forEach(function (value) {
-              if (value.match(REF.curr) !== null) {
-                var index = Math.ceil(parseInt(value.replace(REF.curr, '')) * _this4.lazySlider.slideNum);
-                _this4.classElm.dir = true;
-                _this4.lazySlider.Action(index, _this4.classElm, true);
-              };
-            });
-          });
+
+          this.naviEventsArr.push(UTILS.addElWithArgs.call(this, {
+            target: naviLi,
+            events: ['click'],
+            func: function func(e) {
+              [].slice.call(e.currentTarget.classList).forEach(function (value) {
+                if (value.match(REF.curr) !== null) {
+                  var index = Math.ceil(parseInt(value.replace(REF.curr, '')) * _this2.lazySlider.slideNum);
+                  _this2.classElm.dir = true;
+                  _this2.lazySlider.Action(index, _this2.classElm, true);
+                };
+              });
+            }
+          }));
         }
 
         this.naviUl.appendChild(this.fragment);
@@ -243,7 +265,7 @@
         this.SetCurrentNavi(this.classElm);
 
         this.classElm.actionCb.push(function (cbObj) {
-          _this4.SetCurrentNavi(cbObj);
+          _this2.SetCurrentNavi(cbObj);
         });
       }
     }, {
@@ -259,6 +281,11 @@
         }
 
         obj.naviChildren[index].classList.add(REF.actv);
+      }
+    }, {
+      key: 'ClearNaviEvents',
+      value: function ClearNaviEvents() {
+        this.naviEventsArr = UTILS.ClearEvents(this.naviEventsArr);
       }
     }]);
 
@@ -277,22 +304,29 @@
     _createClass(Auto, [{
       key: 'Init',
       value: function Init() {
-        var _this5 = this;
+        var _this3 = this;
 
         var timer = function timer() {
-          _this5.classElm.autoID = setTimeout(function () {
-            _this5.classElm.dir = true;
-            _this5.lazySlider.Action(++_this5.classElm.current, _this5.classElm, false);
-          }, _this5.lazySlider.interval);
+          _this3.classElm.autoID = setTimeout(function () {
+            _this3.classElm.dir = true;
+            _this3.lazySlider.Action(++_this3.classElm.current, _this3.classElm, false);
+          }, _this3.lazySlider.interval);
         };
 
         timer();
 
         UTILS.SetTransitionEnd(this.classElm.list, function () {
-          if (_this5.classElm.dragging) return false;
-          clearTimeout(_this5.classElm.autoID);
+          if (_this3.classElm.dragging) return false;
+          _this3.Clear();
           timer();
         });
+      }
+    }, {
+      key: 'Clear',
+      value: function Clear() {
+        var autoID = this.classElm.autoID;
+        if (typeof autoID === 'undefined') return false;
+        clearTimeout(autoID);
       }
     }]);
 
@@ -313,7 +347,7 @@
     _createClass(Loop, [{
       key: 'Init',
       value: function Init() {
-        var _this6 = this;
+        var _this4 = this;
 
         for (var i = 0; i < 2; i++) {
           for (var j = 0; j < this.classElm.item.length; j++) {
@@ -332,13 +366,13 @@
         this.classElm.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + -(this.classElm.itemW * (this.classElm.dupItemLeftLen - this.classElm.adjustCenter)) + '%,0,0)';
 
         UTILS.SetTransitionEnd(this.classElm.list, function () {
-          _this6.CallBack();
+          _this4.CallBack();
         });
       }
     }, {
       key: 'CallBack',
       value: function CallBack() {
-        var _this7 = this;
+        var _this5 = this;
 
         if (this.classElm.current < 0 || this.classElm.current > this.classElm.itemLen - 1) {
           var endPoint = !(this.classElm.current < 0);
@@ -357,9 +391,9 @@
           if (this.lazySlider.center) this.lazySlider.classCenter.SetCenter(this.classElm);
 
           setTimeout(function () {
-            _this7.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = _this7.lazySlider.duration + 's';
-            for (var _i = 0; _i < _this7.classElm.itemLen; _i++) {
-              _this7.classElm.item[_i].children[0].style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0.1 + 's';
+            _this5.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = _this5.lazySlider.duration + 's';
+            for (var _i = 0; _i < _this5.classElm.itemLen; _i++) {
+              _this5.classElm.item[_i].children[0].style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0.1 + 's';
             }
           }, 0);
         }
@@ -382,10 +416,10 @@
     _createClass(Center, [{
       key: 'Init',
       value: function Init() {
-        var _this8 = this;
+        var _this6 = this;
 
         this.classElm.actionCb.push(function (cbObj) {
-          _this8.SetCenter(cbObj);
+          _this6.SetCenter(cbObj);
         });
 
         this.classElm.elm.classList.add(REF.cntr);
@@ -421,6 +455,7 @@
       this.hasLink = false;
       this.disabledClick = true;
       this.swiping = false;
+      this.swipeEventsArr = [];
       this.init();
     }
 
@@ -429,51 +464,61 @@
       value: function init() {
         this.linkElm = this.classElm.list.querySelectorAll('a');
         this.hasLink = this.linkElm.length > 0;
+        this.handleEvents(false);
+      }
+    }, {
+      key: 'handleEvents',
+      value: function handleEvents(isDestroy) {
         if (this.hasLink) {
-          UTILS.addElWithArgs.call(this, {
+          this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
             target: this.linkElm,
             events: ['click'],
             func: this.clickHandler,
             args: {
               action: 'clicked'
             }
-          });
-          UTILS.addElWithArgs.call(this, {
+          }));
+          this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
             target: this.linkElm,
             events: ['dragstart'],
             func: this.pvtDefault,
             args: {
               action: 'dragstart'
             }
-          });
+          }));
         }
 
-        UTILS.addElWithArgs.call(this, {
+        this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
           target: this.classElm.list,
           events: ['touchstart', 'mousedown'],
           func: this.Handler,
           args: {
             action: 'start'
           }
-        });
+        }));
 
-        UTILS.addElWithArgs.call(this, {
+        this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
           target: this.classElm.list,
           events: ['touchmove', 'mousemove'],
           func: this.Handler,
           args: {
             action: 'move'
           }
-        });
+        }));
 
-        UTILS.addElWithArgs.call(this, {
+        this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
           target: this.classElm.list,
           events: ['touchend', 'touchcancel', 'mouseup', 'mouseleave'],
           func: this.Handler,
           args: {
             action: 'end'
           }
-        });
+        }));
+      }
+    }, {
+      key: 'ClearSwipeEvents',
+      value: function ClearSwipeEvents() {
+        this.swipeEventsArr = UTILS.ClearEvents(this.swipeEventsArr);
       }
     }, {
       key: 'Handler',
@@ -499,7 +544,13 @@
       value: function Start(event) {
         this.disabledClick = true;
         this.swiping = false;
-        window.addEventListener('touchmove', this.pvtDefault);
+        this.swipeEventsArr.window = UTILS.addElWithArgs.call(this, {
+          target: window,
+          events: ['touchmove'],
+          func: this.pvtDefault,
+          args: {}
+        });
+
         this.classElm.list.classList.add(REF.grab);
 
         if (this.lazySlider.actionLock || this.touchObject.fingerCount !== 1) {
@@ -519,7 +570,7 @@
     }, {
       key: 'End',
       value: function End() {
-        window.removeEventListener('touchmove', this.pvtDefault);
+        UTILS.removeElWithArgs(this.swipeEventsArr.window);
         this.classElm.list.classList.remove(REF.grab);
         this.classElm.list.style.transitionDuration = this.lazySlider.duration + 's';
 
@@ -571,12 +622,11 @@
 
   var LazySlider = function () {
     function LazySlider(args) {
-      var _this9 = this;
-
       _classCallCheck(this, LazySlider);
 
       this.args = typeof args !== 'undefined' ? args : {};
-      this.class = typeof this.args.class !== 'undefined' ? this.args.class : REF.clss;
+      this.node = typeof this.args.elm !== 'undefined' ? this.args.elm : document.querySelectorAll('.' + REF.clss);
+      this.nodeArr = this.node.length > 0 ? [].slice.call(this.node) : [this.node];
       this.interval = typeof this.args.interval !== 'undefined' ? this.args.interval : 3000;
       this.duration = typeof this.args.duration !== 'undefined' ? this.args.duration : 0.5;
       this.showItem = typeof this.args.showItem !== 'undefined' ? this.args.showItem : 1;
@@ -591,20 +641,18 @@
       this.swipe = this.args.swipe !== false;
       this.actionLock = false;
       this.elmArr = [];
+      this.registedEventArr = [];
 
-      window.addEventListener('load', function () {
-        _this9.nodeList = document.querySelectorAll('.' + _this9.class);
-        _this9.Init();
-      });
+      this.Init();
     }
 
     _createClass(LazySlider, [{
       key: 'Init',
       value: function Init() {
-        var _this10 = this;
+        var _this7 = this;
 
-        for (var i = 0; i < this.nodeList.length; i++) {
-          this.elmArr.push(new ELM(this.nodeList[i], this.showItem));
+        for (var i = 0; i < this.nodeArr.length; i++) {
+          this.elmArr.push(new ELM(this.nodeArr[i], this.showItem));
 
           var obj = this.elmArr[i];
 
@@ -614,33 +662,33 @@
           });
 
           UTILS.SetTransitionEnd(obj.list, function () {
-            _this10.actionLock = false;
+            _this7.actionLock = false;
           });
 
           if (this.center) {
-            this.classCenter = new CENTER(this, obj);
+            this.CENTER = this.classCenter = new CENTER(this, obj);
           };
           if (this.loop) {
-            void new LOOP(this, obj);
+            this.LOOP = new LOOP(this, obj);
           }
           if (this.btn) {
-            void new BUTTON(this, obj);
+            this.BUTTON = new BUTTON(this, obj);
           }
           if (this.navi) {
-            void new NAVI(this, obj);
+            this.NAVI = new NAVI(this, obj);
           }
           if (this.swipe) {
-            void new SWIPE(this, obj);
+            this.SWIPE = new SWIPE(this, obj);
           }
           if (this.auto) {
-            void new AUTO(this, obj);
+            this.AUTO = new AUTO(this, obj);
           }
         }
       }
     }, {
       key: 'Action',
       value: function Action(index, obj, isNaviEvent) {
-        var _this11 = this;
+        var _this8 = this;
 
         clearTimeout(obj.autoID);
         this.actionLock = true;
@@ -652,7 +700,7 @@
         }
 
         var isLast = function isLast(item) {
-          return item > 0 && item < _this11.slideNum;
+          return item > 0 && item < _this8.slideNum;
         };
         var prevIndex = obj.dir ? index - this.slideNum : index + this.slideNum;
         var remainingItem = obj.dir ? obj.itemLen - index : prevIndex;
@@ -671,6 +719,18 @@
         for (var _i2 = 0; _i2 < obj.actionCb.length; _i2++) {
           obj.actionCb[_i2](obj);
         }
+      }
+    }, {
+      key: 'Destroy',
+      value: function Destroy() {
+        this.ClearAllEvents();
+      }
+    }, {
+      key: 'ClearAllEvents',
+      value: function ClearAllEvents() {
+        this.BUTTON.ClearButtonEvents();
+        this.NAVI.ClearNaviEvents();
+        this.SWIPE.ClearSwipeEvents();
       }
     }]);
 
