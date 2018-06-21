@@ -176,7 +176,7 @@ loop: true,
       loop: true
     });
     document.querySelector('#btn').addEventListener('click', function() {
-      col3Slider.ClearAllEvents()
+      col3Slider.Destroy()
     });
     new LazySlider({
       elm: document.querySelector('.dev-slider'),

@@ -705,10 +705,6 @@ class LazySlider {
   }
 
   Destroy () {
-    // this.CENTER
-    // this.LOOP
-    // this.SWIPE.handleEvents(true)
-    // this.AUTO
     this.ClearAllEvents()
   }
 
