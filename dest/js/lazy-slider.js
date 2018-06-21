@@ -592,6 +592,8 @@
         this.classElm.dir = pxAmount < 0;
 
         this.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + perAmount + '%,0,0)';
+
+        this.pvtDefault(event);
       }
     }, {
       key: 'pvtDefault',

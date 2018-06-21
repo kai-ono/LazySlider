@@ -172,11 +172,8 @@ loop: true,
       prev: '.prevBtn',
       next: '.nextBtn',
       center: true,
-      // auto: false,
+      auto: false,
       loop: true
-    });
-    document.querySelector('#btn').addEventListener('click', function() {
-      col3Slider.Destroy()
     });
     new LazySlider({
       elm: document.querySelector('.dev-slider'),
