@@ -550,7 +550,7 @@ const SWIPE = class Swipe {
   }
 
   End () {
-    UTILS.removeElWithArgs(this.swipeEventsArr.window)
+    UTILS.removeElWithArgs(this.swipeEventsArr)
     this.classElm.list.classList.remove(REF.grab)
     this.classElm.list.style.transitionDuration = this.lazySlider.duration + 's'
 
