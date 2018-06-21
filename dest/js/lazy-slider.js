@@ -544,13 +544,6 @@
       value: function Start(event) {
         this.disabledClick = true;
         this.swiping = false;
-        this.swipeEventsArr.window = UTILS.addElWithArgs.call(this, {
-          target: window,
-          events: ['touchmove'],
-          func: this.pvtDefault,
-          args: {}
-        });
-
         this.classElm.list.classList.add(REF.grab);
 
         if (this.lazySlider.actionLock || this.touchObject.fingerCount !== 1) {
@@ -570,7 +563,6 @@
     }, {
       key: 'End',
       value: function End() {
-        UTILS.removeElWithArgs(this.swipeEventsArr);
         this.classElm.list.classList.remove(REF.grab);
         this.classElm.list.style.transitionDuration = this.lazySlider.duration + 's';
 
