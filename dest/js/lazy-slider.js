@@ -111,7 +111,7 @@
     }
   };
 
-  var ELM = function () {
+  var Element = function () {
     function Element(elm, showItem) {
       _classCallCheck(this, Element);
 
@@ -145,7 +145,7 @@
     return Element;
   }();
 
-  var BUTTON = function () {
+  var Button = function () {
     function Button(lazySlider, classElm) {
       _classCallCheck(this, Button);
 
@@ -212,7 +212,7 @@
     return Button;
   }();
 
-  var NAVI = function () {
+  var Navi = function () {
     function Navi(lazySlider, classElm) {
       _classCallCheck(this, Navi);
 
@@ -292,7 +292,7 @@
     return Navi;
   }();
 
-  var AUTO = function () {
+  var Auto = function () {
     function Auto(lazySlider, classElm) {
       _classCallCheck(this, Auto);
 
@@ -333,7 +333,7 @@
     return Auto;
   }();
 
-  var LOOP = function () {
+  var Loop = function () {
     function Loop(lazySlider, classElm) {
       _classCallCheck(this, Loop);
 
@@ -403,7 +403,7 @@
     return Loop;
   }();
 
-  var CENTER = function () {
+  var Center = function () {
     function Center(lazySlider, classElm) {
       _classCallCheck(this, Center);
 
@@ -441,7 +441,7 @@
     return Center;
   }();
 
-  var SWIPE = function () {
+  var Swipe = function () {
     function Swipe(lazySlider, classElm) {
       _classCallCheck(this, Swipe);
 
@@ -646,7 +646,7 @@
         var _this7 = this;
 
         for (var i = 0; i < this.nodeArr.length; i++) {
-          this.elmArr.push(new ELM(this.nodeArr[i], this.showItem));
+          this.elmArr.push(new Element(this.nodeArr[i], this.showItem));
 
           var obj = this.elmArr[i];
 
@@ -660,22 +660,22 @@
           });
 
           if (this.center) {
-            this.CENTER = this.classCenter = new CENTER(this, obj);
+            this.Center = this.classCenter = new Center(this, obj);
           };
           if (this.loop) {
-            this.LOOP = new LOOP(this, obj);
+            this.Loop = new Loop(this, obj);
           }
           if (this.btn) {
-            this.BUTTON = new BUTTON(this, obj);
+            this.Button = new Button(this, obj);
           }
           if (this.navi) {
-            this.NAVI = new NAVI(this, obj);
+            this.Navi = new Navi(this, obj);
           }
           if (this.swipe) {
-            this.SWIPE = new SWIPE(this, obj);
+            this.Swipe = new Swipe(this, obj);
           }
           if (this.auto) {
-            this.AUTO = new AUTO(this, obj);
+            this.Auto = new Auto(this, obj);
           }
         }
       }
@@ -722,9 +722,9 @@
     }, {
       key: 'ClearAllEvents',
       value: function ClearAllEvents() {
-        this.BUTTON.ClearButtonEvents();
-        this.NAVI.ClearNaviEvents();
-        this.SWIPE.ClearSwipeEvents();
+        this.Button.ClearButtonEvents();
+        this.Navi.ClearNaviEvents();
+        this.Swipe.ClearSwipeEvents();
       }
     }]);
 

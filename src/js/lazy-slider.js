@@ -106,7 +106,7 @@ const UTILS = {
   }
 }
 
-const ELM = class Element {
+class Element {
   /**
      * スライダー毎に必要な値、要素のクラス
      * @param {Object} args object型の引数。
@@ -151,7 +151,7 @@ const ELM = class Element {
   }
 }
 
-const BUTTON = class Button {
+class Button {
   /**
      * prev、nextボタンの生成、イベント登録などを行う
      * @param {Object} lazySlider LazySliderクラス
@@ -213,7 +213,7 @@ const BUTTON = class Button {
   }
 }
 
-const NAVI = class Navi {
+class Navi {
   /**
      * Dotナビゲーションの生成、イベント登録などを行う
      * @param {Object} lazySlider LazySliderクラス
@@ -291,7 +291,7 @@ const NAVI = class Navi {
   }
 }
 
-const AUTO = class Auto {
+class Auto {
   /**
      * LazySliderクラスのActionをsetTimeoutで起動し、自動スライドを行う
      * @param {Object} lazySlider LazySliderクラス
@@ -327,7 +327,7 @@ const AUTO = class Auto {
   }
 }
 
-const LOOP = class Loop {
+class Loop {
   /**
      * ループ処理のための要素作成、イベント登録などを行う
      * @param {Object} this.classElm Elementクラス
@@ -389,7 +389,7 @@ const LOOP = class Loop {
   }
 }
 
-const CENTER = class Center {
+class Center {
   /**
      * 中央に表示されるアイテムにクラスを付与する
      * @param {Object} lazySlider LazySliderクラス
@@ -426,7 +426,7 @@ const CENTER = class Center {
   }
 }
 
-const SWIPE = class Swipe {
+class Swipe {
   /**
      * スワイプ機能を追加する
      * @param {Object} args object型の引数。
@@ -622,7 +622,7 @@ class LazySlider {
 
   Init () {
     for (let i = 0; i < this.nodeArr.length; i++) {
-      this.elmArr.push(new ELM(this.nodeArr[i], this.showItem))
+      this.elmArr.push(new Element(this.nodeArr[i], this.showItem))
 
       const obj = this.elmArr[i]
 
@@ -636,22 +636,22 @@ class LazySlider {
       })
 
       if (this.center) {
-        this.CENTER = this.classCenter = new CENTER(this, obj)
+        this.Center = this.classCenter = new Center(this, obj)
       };
       if (this.loop) {
-        this.LOOP = new LOOP(this, obj)
+        this.Loop = new Loop(this, obj)
       }
       if (this.btn) {
-        this.BUTTON = new BUTTON(this, obj)
+        this.Button = new Button(this, obj)
       }
       if (this.navi) {
-        this.NAVI = new NAVI(this, obj)
+        this.Navi = new Navi(this, obj)
       }
       if (this.swipe) {
-        this.SWIPE = new SWIPE(this, obj)
+        this.Swipe = new Swipe(this, obj)
       }
       if (this.auto) {
-        this.AUTO = new AUTO(this, obj)
+        this.Auto = new Auto(this, obj)
       }
     }
   }
@@ -703,9 +703,9 @@ class LazySlider {
   }
 
   ClearAllEvents () {
-    this.BUTTON.ClearButtonEvents()
-    this.NAVI.ClearNaviEvents()
-    this.SWIPE.ClearSwipeEvents()
+    this.Button.ClearButtonEvents()
+    this.Navi.ClearNaviEvents()
+    this.Swipe.ClearSwipeEvents()
   }
 };
 
