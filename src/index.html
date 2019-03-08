@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="lib/prism.css">
   <script src="lib/prism.js"></script>
   <link rel="stylesheet" type="text/css" href="css/lazy-slider.css"/>
-  <link rel="stylesheet" type="text/css" href="css/style.css"/>  
+  <link rel="stylesheet" type="text/css" href="css/demo.css"/>  
   <script type="text/javascript" src="js/lazy-slider.js"></script>
 </head>
 <body>
@@ -26,7 +26,21 @@
         <li><img src="img/thumb9.jpg" /></li>
       </ul>
     </div>
-    <pre class="line-numbers"><code class="language-javascript" data-language="javascript">new LazySlider();</code></pre>
+    <pre class="line-numbers"><code class="language-javascript" data-language="javascript">new LazySlider().slide();</code></pre>
+
+    <div class="lazy-slider-none lazy-slider-style">
+      <ul>
+        <li><img src="img/thumb1.jpg" /></li>
+        <li><img src="img/thumb2.jpg" /></li>
+        <li><img src="img/thumb3.jpg" /></li>
+      </ul>
+    </div>
+    <pre class="line-numbers"><code class="language-javascript" data-language="javascript">new LazySlider({
+  elm: document.querySelector('.lazy-slider-none'),
+  showItem: 3,
+  center: true,
+  loop: true
+}).slide();</code></pre>
 
     <div class="col3-slider lazy-slider-style">
       <ul>
@@ -53,29 +67,25 @@
   center: true,
   auto: false,
   loop: true
-});</code></pre>
+}).slide();</code></pre>
 
-<div class="dev-slider lazy-slider-style">
-  <ul>
-    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb1.jpg" /></a></li>
-    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb2.jpg" /></a></li>
-    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb3.jpg" /></a></li>
-    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb4.jpg" /></a></li>
-    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb5.jpg" /></a></li>
-    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb6.jpg" /></a></li>
-    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb7.jpg" /></a></li>
-    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb8.jpg" /></a></li>
-    <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb9.jpg" /></a></li>
-  </ul>
-</div>
-<pre class="line-numbers"><code class="language-javascript" data-language="javascript">new LazySlider({
-class: 'dev-slider',
-showItem: 1,
-center: true,
-interval: 2000,
-auto: false,
-loop: true,
-});</code></pre>
+    <div class="dev-slider lazy-slider-style">
+      <ul>
+        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb1.jpg" /></a></li>
+        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb2.jpg" /></a></li>
+        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb3.jpg" /></a></li>
+        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb4.jpg" /></a></li>
+        <li><a href="https://www.google.com/" target="_blank"><img src="img/thumb5.jpg" /></a></li>
+      </ul>
+    </div>
+    <pre class="line-numbers"><code class="language-javascript" data-language="javascript">new LazySlider({
+  class: 'dev-slider',
+  showItem: 1,
+  center: true,
+  interval: 2000,
+  auto: false,
+  loop: true,
+}).slide();</code></pre>
 
     <div class="sliders lazy-slider-style">
       <ul>
@@ -105,7 +115,7 @@ loop: true,
   auto: false,
   interval: 2000,
   loop: true
-});</code></pre>
+}).slide();</code></pre>
 
     <div class="test-slider lazy-slider-style">
       <ul>
@@ -121,7 +131,7 @@ loop: true,
   showItem: 3,
   interval: 2000,
   loop: true,
-});</code></pre>
+}).slide();</code></pre>
 
     <div class="sample-slider lazy-slider-style">
       <ul>
@@ -142,11 +152,11 @@ loop: true,
   interval: 2000,
   slideNum: 1,
   loop: true,
-});</code></pre>
+}).slide();</code></pre>
 
     <div class="aaa-slider lazy-slider-style">
       <ul>
-        <li><span>1</span></li>
+        <li><img src="img/thumb1.jpg" /></li>
         <li><span>2</span></li>
         <li><span>3</span></li>
         <li><span>4</span></li>
@@ -158,12 +168,18 @@ loop: true,
   showItem: 2,
   interval: 2000,
   loop: true,
-});</code></pre>
+}).slide();</code></pre>
   </div>
 
   <script type="text/javascript">
-    new LazySlider();
-    var col3Slider = new LazySlider({
+    new LazySlider().slide();
+    new LazySlider({
+      elm: document.querySelector('.lazy-slider-none'),
+      showItem: 3,
+      center: true,
+      loop: true
+    }).slide();
+    new LazySlider({
       elm: document.querySelector('.col3-slider'),
       showItem: 3,
       slideNum: 1,
@@ -173,7 +189,7 @@ loop: true,
       center: true,
       auto: false,
       loop: true
-    });
+    }).slide();
     new LazySlider({
       elm: document.querySelector('.dev-slider'),
       showItem: 1,
@@ -181,33 +197,41 @@ loop: true,
       interval: 2000,
       auto: false,
       loop: true,
-    });
+    }).slide();
     new LazySlider({
       elm: document.querySelectorAll('.sliders'),
       showItem: 4,
       auto: false,
       interval: 2000,
       loop: true
-    });
+    }).slide();
     new LazySlider({
       elm: document.querySelector('.test-slider'),
       showItem: 3,
       interval: 2000,
       loop: true,
-    });
+    }).slide();
     new LazySlider({
       elm: document.querySelector('.sample-slider'),
       showItem: 2,
       interval: 2000,
       slideNum: 1,
       loop: true,
-    });
-    new LazySlider({
+    }).slide();
+    var aaaSlider = new LazySlider({
       elm: document.querySelector('.aaa-slider'),
       showItem: 2,
-      interval: 2000,
+      interval: 0,
       loop: true,
-    });
-  </script>
+      duration: 3
+    })
+    aaaSlider.slide();
+    document.querySelector('.aaa-slider').addEventListener('mouseenter', function() {
+      aaaSlider.Auto.stop()
+    })
+    document.querySelector('.aaa-slider').addEventListener('mouseleave', function() {
+      aaaSlider.Auto.play()
+    })
+</script>
 </body>
 </html>

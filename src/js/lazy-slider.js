@@ -3,6 +3,7 @@
 const REF = {
   load: 'loaded',
   clss: 'lazy-slider',
+  wrap: 'slide-list-wrap',
   list: 'slide-list',
   item: 'slide-item',
   next: 'slide-next',
@@ -18,11 +19,11 @@ const REF = {
 
 const UTILS = {
   /**
-     * prefixを付与したプロパティを返す
-     * @param {Object} elm イベント登録する要素
-     * @param {Object} cb コールバック関数
-     */
-  GetPropertyWithPrefix: (prop) => {
+   * prefixを付与したプロパティを返す
+   * @param {Object} elm イベント登録する要素
+   * @param {Object} cb コールバック関数
+   */
+  getPropertyWithPrefix: (prop) => {
     const bodyStyle = document.body.style
     let resultProp = prop
     let tmpProp = prop.slice(0, 1).toUpperCase() + prop.slice(1)
@@ -34,14 +35,12 @@ const UTILS = {
     return resultProp
   },
   /**
-     * 対象の要素にtransitionendイベントを登録する
-     * @param {Object} elm イベント登録する要素
-     * @param {Object} cb コールバック関数
-     */
-  SetTransitionEnd: (elm, cb) => {
-    const transitionEndWithPrefix = (/webkit/i).test(navigator.appVersion) ? 'webkitTransitionEnd'
-      : 'opera' in window ? 'oTransitionEnd'
-        : 'transitionend'
+   * 対象の要素にtransitionendイベントを登録する
+   * @param {Object} elm イベント登録する要素
+   * @param {Object} cb コールバック関数
+   */
+  setTransitionEnd: (elm, cb) => {
+    const transitionEndWithPrefix = (/webkit/i).test(navigator.appVersion) ? 'webkitTransitionEnd' : 'opera' in window ? 'oTransitionEnd' : 'transitionend'
 
     elm.addEventListener(transitionEndWithPrefix, (e) => {
       if (e.target === elm && e.propertyName.match('transform') !== null) {
@@ -50,15 +49,15 @@ const UTILS = {
     })
   },
   /**
-     * 指定した要素に複数のイベントと同じ引数付きの関数を登録する
-     * @param {Object} obj object型の引数。
-     * @param {String} obj.target イベントを登録する要素
-     * @param {Array} obj.events 登録するイベント配列
-     * @param {Object} obj.func 実行する関数
-     * @param {Object} obj.args 関数に渡す引数
-     */
+   * 指定した要素に複数のイベントと同じ引数付きの関数を登録する
+   * @param {Object} obj object型の引数。
+   * @param {String} obj.target イベントを登録する要素
+   * @param {Array} obj.events 登録するイベント配列
+   * @param {Object} obj.func 実行する関数
+   * @param {Object} obj.args 関数に渡す引数
+   */
   addElWithArgs: function (obj) {
-    let target = (typeof obj.target.length === 'undefined') ? [ obj.target ] : [].slice.call(obj.target)
+    let target = (typeof obj.target.length === 'undefined') ? [obj.target] : [].slice.call(obj.target)
 
     obj.listener = (e) => {
       obj.func.call(this, e, obj.args)
@@ -71,66 +70,35 @@ const UTILS = {
     }
 
     return obj
-  },
-  /**
-     * 指定した要素から複数のイベントと同じ引数付きの関数を排除する
-     * @param {Object} obj object型の引数。
-     * @param {String} obj.target イベントを登録する要素
-     * @param {Array} obj.events 登録するイベント配列
-     * @param {Object} obj.func 実行する関数
-     * @param {Object} obj.args 関数に渡す引数
-     */
-  removeElWithArgs: function (obj) {
-    let target = (typeof obj.target.length === 'undefined') ? [ obj.target ] : [].slice.call(obj.target)
-
-    for (let i = 0; i < target.length; i++) {
-      for (let j = 0; j < obj.events.length; j++) {
-        target[i].removeEventListener(obj.events[j], obj.listener)
-      }
-    }
-  },
-  /**
-     * 引数で渡したイベントを削除して空の配列を返す
-     * @param {Object} arr object型の引数。
-     * @param {String} arr.target イベントを削除する要素
-     * @param {Array} arr.events 削除するイベント配列
-     * @param {Object} arr.func 削除する関数
-     * @param {Object} arr.args 関数に渡す引数
-     * @returns {Array} 空の配列
-     */
-  ClearEvents (arr) {
-    for (let i = 0; i < arr.length; i++) {
-      UTILS.removeElWithArgs(arr[i])
-    }
-    return []
   }
 }
 
 class Element {
   /**
-     * スライダー毎に必要な値、要素のクラス
-     * @param {Object} args object型の引数。
-     * @param {Object} args.elm スライダー要素
-     * @param {Object} args.list 画像のul要素
-     * @param {Object} args.item 画像のli要素
-     * @param {Number} args.itemLen 画像の枚数
-     * @param {Number} args.itemW 画像の幅
-     * @param {Number} args.dupItemLen 複製した要素の数
-     * @param {Number} args.dupItemLeftLen 複製した要素のうち、左に配置した数
-     * @param {Number} args.showW 表示領域の幅
-     * @param {Number} args.autoID 自動スライド用のタイマーID
-     * @param {Number} args.current 表示中の画像の位置
-     * @param {Object} args.navi ナビゲーションのul要素
-     * @param {Object} args.naviChildren ナビゲーションの子要素
-     * @param {Object} args.actionCb Actionメソッドのコールバック
-     * @param {Boolean} args.dir スライドする方向。true = 右
-     */
-  constructor (elm, showItem) {
+   * スライダー毎に必要な値、要素のクラス
+   * @param {Object} args object型の引数。
+   * @param {Object} args.elm スライダー要素
+   * @param {Object} args.list 画像のul要素
+   * @param {Object} args.item 画像のli要素
+   * @param {Number} args.itemLen 画像の枚数
+   * @param {Number} args.itemW 画像の幅
+   * @param {Number} args.dupItemLen 複製した要素の数
+   * @param {Number} args.dupItemLeftLen 複製した要素のうち、左に配置した数
+   * @param {Number} args.showW 表示領域の幅
+   * @param {Number} args.current 表示中の画像の位置
+   * @param {Object} args.navi ナビゲーションのul要素
+   * @param {Object} args.naviChildren ナビゲーションの子要素
+   * @param {Object} args.actionCb Actionメソッドのコールバック
+   * @param {Boolean} args.dir スライドする方向。true = 右
+   */
+  constructor (elm, showItem, duration) {
     this.elm = elm
     this.showItem = showItem
+    this.listWrap = document.createElement('div')
     this.list = this.elm.children[0]
     this.listW = 0
     this.listPxW = 0
+    this.duration = duration
     this.item = [].slice.call(this.list.children)
     this.itemLen = this.item.length
     this.itemW = 100 / this.itemLen
@@ -141,84 +109,90 @@ class Element {
     this.actionCb = []
     this.dir = true
     this.adjustCenter = 0
-    this.Init()
   }
 
-  Init () {
+  element () {
     this.elm.classList.add(REF.load)
     this.listW = this.list.style.width = 100 / this.showItem * this.itemLen + '%'
+    this.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = this.duration + 's'
     this.listPxW = this.list.offsetWidth
+
+    this.elm.appendChild(this.listWrap)
+    this.listWrap.classList.add(REF.wrap)
+    this.listWrap.appendChild(this.list)
   }
 }
 
 class Button {
   /**
-     * prev、nextボタンの生成、イベント登録などを行う
-     * @param {Object} lazySlider LazySliderクラス
-     * @param {Object} classElm Elementクラス
-     */
+   * prev、nextボタンの生成、イベント登録などを行う
+   * @param {Object} lazySlider LazySliderクラス
+   * @param {Object} classElm Elementクラス
+   */
   constructor (lazySlider, classElm) {
     this.lazySlider = lazySlider
     this.classElm = classElm
     this.hasPrev = this.lazySlider.prev !== ''
     this.hasNext = this.lazySlider.next !== ''
     this.buttonEventsArr = []
-    this.Init()
   }
 
-  Init () {
-    this.createButton()
+  button () {
+    this.btnLiPrev = this.createButton(false)
+    this.btnLiNext = this.createButton(true)
 
     this.buttonEventsArr.push(UTILS.addElWithArgs.call(this, {
       target: this.btnLiPrev,
-      events: [ 'click' ],
-      func: this.ButtonAction,
+      events: ['click'],
+      func: this.buttonAction,
       args: false
     }))
     this.buttonEventsArr.push(UTILS.addElWithArgs.call(this, {
       target: this.btnLiNext,
-      events: [ 'click' ],
-      func: this.ButtonAction,
+      events: ['click'],
+      func: this.buttonAction,
       args: true
     }))
   }
 
-  createButton () {
-    if (!this.hasPrev) {
-      this.btnLiPrev = document.createElement('div')
-      this.btnLiPrev.classList.add(REF.prev)
-      this.classElm.elm.appendChild(this.btnLiPrev)
-    } else {
-      this.btnLiPrev = this.classElm.elm.querySelector(this.lazySlider.prev)
+  createButton (isNext) {
+    let hasDomElm = this.hasPrev
+    let target = this.btnLiPrev
+    let clsName = REF.prev
+    let domElm = this.lazySlider.prev
+
+    if (isNext) {
+      hasDomElm = this.hasNext
+      target = this.btnLiNext
+      clsName = REF.next
+      domElm = this.lazySlider.next
     }
 
-    if (!this.hasNext) {
-      this.btnLiNext = document.createElement('div')
-      this.btnLiNext.classList.add(REF.next)
-      this.classElm.elm.appendChild(this.btnLiNext)
+    if (!hasDomElm) {
+      target = document.createElement('div')
+      target.classList.add(clsName)
+      this.classElm.elm.appendChild(target)
     } else {
-      this.btnLiNext = this.classElm.elm.querySelector(this.lazySlider.next)
+      target = this.classElm.elm.querySelector(domElm)
     }
+
+    return target
   }
 
-  ButtonAction (e, dir) {
+  buttonAction (e, dir) {
     if (this.lazySlider.actionLock) return
     this.classElm.dir = dir
     const nextCurrent = (dir) ? ++this.classElm.current : --this.classElm.current
-    this.lazySlider.Action(nextCurrent, this.classElm, false)
-  }
-
-  ClearButtonEvents () {
-    this.buttonEventsArr = UTILS.ClearEvents(this.buttonEventsArr)
+    this.lazySlider.action(nextCurrent, this.classElm, false)
   }
 }
 
 class Navi {
   /**
-     * Dotナビゲーションの生成、イベント登録などを行う
-     * @param {Object} lazySlider LazySliderクラス
-     * @param {Object} classElm Elementクラス
-     */
+   * Dotナビゲーションの生成、イベント登録などを行う
+   * @param {Object} lazySlider LazySliderクラス
+   * @param {Object} classElm Elementクラス
+   */
   constructor (lazySlider, classElm) {
     this.lazySlider = lazySlider
     this.classElm = classElm
@@ -228,10 +202,9 @@ class Navi {
     this.tmpNum = Math.ceil(this.classElm.itemLen / this.lazySlider.slideNum)
     this.num = (this.tmpNum > this.lazySlider.showItem + 1 && !this.lazySlider.loop) ? this.tmpNum - (this.lazySlider.showItem - 1) : this.tmpNum
     this.naviEventsArr = []
-    this.Init()
   }
 
-  Init () {
+  navi () {
     this.naviWrap.classList.add(REF.navi)
 
     for (let i = 0; i < this.num; i++) {
@@ -243,13 +216,13 @@ class Navi {
 
       this.naviEventsArr.push(UTILS.addElWithArgs.call(this, {
         target: naviLi,
-        events: [ 'click' ],
+        events: ['click'],
         func: (e) => {
           [].slice.call(e.currentTarget.classList).forEach((value) => {
             if (value.match(REF.curr) !== null) {
               const index = Math.ceil(parseInt(value.replace(REF.curr, '')) * this.lazySlider.slideNum)
               this.classElm.dir = true
-              this.lazySlider.Action(index, this.classElm, true)
+              this.lazySlider.action(index, this.classElm, true)
             };
           })
         }
@@ -262,18 +235,18 @@ class Navi {
     this.classElm.navi = this.naviUl
     this.classElm.naviChildren = this.naviUl.querySelectorAll('li')
 
-    this.SetCurrentNavi(this.classElm)
+    this.setCurrentNavi(this.classElm)
 
     this.classElm.actionCb.push((cbObj) => {
-      this.SetCurrentNavi(cbObj)
+      this.setCurrentNavi(cbObj)
     })
   }
 
   /**
-     * current要素にクラスを付与する
-     * @param {Object} obj Elementクラス
-     */
-  SetCurrentNavi (obj) {
+   * current要素にクラスを付与する
+   * @param {Object} obj Elementクラス
+   */
+  setCurrentNavi (obj) {
     let index = Math.ceil(obj.current / this.lazySlider.slideNum)
 
     if (index < 0) index = obj.naviChildren.length - 1
@@ -285,66 +258,74 @@ class Navi {
 
     obj.naviChildren[index].classList.add(REF.actv)
   }
-
-  ClearNaviEvents () {
-    this.naviEventsArr = UTILS.ClearEvents(this.naviEventsArr)
-  }
 }
 
 class Auto {
   /**
-     * LazySliderクラスのActionをsetTimeoutで起動し、自動スライドを行う
-     * @param {Object} lazySlider LazySliderクラス
-     * @param {Object} classElm Elementクラス
-     */
+   * LazySliderクラスのActionをsetTimeoutで起動し、自動スライドを行う
+   * @param {Object} lazySlider LazySliderクラス
+   * @param {Object} classElm Elementクラス
+   */
   constructor (lazySlider, classElm) {
     this.lazySlider = lazySlider
     this.classElm = classElm
-    this.Init()
+    this.autoID = 0
+    this.isPause = false
   }
 
-  Init () {
-    const timer = () => {
-      this.classElm.autoID = setTimeout(() => {
-        this.classElm.dir = true
-        this.lazySlider.Action(++this.classElm.current, this.classElm, false)
-      }, this.lazySlider.interval)
-    }
-
-    timer()
-
-    UTILS.SetTransitionEnd(this.classElm.list, () => {
-      if (this.classElm.dragging) return false
-      this.Clear()
-      timer()
+  auto () {
+    UTILS.setTransitionEnd(this.classElm.list, () => {
+      if (this.classElm.dragging || this.isPause) return false
+      this.clear()
+      this.timer()
     })
+
+    this.timer()
   }
 
-  Clear () {
-    const autoID = this.classElm.autoID
-    if (typeof autoID === 'undefined') return false
-    clearTimeout(autoID)
+  timer () {
+    this.autoID = setTimeout(() => {
+      if (this.lazySlider.actionLock) return
+      this.classElm.dir = true
+      this.lazySlider.action(++this.classElm.current, this.classElm, false)
+    }, this.lazySlider.interval)
+  }
+
+  clear () {
+    if (typeof this.autoID === 'undefined') return false
+    clearTimeout(this.autoID)
+  }
+
+  stop () {
+    this.isPause = true
+    this.clear()
+  }
+
+  play () {
+    this.isPause = false
+    this.clear()
+    this.timer()
   }
 }
 
 class Loop {
   /**
-     * ループ処理のための要素作成、イベント登録などを行う
-     * @param {Object} this.classElm Elementクラス
-     */
+   * ループ処理のための要素作成、イベント登録などを行う
+   * @param {Object} this.classElm Elementクラス
+   */
   constructor (lazySlider, classElm) {
     this.lazySlider = lazySlider
     this.classElm = classElm
     this.fragment = document.createDocumentFragment()
+    this.cbTimerID = null
     this.dupArr = []
-    this.Init()
   }
 
-  Init () {
+  loop () {
     for (let i = 0; i < 2; i++) {
       for (let j = 0; j < this.classElm.item.length; j++) {
         const dupNode = this.classElm.item[j].cloneNode(true)
-        dupNode.classList.add(REF.dupi)
+        dupNode.classList.add(REF.dupi + (i + 1))
         this.fragment.appendChild(dupNode)
         this.dupArr.push(dupNode)
       }
@@ -355,71 +336,86 @@ class Loop {
     this.classElm.list.appendChild(this.fragment)
     this.classElm.list.style.width = 100 / this.lazySlider.showItem * (this.classElm.itemLen + this.classElm.dupItemLen) + '%'
     this.classElm.itemW = 100 / this.classElm.item.length
-    this.classElm.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + -(this.classElm.itemW * (this.classElm.dupItemLeftLen - this.classElm.adjustCenter)) + '%,0,0)'
+    this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = '0s'
+    this.classElm.list.style[UTILS.getPropertyWithPrefix('transform')] = 'translate3d(' + -(this.classElm.itemW * (this.classElm.dupItemLeftLen - this.classElm.adjustCenter)) + '%,0,0)'
+    setTimeout(() => {
+      this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = this.classElm.duration + 's'
+    }, 0)
 
-    UTILS.SetTransitionEnd(this.classElm.list, () => {
-      this.CallBack()
+    UTILS.setTransitionEnd(this.classElm.list, () => {
+      this.resetPos()
     })
   }
 
-  CallBack () {
+  resetPos () {
     if (this.classElm.current < 0 || this.classElm.current > this.classElm.itemLen - 1) {
       const endPoint = !((this.classElm.current < 0)) // Right end is true.
 
-      this.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0 + 's'
-
-      for (let i = 0; i < this.classElm.itemLen; i++) {
-        this.classElm.item[i].children[0].style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0 + 's'
-      }
+      this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = 0 + 's'
 
       const amount = (this.classElm.dir) ? this.classElm.itemW * (this.classElm.current - this.classElm.adjustCenter) : this.classElm.itemW * (this.classElm.itemLen * 2 - this.lazySlider.slideNum - this.classElm.adjustCenter)
 
       this.classElm.current = (endPoint) ? 0 : this.classElm.itemLen - this.lazySlider.slideNum
-      this.classElm.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + -amount + '%,0,0)'
+      this.classElm.list.style[UTILS.getPropertyWithPrefix('transform')] = 'translate3d(' + -amount + '%,0,0)'
 
-      if (this.lazySlider.center) this.lazySlider.classCenter.SetCenter(this.classElm)
+      // if (this.lazySlider.center) this.lazySlider.classCenter.setCenter(this.classElm)
 
-      setTimeout(() => {
-        this.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = this.lazySlider.duration + 's'
-        for (let i = 0; i < this.classElm.itemLen; i++) {
-          this.classElm.item[i].children[0].style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0.1 + 's'
-        }
-      }, 0)
+      clearTimeout(this.cbTimerID)
+      this.cbTimerID = setTimeout(() => {
+        this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = this.lazySlider.duration + 's'
+        this.lazySlider.actionLock = false
+      }, 1)
     }
   }
 }
 
 class Center {
   /**
-     * 中央に表示されるアイテムにクラスを付与する
-     * @param {Object} lazySlider LazySliderクラス
-     * @param {Object} classElm Elementクラス
-     */
+   * 中央に表示されるアイテムにクラスを付与する
+   * @param {Object} lazySlider LazySliderクラス
+   * @param {Object} classElm Elementクラス
+   */
   constructor (lazySlider, classElm) {
     this.lazySlider = lazySlider
     this.classElm = classElm
     this.classElm.adjustCenter = Math.floor(this.lazySlider.showItem / 2)
-    this.Init()
   }
 
-  Init () {
+  center () {
     this.classElm.actionCb.push((cbObj) => {
-      this.SetCenter(cbObj)
+      this.setCenter(cbObj)
     })
 
     this.classElm.elm.classList.add(REF.cntr)
-    this.SetCenter(this.classElm)
+    this.setCenter(this.classElm)
   }
 
   /**
-     * Center有効時に中央表示された要素にクラスを付与する
-     * @param {Object} obj Elementクラス
-     */
-  SetCenter (obj) {
+   * Center有効時に中央表示された要素にクラスを付与する
+   * @param {Object} obj Elementクラス
+   */
+  setCenter (obj) {
     const index = (obj.current < 0) ? obj.item.length - 1 : obj.current
 
     for (let i = 0; i < obj.item.length; i++) {
       obj.item[i].classList.remove(REF.itmc)
+    }
+
+    /*
+     * center要素にtransition等を設定していると、端までスライドした後の
+     * ポジションリセット時にアニメーションが2回見えてしまうので、
+     * 予めポジションリセット後の要素にもcenterクラスを付与しておく。
+     */
+    if (this.lazySlider.loop) {
+      let tmpIndex
+      if ((index + obj.itemLen) > obj.item.length) {
+        tmpIndex = obj.itemLen - 1
+      } else if (index === obj.itemLen) {
+        tmpIndex = 0
+      }
+      if (typeof obj.item[tmpIndex] !== 'undefined') {
+        obj.item[tmpIndex].classList.add(REF.itmc)
+      }
     }
 
     obj.item[index].classList.add(REF.itmc)
@@ -428,9 +424,9 @@ class Center {
 
 class Swipe {
   /**
-     * スワイプ機能を追加する
-     * @param {Object} args object型の引数。
-     */
+   * スワイプ機能を追加する
+   * @param {Object} args object型の引数。
+   */
   constructor (lazySlider, classElm) {
     this.lazySlider = lazySlider
     this.classElm = classElm
@@ -443,10 +439,9 @@ class Swipe {
     this.disabledClick = true
     this.swiping = false
     this.swipeEventsArr = []
-    this.init()
   }
 
-  init () {
+  swipe () {
     this.linkElm = this.classElm.list.querySelectorAll('a')
     this.hasLink = this.linkElm.length > 0
     this.handleEvents(false)
@@ -456,7 +451,7 @@ class Swipe {
     if (this.hasLink) {
       this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
         target: this.linkElm,
-        events: [ 'click' ],
+        events: ['click'],
         func: this.clickHandler,
         args: {
           action: 'clicked'
@@ -464,7 +459,7 @@ class Swipe {
       }))
       this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
         target: this.linkElm,
-        events: [ 'dragstart' ],
+        events: ['dragstart'],
         func: this.pvtDefault,
         args: {
           action: 'dragstart'
@@ -474,8 +469,8 @@ class Swipe {
 
     this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
       target: this.classElm.list,
-      events: [ 'touchstart', 'mousedown' ],
-      func: this.Handler,
+      events: ['touchstart', 'mousedown'],
+      func: this.handler,
       args: {
         action: 'start'
       }
@@ -483,8 +478,8 @@ class Swipe {
 
     this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
       target: this.classElm.list,
-      events: [ 'touchmove', 'mousemove' ],
-      func: this.Handler,
+      events: ['touchmove', 'mousemove'],
+      func: this.handler,
       args: {
         action: 'move'
       }
@@ -492,37 +487,33 @@ class Swipe {
 
     this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
       target: this.classElm.list,
-      events: [ 'touchend', 'touchcancel', 'mouseup', 'mouseleave' ],
-      func: this.Handler,
+      events: ['touchend', 'touchcancel', 'mouseup', 'mouseleave'],
+      func: this.handler,
       args: {
         action: 'end'
       }
     }))
   }
 
-  ClearSwipeEvents () {
-    this.swipeEventsArr = UTILS.ClearEvents(this.swipeEventsArr)
-  }
-
-  Handler (event, obj) {
+  handler (event, obj) {
     this.touchObject.fingerCount = event.touches !== undefined ? event.touches.length : 1
 
     switch (obj.action) {
       case 'start':
-        this.Start(event)
+        this.start(event)
         break
 
       case 'move':
-        this.Move(event)
+        this.move(event)
         break
 
       case 'end':
-        this.End(event)
+        this.end(event)
         break
     }
   }
 
-  Start (event) {
+  start (event) {
     this.disabledClick = true
     this.swiping = false
     this.classElm.list.classList.add(REF.grab)
@@ -532,7 +523,9 @@ class Swipe {
       return false
     }
 
-    clearTimeout(this.classElm.autoID)
+    if (typeof this.lazySlider.Auto !== 'undefined') {
+      this.lazySlider.Auto.clear()
+    }
     let touches
 
     if (event.touches !== undefined) touches = event.touches[0]
@@ -542,14 +535,14 @@ class Swipe {
     this.classElm.dragging = true
   }
 
-  End () {
+  end () {
     this.classElm.list.classList.remove(REF.grab)
     this.classElm.list.style.transitionDuration = this.lazySlider.duration + 's'
 
     if (!this.classElm.dragging || this.touchObject.curX === undefined) return false
     if (this.touchObject.startX !== this.touchObject.curX) {
       this.touchObject.current = (this.classElm.dir) ? ++this.classElm.current : --this.classElm.current
-      this.lazySlider.Action(this.touchObject.current, this.classElm, false)
+      this.lazySlider.action(this.touchObject.current, this.classElm, false)
     }
 
     this.touchObject = {}
@@ -557,11 +550,11 @@ class Swipe {
     this.classElm.dragging = false
   }
 
-  Move (event) {
+  move (event) {
     if (!this.classElm.dragging) return
     this.lazySlider.actionLock = this.swiping = true
 
-    this.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0.2 + 's'
+    this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = 0.2 + 's'
 
     let touches = event.touches
     this.touchObject.curX = touches !== undefined ? touches[0].pageX : event.clientX
@@ -570,7 +563,7 @@ class Swipe {
     const perAmount = pxAmount / this.classElm.listPxW * 35 - currentPos
     this.classElm.dir = (pxAmount < 0)
 
-    this.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + perAmount + '%,0,0)'
+    this.list.style[UTILS.getPropertyWithPrefix('transform')] = 'translate3d(' + perAmount + '%,0,0)'
 
     this.pvtDefault(event)
   }
@@ -590,17 +583,17 @@ class Swipe {
 
 class LazySlider {
   /**
-     * コンストラクタ
-     * @param {Object} args object型の引数。
-     * @param {String} args.class HTML記述したスライダーのクラス名を指定。default = 'lazy-slider';
-     * @param {Number} args.showItem 1度に表示する画像の枚数を設定。default = 1;
-     * @param {Boolean} args.auto 自動スライドの設定。default = true;
-     * @param {Number} args.interval 自動スライドの間隔をミリ秒で指定。default = 3000;
-     */
+   * コンストラクタ
+   * @param {Object} args object型の引数。
+   * @param {String} args.class HTML記述したスライダーのクラス名を指定。default = 'lazy-slider';
+   * @param {Number} args.showItem 1度に表示する画像の枚数を設定。default = 1;
+   * @param {Boolean} args.auto 自動スライドの設定。default = true;
+   * @param {Number} args.interval 自動スライドの間隔をミリ秒で指定。default = 3000;
+   */
   constructor (args) {
     this.args = (typeof args !== 'undefined') ? args : {}
     this.node = (typeof this.args.elm !== 'undefined') ? this.args.elm : document.querySelectorAll('.' + REF.clss)
-    this.nodeArr = (this.node.length > 0) ? [].slice.call(this.node) : [ this.node ]
+    this.nodeArr = (this.node.length > 0) ? [].slice.call(this.node) : [this.node]
     this.interval = (typeof this.args.interval !== 'undefined') ? this.args.interval : 3000
     this.duration = (typeof this.args.duration !== 'undefined') ? this.args.duration : 0.5
     this.showItem = (typeof this.args.showItem !== 'undefined') ? this.args.showItem : 1
@@ -616,53 +609,59 @@ class LazySlider {
     this.actionLock = false
     this.elmArr = []
     this.registedEventArr = []
-
-    this.Init()
   }
 
-  Init () {
+  slide () {
     for (let i = 0; i < this.nodeArr.length; i++) {
-      this.elmArr.push(new Element(this.nodeArr[i], this.showItem))
+      this.elmArr.push(new Element(this.nodeArr[i], this.showItem, this.duration))
 
       const obj = this.elmArr[i]
 
+      obj.element()
       obj.list.classList.add(REF.list);
       [].map.call(obj.item, (el) => {
         el.classList.add(REF.item)
       })
 
-      UTILS.SetTransitionEnd(obj.list, () => {
-        this.actionLock = false
-      })
-
       if (this.center) {
         this.Center = this.classCenter = new Center(this, obj)
+        this.Center.center()
       };
+
+      if (obj.item.length <= this.showItem) continue
+
       if (this.loop) {
-        this.Loop = new Loop(this, obj)
+        this.Loop = new Loop(this, obj).loop()
       }
       if (this.btn) {
-        this.Button = new Button(this, obj)
+        this.Button = new Button(this, obj).button()
       }
       if (this.navi) {
-        this.Navi = new Navi(this, obj)
+        this.Navi = new Navi(this, obj).navi()
       }
       if (this.swipe) {
-        this.Swipe = new Swipe(this, obj)
+        this.Swipe = new Swipe(this, obj).swipe()
       }
       if (this.auto) {
         this.Auto = new Auto(this, obj)
+        this.Auto.auto()
       }
+
+      UTILS.setTransitionEnd(obj.list, () => {
+        this.actionLock = false
+      })
     }
   }
 
   /**
-     * 引数で指定したindex番号のitemへ移動する
-     * @param {Number} index
-     * @param {Object} obj Elementクラス
-     */
-  Action (index, obj, isNaviEvent) {
-    clearTimeout(obj.autoID)
+   * 引数で指定したindex番号のitemへ移動する
+   * @param {Number} index
+   * @param {Object} obj Elementクラス
+   */
+  action (index, obj, isNaviEvent) {
+    if (typeof this.Auto !== 'undefined') {
+      this.Auto.clear()
+    }
     this.actionLock = true
 
     if (typeof isNaviEvent === 'undefined' || !isNaviEvent) {
@@ -672,9 +671,9 @@ class LazySlider {
     }
 
     /**
-         * 2アイテム表示に対して残りのアイテムが1つしかない場合などに、
-         * 空白が表示されないように移動量を調整。
-         */
+     * 2アイテム表示に対して残りのアイテムが1つしかない場合などに、
+     * 空白が表示されないように移動量を調整。
+     */
     const isLast = (item) => {
       return item > 0 && item < this.slideNum
     }
@@ -689,7 +688,7 @@ class LazySlider {
 
     const amount = -(obj.itemW * (index - obj.adjustCenter) + obj.itemW * obj.dupItemLeftLen)
 
-    obj.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + amount + '%,0,0)'
+    obj.list.style[UTILS.getPropertyWithPrefix('transform')] = 'translate3d(' + amount + '%,0,0)'
     obj.current = index
 
     // Actionのcallbackを実行
@@ -697,17 +696,7 @@ class LazySlider {
       obj.actionCb[i](obj)
     }
   }
-
-  Destroy () {
-    this.ClearAllEvents()
-  }
-
-  ClearAllEvents () {
-    this.Button.ClearButtonEvents()
-    this.Navi.ClearNaviEvents()
-    this.Swipe.ClearSwipeEvents()
-  }
-};
+}
 
 module.exports = LazySlider
 if (typeof window !== 'undefined') {

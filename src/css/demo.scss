@@ -1,3 +1,11 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+img {
+  vertical-align: top;
+}
+
 /*------------------------------------------
   Styles
 ------------------------------------------*/
@@ -18,6 +26,23 @@
         color: #fff;
         font-size: 1.5em;
         font-weight: bold;
+      }
+    }
+  }
+}
+.dev-slider {
+  .slide-item-center {
+    transform: scale(1.1);
+    transition: all 0.5s ease-in-out 0s;
+  }
+}
+.aaa-slider {
+  .slide {
+    &-item {
+      span {
+        height: 100%;
+        margin: 0;
+        padding: 0;
       }
     }
   }

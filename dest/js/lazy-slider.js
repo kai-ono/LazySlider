@@ -40,6 +40,7 @@
   var REF = {
     load: 'loaded',
     clss: 'lazy-slider',
+    wrap: 'slide-list-wrap',
     list: 'slide-list',
     item: 'slide-item',
     next: 'slide-next',
@@ -54,7 +55,7 @@
   };
 
   var UTILS = {
-    GetPropertyWithPrefix: function GetPropertyWithPrefix(prop) {
+    getPropertyWithPrefix: function getPropertyWithPrefix(prop) {
       var bodyStyle = document.body.style;
       var resultProp = prop;
       var tmpProp = prop.slice(0, 1).toUpperCase() + prop.slice(1);
@@ -66,7 +67,7 @@
       return resultProp;
     },
 
-    SetTransitionEnd: function SetTransitionEnd(elm, cb) {
+    setTransitionEnd: function setTransitionEnd(elm, cb) {
       var transitionEndWithPrefix = /webkit/i.test(navigator.appVersion) ? 'webkitTransitionEnd' : 'opera' in window ? 'oTransitionEnd' : 'transitionend';
 
       elm.addEventListener(transitionEndWithPrefix, function (e) {
@@ -92,34 +93,20 @@
       }
 
       return obj;
-    },
-
-    removeElWithArgs: function removeElWithArgs(obj) {
-      var target = typeof obj.target.length === 'undefined' ? [obj.target] : [].slice.call(obj.target);
-
-      for (var i = 0; i < target.length; i++) {
-        for (var j = 0; j < obj.events.length; j++) {
-          target[i].removeEventListener(obj.events[j], obj.listener);
-        }
-      }
-    },
-    ClearEvents: function ClearEvents(arr) {
-      for (var i = 0; i < arr.length; i++) {
-        UTILS.removeElWithArgs(arr[i]);
-      }
-      return [];
     }
   };
 
   var Element = function () {
-    function Element(elm, showItem) {
+    function Element(elm, showItem, duration) {
       _classCallCheck(this, Element);
 
       this.elm = elm;
       this.showItem = showItem;
+      this.listWrap = document.createElement('div');
       this.list = this.elm.children[0];
       this.listW = 0;
       this.listPxW = 0;
+      this.duration = duration;
       this.item = [].slice.call(this.list.children);
       this.itemLen = this.item.length;
       this.itemW = 100 / this.itemLen;
@@ -130,15 +117,19 @@
       this.actionCb = [];
       this.dir = true;
       this.adjustCenter = 0;
-      this.Init();
     }
 
     _createClass(Element, [{
-      key: 'Init',
-      value: function Init() {
+      key: 'element',
+      value: function element() {
         this.elm.classList.add(REF.load);
         this.listW = this.list.style.width = 100 / this.showItem * this.itemLen + '%';
+        this.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = this.duration + 's';
         this.listPxW = this.list.offsetWidth;
+
+        this.elm.appendChild(this.listWrap);
+        this.listWrap.classList.add(REF.wrap);
+        this.listWrap.appendChild(this.list);
       }
     }]);
 
@@ -154,58 +145,59 @@
       this.hasPrev = this.lazySlider.prev !== '';
       this.hasNext = this.lazySlider.next !== '';
       this.buttonEventsArr = [];
-      this.Init();
     }
 
     _createClass(Button, [{
-      key: 'Init',
-      value: function Init() {
-        this.createButton();
+      key: 'button',
+      value: function button() {
+        this.btnLiPrev = this.createButton(false);
+        this.btnLiNext = this.createButton(true);
 
         this.buttonEventsArr.push(UTILS.addElWithArgs.call(this, {
           target: this.btnLiPrev,
           events: ['click'],
-          func: this.ButtonAction,
+          func: this.buttonAction,
           args: false
         }));
         this.buttonEventsArr.push(UTILS.addElWithArgs.call(this, {
           target: this.btnLiNext,
           events: ['click'],
-          func: this.ButtonAction,
+          func: this.buttonAction,
           args: true
         }));
       }
     }, {
       key: 'createButton',
-      value: function createButton() {
-        if (!this.hasPrev) {
-          this.btnLiPrev = document.createElement('div');
-          this.btnLiPrev.classList.add(REF.prev);
-          this.classElm.elm.appendChild(this.btnLiPrev);
-        } else {
-          this.btnLiPrev = this.classElm.elm.querySelector(this.lazySlider.prev);
+      value: function createButton(isNext) {
+        var hasDomElm = this.hasPrev;
+        var target = this.btnLiPrev;
+        var clsName = REF.prev;
+        var domElm = this.lazySlider.prev;
+
+        if (isNext) {
+          hasDomElm = this.hasNext;
+          target = this.btnLiNext;
+          clsName = REF.next;
+          domElm = this.lazySlider.next;
         }
 
-        if (!this.hasNext) {
-          this.btnLiNext = document.createElement('div');
-          this.btnLiNext.classList.add(REF.next);
-          this.classElm.elm.appendChild(this.btnLiNext);
+        if (!hasDomElm) {
+          target = document.createElement('div');
+          target.classList.add(clsName);
+          this.classElm.elm.appendChild(target);
         } else {
-          this.btnLiNext = this.classElm.elm.querySelector(this.lazySlider.next);
+          target = this.classElm.elm.querySelector(domElm);
         }
+
+        return target;
       }
     }, {
-      key: 'ButtonAction',
-      value: function ButtonAction(e, dir) {
+      key: 'buttonAction',
+      value: function buttonAction(e, dir) {
         if (this.lazySlider.actionLock) return;
         this.classElm.dir = dir;
         var nextCurrent = dir ? ++this.classElm.current : --this.classElm.current;
-        this.lazySlider.Action(nextCurrent, this.classElm, false);
-      }
-    }, {
-      key: 'ClearButtonEvents',
-      value: function ClearButtonEvents() {
-        this.buttonEventsArr = UTILS.ClearEvents(this.buttonEventsArr);
+        this.lazySlider.action(nextCurrent, this.classElm, false);
       }
     }]);
 
@@ -224,12 +216,11 @@
       this.tmpNum = Math.ceil(this.classElm.itemLen / this.lazySlider.slideNum);
       this.num = this.tmpNum > this.lazySlider.showItem + 1 && !this.lazySlider.loop ? this.tmpNum - (this.lazySlider.showItem - 1) : this.tmpNum;
       this.naviEventsArr = [];
-      this.Init();
     }
 
     _createClass(Navi, [{
-      key: 'Init',
-      value: function Init() {
+      key: 'navi',
+      value: function navi() {
         var _this2 = this;
 
         this.naviWrap.classList.add(REF.navi);
@@ -249,7 +240,7 @@
                 if (value.match(REF.curr) !== null) {
                   var index = Math.ceil(parseInt(value.replace(REF.curr, '')) * _this2.lazySlider.slideNum);
                   _this2.classElm.dir = true;
-                  _this2.lazySlider.Action(index, _this2.classElm, true);
+                  _this2.lazySlider.action(index, _this2.classElm, true);
                 };
               });
             }
@@ -262,15 +253,15 @@
         this.classElm.navi = this.naviUl;
         this.classElm.naviChildren = this.naviUl.querySelectorAll('li');
 
-        this.SetCurrentNavi(this.classElm);
+        this.setCurrentNavi(this.classElm);
 
         this.classElm.actionCb.push(function (cbObj) {
-          _this2.SetCurrentNavi(cbObj);
+          _this2.setCurrentNavi(cbObj);
         });
       }
     }, {
-      key: 'SetCurrentNavi',
-      value: function SetCurrentNavi(obj) {
+      key: 'setCurrentNavi',
+      value: function setCurrentNavi(obj) {
         var index = Math.ceil(obj.current / this.lazySlider.slideNum);
 
         if (index < 0) index = obj.naviChildren.length - 1;
@@ -281,11 +272,6 @@
         }
 
         obj.naviChildren[index].classList.add(REF.actv);
-      }
-    }, {
-      key: 'ClearNaviEvents',
-      value: function ClearNaviEvents() {
-        this.naviEventsArr = UTILS.ClearEvents(this.naviEventsArr);
       }
     }]);
 
@@ -298,35 +284,52 @@
 
       this.lazySlider = lazySlider;
       this.classElm = classElm;
-      this.Init();
+      this.autoID = 0;
+      this.isPause = false;
     }
 
     _createClass(Auto, [{
-      key: 'Init',
-      value: function Init() {
+      key: 'auto',
+      value: function auto() {
         var _this3 = this;
 
-        var timer = function timer() {
-          _this3.classElm.autoID = setTimeout(function () {
-            _this3.classElm.dir = true;
-            _this3.lazySlider.Action(++_this3.classElm.current, _this3.classElm, false);
-          }, _this3.lazySlider.interval);
-        };
-
-        timer();
-
-        UTILS.SetTransitionEnd(this.classElm.list, function () {
-          if (_this3.classElm.dragging) return false;
-          _this3.Clear();
-          timer();
+        UTILS.setTransitionEnd(this.classElm.list, function () {
+          if (_this3.classElm.dragging || _this3.isPause) return false;
+          _this3.clear();
+          _this3.timer();
         });
+
+        this.timer();
       }
     }, {
-      key: 'Clear',
-      value: function Clear() {
-        var autoID = this.classElm.autoID;
-        if (typeof autoID === 'undefined') return false;
-        clearTimeout(autoID);
+      key: 'timer',
+      value: function timer() {
+        var _this4 = this;
+
+        this.autoID = setTimeout(function () {
+          if (_this4.lazySlider.actionLock) return;
+          _this4.classElm.dir = true;
+          _this4.lazySlider.action(++_this4.classElm.current, _this4.classElm, false);
+        }, this.lazySlider.interval);
+      }
+    }, {
+      key: 'clear',
+      value: function clear() {
+        if (typeof this.autoID === 'undefined') return false;
+        clearTimeout(this.autoID);
+      }
+    }, {
+      key: 'stop',
+      value: function stop() {
+        this.isPause = true;
+        this.clear();
+      }
+    }, {
+      key: 'play',
+      value: function play() {
+        this.isPause = false;
+        this.clear();
+        this.timer();
       }
     }]);
 
@@ -340,19 +343,19 @@
       this.lazySlider = lazySlider;
       this.classElm = classElm;
       this.fragment = document.createDocumentFragment();
+      this.cbTimerID = null;
       this.dupArr = [];
-      this.Init();
     }
 
     _createClass(Loop, [{
-      key: 'Init',
-      value: function Init() {
-        var _this4 = this;
+      key: 'loop',
+      value: function loop() {
+        var _this5 = this;
 
         for (var i = 0; i < 2; i++) {
           for (var j = 0; j < this.classElm.item.length; j++) {
             var dupNode = this.classElm.item[j].cloneNode(true);
-            dupNode.classList.add(REF.dupi);
+            dupNode.classList.add(REF.dupi + (i + 1));
             this.fragment.appendChild(dupNode);
             this.dupArr.push(dupNode);
           }
@@ -363,39 +366,36 @@
         this.classElm.list.appendChild(this.fragment);
         this.classElm.list.style.width = 100 / this.lazySlider.showItem * (this.classElm.itemLen + this.classElm.dupItemLen) + '%';
         this.classElm.itemW = 100 / this.classElm.item.length;
-        this.classElm.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + -(this.classElm.itemW * (this.classElm.dupItemLeftLen - this.classElm.adjustCenter)) + '%,0,0)';
+        this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = '0s';
+        this.classElm.list.style[UTILS.getPropertyWithPrefix('transform')] = 'translate3d(' + -(this.classElm.itemW * (this.classElm.dupItemLeftLen - this.classElm.adjustCenter)) + '%,0,0)';
+        setTimeout(function () {
+          _this5.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = _this5.classElm.duration + 's';
+        }, 0);
 
-        UTILS.SetTransitionEnd(this.classElm.list, function () {
-          _this4.CallBack();
+        UTILS.setTransitionEnd(this.classElm.list, function () {
+          _this5.resetPos();
         });
       }
     }, {
-      key: 'CallBack',
-      value: function CallBack() {
-        var _this5 = this;
+      key: 'resetPos',
+      value: function resetPos() {
+        var _this6 = this;
 
         if (this.classElm.current < 0 || this.classElm.current > this.classElm.itemLen - 1) {
           var endPoint = !(this.classElm.current < 0);
 
-          this.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0 + 's';
-
-          for (var i = 0; i < this.classElm.itemLen; i++) {
-            this.classElm.item[i].children[0].style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0 + 's';
-          }
+          this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = 0 + 's';
 
           var amount = this.classElm.dir ? this.classElm.itemW * (this.classElm.current - this.classElm.adjustCenter) : this.classElm.itemW * (this.classElm.itemLen * 2 - this.lazySlider.slideNum - this.classElm.adjustCenter);
 
           this.classElm.current = endPoint ? 0 : this.classElm.itemLen - this.lazySlider.slideNum;
-          this.classElm.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + -amount + '%,0,0)';
+          this.classElm.list.style[UTILS.getPropertyWithPrefix('transform')] = 'translate3d(' + -amount + '%,0,0)';
 
-          if (this.lazySlider.center) this.lazySlider.classCenter.SetCenter(this.classElm);
-
-          setTimeout(function () {
-            _this5.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = _this5.lazySlider.duration + 's';
-            for (var _i = 0; _i < _this5.classElm.itemLen; _i++) {
-              _this5.classElm.item[_i].children[0].style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0.1 + 's';
-            }
-          }, 0);
+          clearTimeout(this.cbTimerID);
+          this.cbTimerID = setTimeout(function () {
+            _this6.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = _this6.lazySlider.duration + 's';
+            _this6.lazySlider.actionLock = false;
+          }, 1);
         }
       }
     }]);
@@ -410,28 +410,39 @@
       this.lazySlider = lazySlider;
       this.classElm = classElm;
       this.classElm.adjustCenter = Math.floor(this.lazySlider.showItem / 2);
-      this.Init();
     }
 
     _createClass(Center, [{
-      key: 'Init',
-      value: function Init() {
-        var _this6 = this;
+      key: 'center',
+      value: function center() {
+        var _this7 = this;
 
         this.classElm.actionCb.push(function (cbObj) {
-          _this6.SetCenter(cbObj);
+          _this7.setCenter(cbObj);
         });
 
         this.classElm.elm.classList.add(REF.cntr);
-        this.SetCenter(this.classElm);
+        this.setCenter(this.classElm);
       }
     }, {
-      key: 'SetCenter',
-      value: function SetCenter(obj) {
+      key: 'setCenter',
+      value: function setCenter(obj) {
         var index = obj.current < 0 ? obj.item.length - 1 : obj.current;
 
         for (var i = 0; i < obj.item.length; i++) {
           obj.item[i].classList.remove(REF.itmc);
+        }
+
+        if (this.lazySlider.loop) {
+          var tmpIndex = void 0;
+          if (index + obj.itemLen > obj.item.length) {
+            tmpIndex = obj.itemLen - 1;
+          } else if (index === obj.itemLen) {
+            tmpIndex = 0;
+          }
+          if (typeof obj.item[tmpIndex] !== 'undefined') {
+            obj.item[tmpIndex].classList.add(REF.itmc);
+          }
         }
 
         obj.item[index].classList.add(REF.itmc);
@@ -456,12 +467,11 @@
       this.disabledClick = true;
       this.swiping = false;
       this.swipeEventsArr = [];
-      this.init();
     }
 
     _createClass(Swipe, [{
-      key: 'init',
-      value: function init() {
+      key: 'swipe',
+      value: function swipe() {
         this.linkElm = this.classElm.list.querySelectorAll('a');
         this.hasLink = this.linkElm.length > 0;
         this.handleEvents(false);
@@ -491,7 +501,7 @@
         this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
           target: this.classElm.list,
           events: ['touchstart', 'mousedown'],
-          func: this.Handler,
+          func: this.handler,
           args: {
             action: 'start'
           }
@@ -500,7 +510,7 @@
         this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
           target: this.classElm.list,
           events: ['touchmove', 'mousemove'],
-          func: this.Handler,
+          func: this.handler,
           args: {
             action: 'move'
           }
@@ -509,39 +519,34 @@
         this.swipeEventsArr.push(UTILS.addElWithArgs.call(this, {
           target: this.classElm.list,
           events: ['touchend', 'touchcancel', 'mouseup', 'mouseleave'],
-          func: this.Handler,
+          func: this.handler,
           args: {
             action: 'end'
           }
         }));
       }
     }, {
-      key: 'ClearSwipeEvents',
-      value: function ClearSwipeEvents() {
-        this.swipeEventsArr = UTILS.ClearEvents(this.swipeEventsArr);
-      }
-    }, {
-      key: 'Handler',
-      value: function Handler(event, obj) {
+      key: 'handler',
+      value: function handler(event, obj) {
         this.touchObject.fingerCount = event.touches !== undefined ? event.touches.length : 1;
 
         switch (obj.action) {
           case 'start':
-            this.Start(event);
+            this.start(event);
             break;
 
           case 'move':
-            this.Move(event);
+            this.move(event);
             break;
 
           case 'end':
-            this.End(event);
+            this.end(event);
             break;
         }
       }
     }, {
-      key: 'Start',
-      value: function Start(event) {
+      key: 'start',
+      value: function start(event) {
         this.disabledClick = true;
         this.swiping = false;
         this.classElm.list.classList.add(REF.grab);
@@ -551,7 +556,9 @@
           return false;
         }
 
-        clearTimeout(this.classElm.autoID);
+        if (typeof this.lazySlider.Auto !== 'undefined') {
+          this.lazySlider.Auto.clear();
+        }
         var touches = void 0;
 
         if (event.touches !== undefined) touches = event.touches[0];
@@ -561,15 +568,15 @@
         this.classElm.dragging = true;
       }
     }, {
-      key: 'End',
-      value: function End() {
+      key: 'end',
+      value: function end() {
         this.classElm.list.classList.remove(REF.grab);
         this.classElm.list.style.transitionDuration = this.lazySlider.duration + 's';
 
         if (!this.classElm.dragging || this.touchObject.curX === undefined) return false;
         if (this.touchObject.startX !== this.touchObject.curX) {
           this.touchObject.current = this.classElm.dir ? ++this.classElm.current : --this.classElm.current;
-          this.lazySlider.Action(this.touchObject.current, this.classElm, false);
+          this.lazySlider.action(this.touchObject.current, this.classElm, false);
         }
 
         this.touchObject = {};
@@ -577,12 +584,12 @@
         this.classElm.dragging = false;
       }
     }, {
-      key: 'Move',
-      value: function Move(event) {
+      key: 'move',
+      value: function move(event) {
         if (!this.classElm.dragging) return;
         this.lazySlider.actionLock = this.swiping = true;
 
-        this.classElm.list.style[UTILS.GetPropertyWithPrefix('transitionDuration')] = 0.2 + 's';
+        this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = 0.2 + 's';
 
         var touches = event.touches;
         this.touchObject.curX = touches !== undefined ? touches[0].pageX : event.clientX;
@@ -591,7 +598,7 @@
         var perAmount = pxAmount / this.classElm.listPxW * 35 - currentPos;
         this.classElm.dir = pxAmount < 0;
 
-        this.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + perAmount + '%,0,0)';
+        this.list.style[UTILS.getPropertyWithPrefix('transform')] = 'translate3d(' + perAmount + '%,0,0)';
 
         this.pvtDefault(event);
       }
@@ -636,55 +643,61 @@
       this.actionLock = false;
       this.elmArr = [];
       this.registedEventArr = [];
-
-      this.Init();
     }
 
     _createClass(LazySlider, [{
-      key: 'Init',
-      value: function Init() {
-        var _this7 = this;
+      key: 'slide',
+      value: function slide() {
+        var _this8 = this;
 
         for (var i = 0; i < this.nodeArr.length; i++) {
-          this.elmArr.push(new Element(this.nodeArr[i], this.showItem));
+          this.elmArr.push(new Element(this.nodeArr[i], this.showItem, this.duration));
 
           var obj = this.elmArr[i];
 
+          obj.element();
           obj.list.classList.add(REF.list);
           [].map.call(obj.item, function (el) {
             el.classList.add(REF.item);
           });
 
-          UTILS.SetTransitionEnd(obj.list, function () {
-            _this7.actionLock = false;
-          });
-
           if (this.center) {
             this.Center = this.classCenter = new Center(this, obj);
+            this.Center.center();
           };
+
+          if (obj.item.length <= this.showItem) continue;
+
           if (this.loop) {
-            this.Loop = new Loop(this, obj);
+            this.Loop = new Loop(this, obj).loop();
           }
           if (this.btn) {
-            this.Button = new Button(this, obj);
+            this.Button = new Button(this, obj).button();
           }
           if (this.navi) {
-            this.Navi = new Navi(this, obj);
+            this.Navi = new Navi(this, obj).navi();
           }
           if (this.swipe) {
-            this.Swipe = new Swipe(this, obj);
+            this.Swipe = new Swipe(this, obj).swipe();
           }
           if (this.auto) {
             this.Auto = new Auto(this, obj);
+            this.Auto.auto();
           }
+
+          UTILS.setTransitionEnd(obj.list, function () {
+            _this8.actionLock = false;
+          });
         }
       }
     }, {
-      key: 'Action',
-      value: function Action(index, obj, isNaviEvent) {
-        var _this8 = this;
+      key: 'action',
+      value: function action(index, obj, isNaviEvent) {
+        var _this9 = this;
 
-        clearTimeout(obj.autoID);
+        if (typeof this.Auto !== 'undefined') {
+          this.Auto.clear();
+        }
         this.actionLock = true;
 
         if (typeof isNaviEvent === 'undefined' || !isNaviEvent) {
@@ -694,7 +707,7 @@
         }
 
         var isLast = function isLast(item) {
-          return item > 0 && item < _this8.slideNum;
+          return item > 0 && item < _this9.slideNum;
         };
         var prevIndex = obj.dir ? index - this.slideNum : index + this.slideNum;
         var remainingItem = obj.dir ? obj.itemLen - index : prevIndex;
@@ -707,31 +720,17 @@
 
         var amount = -(obj.itemW * (index - obj.adjustCenter) + obj.itemW * obj.dupItemLeftLen);
 
-        obj.list.style[UTILS.GetPropertyWithPrefix('transform')] = 'translate3d(' + amount + '%,0,0)';
+        obj.list.style[UTILS.getPropertyWithPrefix('transform')] = 'translate3d(' + amount + '%,0,0)';
         obj.current = index;
 
-        for (var _i2 = 0; _i2 < obj.actionCb.length; _i2++) {
-          obj.actionCb[_i2](obj);
+        for (var _i = 0; _i < obj.actionCb.length; _i++) {
+          obj.actionCb[_i](obj);
         }
-      }
-    }, {
-      key: 'Destroy',
-      value: function Destroy() {
-        this.ClearAllEvents();
-      }
-    }, {
-      key: 'ClearAllEvents',
-      value: function ClearAllEvents() {
-        this.Button.ClearButtonEvents();
-        this.Navi.ClearNaviEvents();
-        this.Swipe.ClearSwipeEvents();
       }
     }]);
 
     return LazySlider;
   }();
-
-  ;
 
   module.exports = LazySlider;
   if (typeof window !== 'undefined') {
