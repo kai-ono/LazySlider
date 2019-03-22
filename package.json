@@ -1,7 +1,7 @@
 {
   "name": "lazy-slider",
-  "version": "0.3.4",
-  "description": "https://github.com/kai-ono/lazy-slider/lazy-slider/dest/",
+  "version": "0.4.0",
+  "description": "https://github.com/kai-ono/lazy-slider/dest/",
   "main": "dest/js/lazy-slider.js",
   "keywords": [
     "slider",
@@ -11,10 +11,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kai-ono/lazy-slider/lazy-slider.git"
+    "url": "git+https://github.com/kai-ono/lazy-slider.git"
   },
   "bugs": {
-    "url": "https://github.com/kai-ono/lazy-slider/lazy-slider/issues"
+    "url": "https://github.com/kai-ono/lazy-slider/issues"
   },
   "files": [
     "LICENSE",
@@ -23,8 +23,8 @@
     "dest",
     "src"
   ],
-  "homepage": "https://github.com/kai-ono/lazy-slider/lazy-slider#readme",
-  "author": "kai.ono",
+  "homepage": "https://github.com/kai-ono/lazy-slider#readme",
+  "author": "kai-ono",
   "license": "MIT",
   "scripts": {
     "test": "gulp js",

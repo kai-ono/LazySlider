@@ -91,7 +91,7 @@ class Element {
    * @param {Object} args.actionCb Actionメソッドのコールバック
    * @param {Boolean} args.dir スライドする方向。true = 右
    */
-  constructor (elm, showItem, duration) {
+  constructor (elm, showItem, duration, unitNum) {
     this.elm = elm
     this.showItem = showItem
     this.listWrap = document.createElement('div')
@@ -100,7 +100,7 @@ class Element {
     this.listPxW = 0
     this.duration = duration
     this.item = [].slice.call(this.list.children)
-    this.itemLen = this.item.length
+    this.itemLen = this.item.length / unitNum
     this.itemW = 100 / this.itemLen
     this.dupItemLen = 0
     this.dupItemLeftLen = 0
@@ -120,6 +120,14 @@ class Element {
     this.elm.appendChild(this.listWrap)
     this.listWrap.classList.add(REF.wrap)
     this.listWrap.appendChild(this.list)
+
+    this.item = this.sortArr()
+  }
+
+  sortArr () {
+    const tmpDupItemArr = this.item.slice(0, this.itemLen)
+    const tmpOrgItemArr = this.item.slice(this.itemLen, this.item.length)
+    return tmpOrgItemArr.concat(tmpDupItemArr)
   }
 }
 
@@ -311,61 +319,82 @@ class Auto {
 class Loop {
   /**
    * ループ処理のための要素作成、イベント登録などを行う
+   * @param {Object} this.lazySlider LazySliderクラス
    * @param {Object} this.classElm Elementクラス
    */
   constructor (lazySlider, classElm) {
     this.lazySlider = lazySlider
     this.classElm = classElm
-    this.fragment = document.createDocumentFragment()
     this.cbTimerID = null
+    this.itemUnitNum = this.lazySlider.itemUnitNum
     this.dupArr = []
   }
 
   loop () {
+    if (this.itemUnitNum === 1) {
+      this.cloneItems()
+    } else {
+      this.setDupItemsManually()
+    }
+    this.init()
+  }
+
+  cloneItems () {
+    const fragment = document.createDocumentFragment()
     for (let i = 0; i < 2; i++) {
       for (let j = 0; j < this.classElm.item.length; j++) {
         const dupNode = this.classElm.item[j].cloneNode(true)
         dupNode.classList.add(REF.dupi + (i + 1))
-        this.fragment.appendChild(dupNode)
+        fragment.appendChild(dupNode)
         this.dupArr.push(dupNode)
       }
     }
+    this.classElm.list.appendChild(fragment)
+  }
+
+  setDupItemsManually () {
+    for (let i = 1; i < this.itemUnitNum; i++) {
+      for (let j = 0; j < this.classElm.itemLen; j++) {
+        const itemIndex = i * this.classElm.itemLen + j
+        this.classElm.item[itemIndex].classList.add(REF.dupi + (i))
+        this.dupArr.push(this.classElm.item[itemIndex])
+      }
+    }
+  }
+
+  // Loopクラスの初期化時に実行
+  init () {
     this.classElm.dupItemLen = this.dupArr.length
-    this.classElm.dupItemLeftLen = this.classElm.item.length
-    this.classElm.item = this.dupArr.concat(this.classElm.item)
-    this.classElm.list.appendChild(this.fragment)
-    this.classElm.list.style.width = 100 / this.lazySlider.showItem * (this.classElm.itemLen + this.classElm.dupItemLen) + '%'
+    this.classElm.dupItemLeftLen = this.classElm.itemLen
+    this.classElm.item = (this.itemUnitNum === 1) ? this.dupArr.concat(this.classElm.item) : this.classElm.item
     this.classElm.itemW = 100 / this.classElm.item.length
-    this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = '0s'
+    this.classElm.list.style.width = 100 / this.lazySlider.showItem * (this.classElm.itemLen + this.classElm.dupItemLen) + '%'
+    this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = 0 + 's'
     this.classElm.list.style[UTILS.getPropertyWithPrefix('transform')] = 'translate3d(' + -(this.classElm.itemW * (this.classElm.dupItemLeftLen - this.classElm.adjustCenter)) + '%,0,0)'
     setTimeout(() => {
       this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = this.classElm.duration + 's'
     }, 0)
-
     UTILS.setTransitionEnd(this.classElm.list, () => {
       this.resetPos()
     })
   }
 
+  // スライダーが末尾、もしくは先頭に達した際に初期位置へ戻すために実行
   resetPos () {
-    if (this.classElm.current < 0 || this.classElm.current > this.classElm.itemLen - 1) {
-      const endPoint = !((this.classElm.current < 0)) // Right end is true.
+    const isInRange = this.classElm.current >= 0 && this.classElm.current < this.classElm.itemLen
+    if (isInRange) return
 
-      this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = 0 + 's'
+    const amount = (this.classElm.dir) ? this.classElm.itemW * (this.classElm.current - this.classElm.adjustCenter) : this.classElm.itemW * (this.classElm.itemLen * 2 - this.lazySlider.slideNum - this.classElm.adjustCenter)
 
-      const amount = (this.classElm.dir) ? this.classElm.itemW * (this.classElm.current - this.classElm.adjustCenter) : this.classElm.itemW * (this.classElm.itemLen * 2 - this.lazySlider.slideNum - this.classElm.adjustCenter)
+    this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = 0 + 's'
+    this.classElm.current = (this.classElm.current >= 0) ? 0 : this.classElm.itemLen - this.lazySlider.slideNum
+    this.classElm.list.style[UTILS.getPropertyWithPrefix('transform')] = 'translate3d(' + -amount + '%,0,0)'
 
-      this.classElm.current = (endPoint) ? 0 : this.classElm.itemLen - this.lazySlider.slideNum
-      this.classElm.list.style[UTILS.getPropertyWithPrefix('transform')] = 'translate3d(' + -amount + '%,0,0)'
-
-      // if (this.lazySlider.center) this.lazySlider.classCenter.setCenter(this.classElm)
-
-      clearTimeout(this.cbTimerID)
-      this.cbTimerID = setTimeout(() => {
-        this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = this.lazySlider.duration + 's'
-        this.lazySlider.actionLock = false
-      }, 1)
-    }
+    clearTimeout(this.cbTimerID)
+    this.cbTimerID = setTimeout(() => {
+      this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = this.lazySlider.duration + 's'
+      this.lazySlider.actionLock = false
+    }, 1)
   }
 }
 
@@ -396,7 +425,6 @@ class Center {
    */
   setCenter (obj) {
     const index = (obj.current < 0) ? obj.item.length - 1 : obj.current
-
     for (let i = 0; i < obj.item.length; i++) {
       obj.item[i].classList.remove(REF.itmc)
     }
@@ -417,7 +445,6 @@ class Center {
         obj.item[tmpIndex].classList.add(REF.itmc)
       }
     }
-
     obj.item[index].classList.add(REF.itmc)
   }
 }
@@ -600,9 +627,10 @@ class LazySlider {
     this.slideNum = (typeof this.args.slideNum !== 'undefined') ? this.args.slideNum : this.showItem
     this.prev = (typeof this.args.prev !== 'undefined') ? this.args.prev : ''
     this.next = (typeof this.args.next !== 'undefined') ? this.args.next : ''
+    this.itemUnitNum = (typeof this.args.itemUnitNum !== 'undefined') ? this.args.itemUnitNum : 1
     this.auto = this.args.auto !== false
-    this.center = (this.args.center === true)
-    this.loop = (this.args.loop === true)
+    this.center = this.args.center === true
+    this.loop = this.args.loop === true
     this.btn = this.args.btn !== false
     this.navi = this.args.navi !== false
     this.swipe = this.args.swipe !== false
@@ -613,7 +641,7 @@ class LazySlider {
 
   slide () {
     for (let i = 0; i < this.nodeArr.length; i++) {
-      this.elmArr.push(new Element(this.nodeArr[i], this.showItem, this.duration))
+      this.elmArr.push(new Element(this.nodeArr[i], this.showItem, this.duration, this.itemUnitNum))
 
       const obj = this.elmArr[i]
 
