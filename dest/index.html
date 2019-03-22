@@ -138,12 +138,13 @@
         <li><img src="img/thumb1.jpg" /></li>
         <li><img src="img/thumb2.jpg" /></li>
         <li><img src="img/thumb3.jpg" /></li>
-        <li><img src="img/thumb4.jpg" /></li>
-        <li><img src="img/thumb5.jpg" /></li>
-        <li><img src="img/thumb6.jpg" /></li>
-        <li><img src="img/thumb7.jpg" /></li>
-        <li><img src="img/thumb8.jpg" /></li>
-        <li><img src="img/thumb9.jpg" /></li>
+        <li><img src="img/thumb1.jpg" /></li>
+        <li><img src="img/thumb2.jpg" /></li>
+        <li><img src="img/thumb3.jpg" /></li>
+        <li><img src="img/thumb1.jpg" /></li>
+        <li><img src="img/thumb2.jpg" /></li>
+        <li><img src="img/thumb3.jpg" /></li>
+
       </ul>
     </div>
     <pre class="line-numbers"><code class="language-javascript" data-language="javascript">new LazySlider({
@@ -208,8 +209,10 @@
     new LazySlider({
       elm: document.querySelector('.test-slider'),
       showItem: 3,
+      slideNum: 1,
       interval: 2000,
       loop: true,
+      center: true
     }).slide();
     new LazySlider({
       elm: document.querySelector('.sample-slider'),
@@ -217,12 +220,15 @@
       interval: 2000,
       slideNum: 1,
       loop: true,
-    }).slide();
+      center: true,
+      itemUnitNum: 3
+    }).slide()
     var aaaSlider = new LazySlider({
       elm: document.querySelector('.aaa-slider'),
       showItem: 2,
       interval: 0,
       loop: true,
+      center: true,
       duration: 3
     })
     aaaSlider.slide();

@@ -97,7 +97,7 @@
   };
 
   var Element = function () {
-    function Element(elm, showItem, duration) {
+    function Element(elm, showItem, duration, unitNum) {
       _classCallCheck(this, Element);
 
       this.elm = elm;
@@ -108,7 +108,7 @@
       this.listPxW = 0;
       this.duration = duration;
       this.item = [].slice.call(this.list.children);
-      this.itemLen = this.item.length;
+      this.itemLen = this.item.length / unitNum;
       this.itemW = 100 / this.itemLen;
       this.dupItemLen = 0;
       this.dupItemLeftLen = 0;
@@ -130,6 +130,15 @@
         this.elm.appendChild(this.listWrap);
         this.listWrap.classList.add(REF.wrap);
         this.listWrap.appendChild(this.list);
+
+        this.item = this.sortArr();
+      }
+    }, {
+      key: 'sortArr',
+      value: function sortArr() {
+        var tmpDupItemArr = this.item.slice(0, this.itemLen);
+        var tmpOrgItemArr = this.item.slice(this.itemLen, this.item.length);
+        return tmpOrgItemArr.concat(tmpDupItemArr);
       }
     }]);
 
@@ -342,36 +351,61 @@
 
       this.lazySlider = lazySlider;
       this.classElm = classElm;
-      this.fragment = document.createDocumentFragment();
       this.cbTimerID = null;
+      this.itemUnitNum = this.lazySlider.itemUnitNum;
       this.dupArr = [];
     }
 
     _createClass(Loop, [{
       key: 'loop',
       value: function loop() {
-        var _this5 = this;
-
+        if (this.itemUnitNum === 1) {
+          this.cloneItems();
+        } else {
+          this.setDupItemsManually();
+        }
+        this.init();
+      }
+    }, {
+      key: 'cloneItems',
+      value: function cloneItems() {
+        var fragment = document.createDocumentFragment();
         for (var i = 0; i < 2; i++) {
           for (var j = 0; j < this.classElm.item.length; j++) {
             var dupNode = this.classElm.item[j].cloneNode(true);
             dupNode.classList.add(REF.dupi + (i + 1));
-            this.fragment.appendChild(dupNode);
+            fragment.appendChild(dupNode);
             this.dupArr.push(dupNode);
           }
         }
+        this.classElm.list.appendChild(fragment);
+      }
+    }, {
+      key: 'setDupItemsManually',
+      value: function setDupItemsManually() {
+        for (var i = 1; i < this.itemUnitNum; i++) {
+          for (var j = 0; j < this.classElm.itemLen; j++) {
+            var itemIndex = i * this.classElm.itemLen + j;
+            this.classElm.item[itemIndex].classList.add(REF.dupi + i);
+            this.dupArr.push(this.classElm.item[itemIndex]);
+          }
+        }
+      }
+    }, {
+      key: 'init',
+      value: function init() {
+        var _this5 = this;
+
         this.classElm.dupItemLen = this.dupArr.length;
-        this.classElm.dupItemLeftLen = this.classElm.item.length;
-        this.classElm.item = this.dupArr.concat(this.classElm.item);
-        this.classElm.list.appendChild(this.fragment);
-        this.classElm.list.style.width = 100 / this.lazySlider.showItem * (this.classElm.itemLen + this.classElm.dupItemLen) + '%';
+        this.classElm.dupItemLeftLen = this.classElm.itemLen;
+        this.classElm.item = this.itemUnitNum === 1 ? this.dupArr.concat(this.classElm.item) : this.classElm.item;
         this.classElm.itemW = 100 / this.classElm.item.length;
-        this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = '0s';
+        this.classElm.list.style.width = 100 / this.lazySlider.showItem * (this.classElm.itemLen + this.classElm.dupItemLen) + '%';
+        this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = 0 + 's';
         this.classElm.list.style[UTILS.getPropertyWithPrefix('transform')] = 'translate3d(' + -(this.classElm.itemW * (this.classElm.dupItemLeftLen - this.classElm.adjustCenter)) + '%,0,0)';
         setTimeout(function () {
           _this5.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = _this5.classElm.duration + 's';
         }, 0);
-
         UTILS.setTransitionEnd(this.classElm.list, function () {
           _this5.resetPos();
         });
@@ -381,22 +415,20 @@
       value: function resetPos() {
         var _this6 = this;
 
-        if (this.classElm.current < 0 || this.classElm.current > this.classElm.itemLen - 1) {
-          var endPoint = !(this.classElm.current < 0);
+        var isInRange = this.classElm.current >= 0 && this.classElm.current < this.classElm.itemLen;
+        if (isInRange) return;
 
-          this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = 0 + 's';
+        var amount = this.classElm.dir ? this.classElm.itemW * (this.classElm.current - this.classElm.adjustCenter) : this.classElm.itemW * (this.classElm.itemLen * 2 - this.lazySlider.slideNum - this.classElm.adjustCenter);
 
-          var amount = this.classElm.dir ? this.classElm.itemW * (this.classElm.current - this.classElm.adjustCenter) : this.classElm.itemW * (this.classElm.itemLen * 2 - this.lazySlider.slideNum - this.classElm.adjustCenter);
+        this.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = 0 + 's';
+        this.classElm.current = this.classElm.current >= 0 ? 0 : this.classElm.itemLen - this.lazySlider.slideNum;
+        this.classElm.list.style[UTILS.getPropertyWithPrefix('transform')] = 'translate3d(' + -amount + '%,0,0)';
 
-          this.classElm.current = endPoint ? 0 : this.classElm.itemLen - this.lazySlider.slideNum;
-          this.classElm.list.style[UTILS.getPropertyWithPrefix('transform')] = 'translate3d(' + -amount + '%,0,0)';
-
-          clearTimeout(this.cbTimerID);
-          this.cbTimerID = setTimeout(function () {
-            _this6.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = _this6.lazySlider.duration + 's';
-            _this6.lazySlider.actionLock = false;
-          }, 1);
-        }
+        clearTimeout(this.cbTimerID);
+        this.cbTimerID = setTimeout(function () {
+          _this6.classElm.list.style[UTILS.getPropertyWithPrefix('transitionDuration')] = _this6.lazySlider.duration + 's';
+          _this6.lazySlider.actionLock = false;
+        }, 1);
       }
     }]);
 
@@ -428,7 +460,6 @@
       key: 'setCenter',
       value: function setCenter(obj) {
         var index = obj.current < 0 ? obj.item.length - 1 : obj.current;
-
         for (var i = 0; i < obj.item.length; i++) {
           obj.item[i].classList.remove(REF.itmc);
         }
@@ -444,7 +475,6 @@
             obj.item[tmpIndex].classList.add(REF.itmc);
           }
         }
-
         obj.item[index].classList.add(REF.itmc);
       }
     }]);
@@ -634,6 +664,7 @@
       this.slideNum = typeof this.args.slideNum !== 'undefined' ? this.args.slideNum : this.showItem;
       this.prev = typeof this.args.prev !== 'undefined' ? this.args.prev : '';
       this.next = typeof this.args.next !== 'undefined' ? this.args.next : '';
+      this.itemUnitNum = typeof this.args.itemUnitNum !== 'undefined' ? this.args.itemUnitNum : 1;
       this.auto = this.args.auto !== false;
       this.center = this.args.center === true;
       this.loop = this.args.loop === true;
@@ -651,7 +682,7 @@
         var _this8 = this;
 
         for (var i = 0; i < this.nodeArr.length; i++) {
-          this.elmArr.push(new Element(this.nodeArr[i], this.showItem, this.duration));
+          this.elmArr.push(new Element(this.nodeArr[i], this.showItem, this.duration, this.itemUnitNum));
 
           var obj = this.elmArr[i];
 
